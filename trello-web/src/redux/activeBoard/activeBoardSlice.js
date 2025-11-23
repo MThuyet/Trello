@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
-import { API_ROUTE } from '~/utils/constants'
+import { API_ROOT } from '~/utils/constants'
 import { mapOrder } from '~/utils/sorts'
 import { isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatter'
 
 // khởi tạo giá trị State của một Slice trong redux
 const initialState = {
-  currentActiveBoard: null
+  currentActiveBoard: null,
 }
 
 // Các hành động gọi api (bất đồng bộ) và cập nhật dữ liệu vào Redux, dùng createAsyncThunk đi kèm với extraReducers https://redux-toolkit.js.org/api/createAsyncThunk
@@ -16,9 +16,9 @@ export const fetchBoardDetailsAPI = createAsyncThunk(
   'activeBoard/fetchBoardDetailsAPI',
   // async function
   async (boardId) => {
-    const response = await authorizedAxiosInstance.get(`${API_ROUTE}/v1/boards/${boardId}`)
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`)
     return response.data
-  }
+  },
 )
 
 // khởi tạo một Slice trong kho lưu trữ redux
@@ -35,7 +35,7 @@ export const activeBoardSlice = createSlice({
 
       // update lại dữ liệu của currentActiveBoard
       state.currentActiveBoard = board
-    }
+    },
   },
   // extraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
@@ -62,7 +62,7 @@ export const activeBoardSlice = createSlice({
       // update lại dữ liệu của currentActiveBoard
       state.currentActiveBoard = board
     })
-  }
+  },
 })
 
 // actions: là nơi dành cho các components gọi bằng dispatch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)

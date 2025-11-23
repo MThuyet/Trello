@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
@@ -8,12 +7,12 @@ import Grid from '@mui/material/Unstable_Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
-import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
-import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
-import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
-import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
+// import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
+// import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
+// import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
+// import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
-import AutoFixHighOutlinedIcon from '@mui/icons-material/AutoFixHighOutlined'
+// import AutoFixHighOutlinedIcon from '@mui/icons-material/AutoFixHighOutlined'
 import AspectRatioOutlinedIcon from '@mui/icons-material/AspectRatioOutlined'
 import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
@@ -35,6 +34,9 @@ import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 
 import { styled } from '@mui/material/styles'
+import { useDispatch, useSelector } from 'react-redux'
+import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { updateCardDetailsAPI } from '~/apis'
 // style sidebar
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -51,21 +53,31 @@ const SidebarItem = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300],
     '&.active': {
       color: theme.palette.mode === 'dark' ? '#000000de' : '#0c66e4',
-      backgroundColor: theme.palette.mode === 'dark' ? '#90caf9' : '#e9f2ff'
-    }
-  }
+      backgroundColor: theme.palette.mode === 'dark' ? '#90caf9' : '#e9f2ff',
+    },
+  },
 }))
 
 function ActiveCard() {
-  const [isOpen, setIsOpen] = useState(true)
-  const handleOpenModal = () => setIsOpen(true)
+  const dispach = useDispatch()
+  const activeCard = useSelector(selectCurrentActiveCard)
+
   const handleCloseModal = () => {
-    setIsOpen(false)
+    dispach(clearCurrentActiveCard())
+  }
+
+  const callApiUpdateCard = async (updateData) => {
+    const updatedCard = await updateCardDetailsAPI(activeCard._id, updateData)
+
+    // b1 cập nhật lại card đang active trong modal hiện tại
+    dispach(updateCurrentActiveCard(updatedCard))
+
+    // b2 cập nhật lại bản ghi card trong activeBoard
+    return updatedCard
   }
 
   const onUpdateCardTitle = (newTitle) => {
-    console.log(newTitle.trim())
-    // Gọi API...
+    callApiUpdateCard({ title: newTitle.trim() })
   }
 
   const onUploadCardCover = (event) => {
@@ -82,7 +94,7 @@ function ActiveCard() {
   }
 
   return (
-    <Modal open={isOpen} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
+    <Modal open={true} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
       <Box
         sx={{
           position: 'relative',
@@ -95,31 +107,33 @@ function ActiveCard() {
           outline: 0,
           padding: '40px 20px 20px',
           margin: '50px auto',
-          backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#fff')
+          backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#fff'),
         }}>
         <Box
           sx={{
             position: 'absolute',
             top: '12px',
             right: '10px',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}>
           <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={handleCloseModal} />
         </Box>
 
-        <Box sx={{ mb: 4 }}>
-          <img
-            style={{ width: '100%', height: '320px', borderRadius: '6px', objectFit: 'cover' }}
-            src="https://trungquandev.com/wp-content/uploads/2023/08/fit-banner-for-facebook-blog-trungquandev-codetq.png"
-            alt="card-cover"
-          />
-        </Box>
+        {activeCard?.cover && (
+          <Box sx={{ mb: 4 }}>
+            <img
+              style={{ width: '100%', height: '320px', borderRadius: '6px', objectFit: 'cover' }}
+              src={activeCard?.cover}
+              alt={activeCard?.title}
+            />
+          </Box>
+        )}
 
         <Box sx={{ mb: 1, mt: -3, pr: 2.5, display: 'flex', alignItems: 'center', gap: 1 }}>
           <CreditCardIcon />
 
           {/* Feature 01: Xử lý tiêu đề của Card */}
-          <ToggleFocusInput inputFontSize="22px" value={'card?.title'} onChangedValue={onUpdateCardTitle} />
+          <ToggleFocusInput inputFontSize="22px" value={activeCard.title} onChangedValue={onUpdateCardTitle} />
         </Box>
 
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -173,7 +187,7 @@ function ActiveCard() {
                 <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
               </SidebarItem>
 
-              <SidebarItem>
+              {/* <SidebarItem>
                 <AttachFileOutlinedIcon fontSize="small" />
                 Attachment
               </SidebarItem>
@@ -192,7 +206,7 @@ function ActiveCard() {
               <SidebarItem>
                 <AutoFixHighOutlinedIcon fontSize="small" />
                 Custom Fields
-              </SidebarItem>
+              </SidebarItem> */}
             </Stack>
 
             <Divider sx={{ my: 2 }} />

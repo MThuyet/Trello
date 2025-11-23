@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
 
@@ -11,10 +11,25 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
   description: Joi.string().optional(),
+  cover: Joi.string().default(null),
+  memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+
+  // thay vì tạo một collection comments, thì embedded trực tiếp trong card
+  comments: Joi.array()
+    .items({
+      userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+      userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+      userAvatar: Joi.string(),
+      userDisplayName: Joi.string(),
+      content: Joi.string(),
+      // sử dụng hàm push để thêm comment nên ko thể dùng default date.now
+      commentedAt: Joi.date().timestamp(),
+    })
+    .default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
 })
 
 const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt', '_destroy']
@@ -29,7 +44,7 @@ const createNew = async (data) => {
     const convertedInsertData = {
       ...validData,
       boardId: new ObjectId(String(validData.boardId)),
-      columnId: new ObjectId(String(validData.columnId))
+      columnId: new ObjectId(String(validData.columnId)),
     }
 
     return await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(convertedInsertData)
@@ -48,7 +63,7 @@ const findOneById = async (id) => {
   }
 }
 
-const updateColumnId = async (cardId, updateData) => {
+const update = async (cardId, updateData) => {
   try {
     // Object.keys() trả về mảng các keys theo thứ tự
     Object.keys(updateData).forEach((fieldName) => {
@@ -65,10 +80,10 @@ const updateColumnId = async (cardId, updateData) => {
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate(
         {
-          _id: new ObjectId(String(cardId))
+          _id: new ObjectId(String(cardId)),
         },
         { $set: updateData }, // cập nhật các trường cần thiết
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
@@ -95,6 +110,6 @@ export const cardModel = {
   validateBeforeCreate,
   createNew,
   findOneById,
-  updateColumnId,
-  deleteManyByColumnId
+  update,
+  deleteManyByColumnId,
 }

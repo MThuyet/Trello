@@ -10,17 +10,14 @@ const markdownValueExample = `
   *\`Markdown Content Example:\`*
 
   **Hello MThuyetDev - Trello Web**
-  [![](https://res.cloudinary.com/mthuyetdev/image/upload/v1749523070/users/bgvcloae89sf1w47lad6.jpg)](https://www.facebook.com/MThuyet)
+
   \`\`\`javascript
   import React from "react"
   import ReactDOM from "react-dom"
   import MDEditor from '@uiw/react-md-editor'
   \`\`\`
 `
-/**
- * Vài ví dụ Markdown từ lib
- * https://codesandbox.io/embed/markdown-editor-for-react-izdd6?fontsize=14&hidenavigation=1&theme=dark
- */
+
 function CardDescriptionMdEditor() {
   // Lấy giá trị 'dark', 'light' hoặc 'system' mode từ MUI để support phần Markdown bên dưới: data-color-mode={mode}
   // https://www.npmjs.com/package/@uiw/react-md-editor#support-dark-modenight-mode
@@ -46,8 +43,7 @@ function CardDescriptionMdEditor() {
               onChange={setCardDescription}
               previewOptions={{ rehypePlugins: [[rehypeSanitize]] }} // https://www.npmjs.com/package/@uiw/react-md-editor#security
               height={400}
-              preview="edit" // Có 3 giá trị để set tùy nhu cầu ['edit', 'live', 'preview']
-              // hideToolbar={true}
+              preview="edit"
             />
           </Box>
           <Button

@@ -25,7 +25,7 @@ const createNew = async (userId, reqBody) => {
     // Xử lý logic dữ liệu tùy đặc thù dự án
     const newBoard = {
       ...reqBody,
-      slug: slugify(reqBody.title)
+      slug: slugify(reqBody.title),
     }
 
     // Gọi tới model để xử lý vào DB
@@ -71,7 +71,7 @@ const updateColumnOrderIds = async (boardId, reqBody) => {
   try {
     const updateData = {
       ...reqBody,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     }
 
     const updatedBoard = await boardModel.updateColumnOrderIds(boardId, updateData)
@@ -89,7 +89,7 @@ const moveCardToDifferentColumn = async (reqBody) => {
     // B2: Cập nhật lại mảng cardOrderIds trong column đích (thêm _id của card vào mảng cardOrderIds)
     await columnModel.updateColumn(reqBody.newColumnId, { cardOrderIds: reqBody.newCardOrderIds })
     // B3: Cập nhật lại columnId của card thay đổi
-    await cardModel.updateColumnId(reqBody.currentCardId, { columnId: reqBody.newColumnId, updatedAt: Date.now() })
+    await cardModel.update(reqBody.currentCardId, { columnId: reqBody.newColumnId, updatedAt: Date.now() })
   } catch (error) {
     throw error
   }
@@ -100,5 +100,5 @@ export const boardService = {
   createNew,
   getDetails,
   updateColumnOrderIds,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
 }

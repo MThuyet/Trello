@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { activeBoardReducer } from './activeBoard/activeBoardSlice'
+import { activeCardReducer } from './activeCard/activeCardSlice'
 import { userReducer } from './user/userSlice'
 // redux persist
 // https://edvins.io/how-to-use-redux-persist-with-redux-toolkit
@@ -11,13 +12,14 @@ import { persistReducer } from 'redux-persist'
 const rootPersistConfig = {
   key: 'root', // key của persist, mặc định là root
   storage: storage,
-  whitelist: ['user'] // các slice được lưu trữ khi reload trang
+  whitelist: ['user'], // các slice được lưu trữ khi reload trang
 }
 
 // combine các reducers trong dự án
 const reducers = combineReducers({
   activeBoard: activeBoardReducer,
-  user: userReducer
+  activeCard: activeCardReducer,
+  user: userReducer,
 })
 
 // thực hiện persist
@@ -27,5 +29,5 @@ export const store = configureStore({
   reducer: persistedReducers,
   // fix warning error when implement redux-persist
   // https://stackoverflow.com/a/63244831/8324172
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
 })

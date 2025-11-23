@@ -5,12 +5,24 @@ const createNew = async (req, res, next) => {
   try {
     const createCard = await cardService.createNew(req.body)
 
-    res.status(StatusCodes.CREATED).json(createCard)
+    return res.status(StatusCodes.CREATED).json(createCard)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const update = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const updateCard = await cardService.update(cardId, req.body)
+
+    return res.status(StatusCodes.OK).json(updateCard)
   } catch (error) {
     next(error)
   }
 }
 
 export const cardController = {
-  createNew
+  createNew,
+  update,
 }

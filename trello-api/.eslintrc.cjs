@@ -6,7 +6,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
     requireConfigFile: false,
-    allowImportExportEverywhere: true
+    allowImportExportEverywhere: true,
   },
   plugins: [],
   rules: {
@@ -28,8 +28,8 @@ module.exports = {
     'linebreak-style': 0,
     'no-unexpected-multiline': 'warn',
     'keyword-spacing': 1,
-    'comma-dangle': 1,
+    'comma-dangle': ['warn', 'always-multiline'],
     'comma-spacing': 1,
-    'arrow-spacing': 1
-  }
+    'arrow-spacing': 1,
+  },
 }

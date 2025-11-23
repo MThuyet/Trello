@@ -7,13 +7,18 @@ import CommentIcon from '@mui/icons-material/Comment'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import { useDispatch } from 'react-redux'
+import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 const Card = ({ card }) => {
+  const dispatch = useDispatch()
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card._id,
-    data: { ...card }
+    data: { ...card },
   })
 
   const dndKitCardStyle = {
@@ -24,15 +29,21 @@ const Card = ({ card }) => {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : undefined,
-    border: isDragging ? '1px solid #2ecc71' : undefined
+    border: isDragging ? '1px solid #2ecc71' : undefined,
   }
 
   const shouldShowCardAction = () => {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
   }
 
+  // cập nhật data cho activeCard trong redux
+  const setActiveCard = () => {
+    dispatch(updateCurrentActiveCard(card))
+  }
+
   return (
     <MuiCard
+      onClick={setActiveCard}
       ref={setNodeRef}
       style={dndKitCardStyle}
       {...attributes}
@@ -43,7 +54,7 @@ const Card = ({ card }) => {
         overflow: 'unset',
         display: card?.FE_PlaceholderCard ? 'none' : 'block',
         border: '1px solid transparent',
-        '&:hover': { borderColor: (theme) => theme.palette.primary.main }
+        '&:hover': { borderColor: (theme) => theme.palette.primary.main },
       }}>
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
 
