@@ -61,6 +61,9 @@ export const activeBoardSlice = createSlice({
       // action.payload là dữ liệu mà chúng ta return (response.data) ở function fetchBoardDetailsAPI
       let board = action.payload
 
+      // thành viên trong board là gộp của owners và members
+      board.FE_allUsers = board.owners.concat(board.members)
+
       // xử lý dữ liệu nếu cần thiết trước khi đưa vào state của redux
       // sắp xếp thứ tự các column trước khi đưa data xuống dưới để tránh conflic data
       board.columns = mapOrder(board.columns, board.columnOrderIds, '_id')

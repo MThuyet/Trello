@@ -18,11 +18,11 @@ const CHIP_STYLE = {
   paddingX: '5px',
   borderRadius: '4px',
   '.MuiSvgIcon-root': {
-    color: '#fff'
+    color: '#fff',
   },
   '&:hover': {
-    bgcolor: 'primary.50'
-  }
+    bgcolor: 'primary.50',
+  },
 }
 
 const BoardBar = ({ board }) => {
@@ -37,7 +37,7 @@ const BoardBar = ({ board }) => {
         justifyContent: 'space-between',
         gap: 2,
         overflow: 'auto',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2')
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
       }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Tooltip title={board?.description}>
@@ -61,14 +61,14 @@ const BoardBar = ({ board }) => {
             color: '#fff',
             borderColor: '#fff',
             '&:hover': {
-              borderColor: '#fff'
-            }
+              borderColor: '#fff',
+            },
           }}>
           Invite
         </Button>
 
         {/* Xử lý hiển thị danh sách member của board */}
-        <BoardUserGroup />
+        <BoardUserGroup boardUsers={board?.FE_allUsers} />
       </Box>
     </Box>
   )

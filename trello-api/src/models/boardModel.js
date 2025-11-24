@@ -6,6 +6,7 @@ import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { pagingSkipValue } from '~/utils/algorithms'
+import { userModel } from './userModel'
 
 // Define Collection (Name & Schema)
 
@@ -29,7 +30,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
 })
 
 // chỉ định các field không được cập nhật
@@ -49,11 +50,11 @@ const getBoards = async (userId, page, itemPerPage) => {
       {
         $or: [
           {
-            ownerIds: { $all: [new ObjectId(String(userId))] }
+            ownerIds: { $all: [new ObjectId(String(userId))] },
           },
-          { memberIds: { $all: [new ObjectId(String(userId))] } }
-        ]
-      }
+          { memberIds: { $all: [new ObjectId(String(userId))] } },
+        ],
+      },
     ]
 
     const query = await GET_DB()
@@ -69,18 +70,18 @@ const getBoards = async (userId, page, itemPerPage) => {
               // luồng thứ nhất: query boards
               queryBoards: [
                 {
-                  $skip: pagingSkipValue(page, itemPerPage) // bỏ qua số lượng bản ghi của các page trước
+                  $skip: pagingSkipValue(page, itemPerPage), // bỏ qua số lượng bản ghi của các page trước
                 },
-                { $limit: itemPerPage } // giới hạn tối đa số lượng bản ghi trên 1 page
+                { $limit: itemPerPage }, // giới hạn tối đa số lượng bản ghi trên 1 page
               ],
               // luồng thứ hai: query đếm tổng số board trong DB và trả về biến countedAllBoards
-              queryTotalBoards: [{ $count: 'countedAllBoards' }]
-            }
-          }
+              queryTotalBoards: [{ $count: 'countedAllBoards' }],
+            },
+          },
         ],
         // khai báo thêm thuộc tính collation locale 'en' để fix chữ B hoa đứng trước a thường
         // https://www.mongodb.com/docs/v6.0/reference/collation/#std-label-collation-document-fields
-        { collation: { locale: 'en' } }
+        { collation: { locale: 'en' } },
       )
       .toArray()
 
@@ -88,7 +89,7 @@ const getBoards = async (userId, page, itemPerPage) => {
 
     return {
       boards: res.queryBoards || [],
-      totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0
+      totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0,
     }
   } catch (error) {
     throw new Error(error)
@@ -102,7 +103,7 @@ const createNew = async (userId, data) => {
 
     const newBoardToAdd = {
       ...validData,
-      ownerIds: [new ObjectId(String(userId))]
+      ownerIds: [new ObjectId(String(userId))],
     }
 
     return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
@@ -130,11 +131,11 @@ const getDetails = async (userId, boardId) => {
       {
         $or: [
           {
-            ownerIds: { $all: [new ObjectId(String(userId))] }
+            ownerIds: { $all: [new ObjectId(String(userId))] },
           },
-          { memberIds: { $all: [new ObjectId(String(userId))] } }
-        ]
-      }
+          { memberIds: { $all: [new ObjectId(String(userId))] } },
+        ],
+      },
     ]
 
     const result = await GET_DB()
@@ -147,8 +148,8 @@ const getDetails = async (userId, boardId) => {
             from: columnModel.COLUMN_COLLECTION_NAME, // xác định collection cần kết nối
             localField: '_id', // trường trong bảng Board dùng để kết nối
             foreignField: 'boardId', // tìm các column thuộc về Board ( tương tự khóa ngoại )
-            as: 'columns' // đặt tên cho mảng kết quả
-          }
+            as: 'columns', // đặt tên cho mảng kết quả
+          },
         },
         // Cards
         {
@@ -156,9 +157,30 @@ const getDetails = async (userId, boardId) => {
             from: cardModel.CARD_COLLECTION_NAME, // xác định collection cần kết nối
             localField: '_id', // trường trong bảng Board dùng để kết nối
             foreignField: 'boardId', // tìm các card thuộc về Board ( tương tự khóa ngoại )
-            as: 'cards' // đặt tên cho mảng kết quả
-          }
-        }
+            as: 'cards', // đặt tên cho mảng kết quả
+          },
+        },
+        // tìm user có _id nằm trong mảng ownerIds và memberIds
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'ownerIds',
+            foreignField: '_id',
+            as: 'owners',
+            // pipeline.project để chỉ định các field ko muốn trả về bằng cách gán = 0
+            pipeline: [{ $project: { password: 0, verifyToken: 0 } }],
+          },
+        },
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+
+            localField: 'memberIds',
+            foreignField: '_id',
+            as: 'members',
+            pipeline: [{ $project: { password: 0, verifyToken: 0 } }],
+          },
+        },
       ])
       .toArray() // chuyển kết quả thành mảng vì arregate luôn trả về một cursor đến một tập kết quả, chứ không trả về một document trực tiếp, dù cursor đó có chứa một phần tử hay nhiều phần tử
 
@@ -180,7 +202,7 @@ const pushColumnOrderIds = async (column) => {
         // push columnId vào cuối mảng columnOrderIds
         { $push: { columnOrderIds: new ObjectId(String(column._id)) } },
         // trả về document sau khi cập nhật
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
@@ -196,10 +218,10 @@ const pullColumnOrderIds = async (column) => {
       .collection(BOARD_COLLECTION_NAME)
       .findOneAndUpdate(
         {
-          _id: new ObjectId(String(column.boardId))
+          _id: new ObjectId(String(column.boardId)),
         },
         { $pull: { columnOrderIds: new ObjectId(String(column._id)) } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
@@ -228,10 +250,10 @@ const updateColumnOrderIds = async (boardId, updateData) => {
       .collection(BOARD_COLLECTION_NAME)
       .findOneAndUpdate(
         {
-          _id: new ObjectId(String(boardId))
+          _id: new ObjectId(String(boardId)),
         },
         { $set: updateData }, // cập nhật các trường cần thiết
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
@@ -249,5 +271,5 @@ export const boardModel = {
   getDetails,
   pushColumnOrderIds,
   updateColumnOrderIds,
-  pullColumnOrderIds
+  pullColumnOrderIds,
 }
