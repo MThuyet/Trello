@@ -6,19 +6,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 
-const markdownValueExample = `
-  *\`Markdown Content Example:\`*
-
-  **Hello MThuyetDev - Trello Web**
-
-  \`\`\`javascript
-  import React from "react"
-  import ReactDOM from "react-dom"
-  import MDEditor from '@uiw/react-md-editor'
-  \`\`\`
-`
-
-function CardDescriptionMdEditor() {
+function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescription }) {
   // Lấy giá trị 'dark', 'light' hoặc 'system' mode từ MUI để support phần Markdown bên dưới: data-color-mode={mode}
   // https://www.npmjs.com/package/@uiw/react-md-editor#support-dark-modenight-mode
   const { mode } = useColorScheme()
@@ -26,11 +14,11 @@ function CardDescriptionMdEditor() {
   // State xử lý chế độ Edit và chế độ View
   const [markdownEditMode, setMarkdownEditMode] = useState(false)
   // State xử lý giá trị markdown khi chỉnh sửa
-  const [cardDescription, setCardDescription] = useState(markdownValueExample)
+  const [cardDescription, setCardDescription] = useState(cardDescriptionProp)
 
   const updateCardDescription = () => {
     setMarkdownEditMode(false)
-    console.log('cardDescription: ', cardDescription)
+    handleUpdateCardDescription(cardDescription)
   }
 
   return (
@@ -76,7 +64,7 @@ function CardDescriptionMdEditor() {
                 whiteSpace: 'pre-wrap',
                 padding: cardDescription ? '10px' : '0px',
                 border: cardDescription ? '0.5px solid rgba(0, 0, 0, 0.2)' : 'none',
-                borderRadius: '8px'
+                borderRadius: '8px',
               }}
             />
           </Box>
