@@ -35,9 +35,15 @@ import CardActivitySection from './CardActivitySection'
 
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import {
+  clearAndHideCurrentActiveCard,
+  selectCurrentActiveCard,
+  updateCurrentActiveCard,
+  selectIsShowModalActiveCard,
+} from '~/redux/activeCard/activeCardSlice'
 import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+
 // style sidebar
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -62,9 +68,10 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 function ActiveCard() {
   const dispach = useDispatch()
   const activeCard = useSelector(selectCurrentActiveCard)
+  const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
 
   const handleCloseModal = () => {
-    dispach(clearCurrentActiveCard())
+    dispach(clearAndHideCurrentActiveCard())
   }
 
   const callApiUpdateCard = async (updateData) => {
@@ -103,7 +110,7 @@ function ActiveCard() {
   }
 
   return (
-    <Modal open={true} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
+    <Modal open={isShowModalActiveCard} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
       <Box
         sx={{
           position: 'relative',
@@ -142,7 +149,7 @@ function ActiveCard() {
           <CreditCardIcon />
 
           {/* Feature 01: Xử lý tiêu đề của Card */}
-          <ToggleFocusInput inputFontSize="22px" value={activeCard.title} onChangedValue={onUpdateCardTitle} />
+          <ToggleFocusInput inputFontSize="22px" value={activeCard?.title} onChangedValue={onUpdateCardTitle} />
         </Box>
 
         <Grid container spacing={2} sx={{ mb: 3 }}>
