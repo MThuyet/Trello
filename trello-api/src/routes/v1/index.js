@@ -3,6 +3,7 @@ import { boardRoute } from './boardRoute'
 import { columnRoute } from './columnRoute'
 import { cardRoute } from './cardRoute'
 import { userRoute } from './userRoute'
+import { invitationRoute } from './invitationRoute'
 const Router = express.Router()
 
 // Ping API (không cần xác thực, dùng để giữ cho Render luôn hoạt động)
@@ -10,7 +11,7 @@ Router.get('/ping', (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'Server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   })
 })
 
@@ -25,5 +26,8 @@ Router.use('/cards', cardRoute)
 
 // User API
 Router.use('/users', userRoute)
+
+// Invitation API
+Router.use('/invitations', invitationRoute)
 
 export const APIs_V1 = Router

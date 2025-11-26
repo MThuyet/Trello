@@ -1,0 +1,18 @@
+import { StatusCodes } from 'http-status-codes'
+import { invitationService } from '~/services/invitationService'
+
+const createNewBoardInvitation = async (req, res, next) => {
+  try {
+    // user thực hiện request này chính là inviter
+    const inviterId = req.jwtDecoded._id
+    const resInvitation = await invitationService.createNewBoardInvitation(inviterId, req.body)
+
+    return res.status(StatusCodes.CREATED).json(resInvitation)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const invitationController = {
+  createNewBoardInvitation,
+}

@@ -6,10 +6,9 @@ import AddToDriveIcon from '@mui/icons-material/AddToDrive'
 import BoltIcon from '@mui/icons-material/Bolt'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import Tooltip from '@mui/material/Tooltip'
-import Button from '@mui/material/Button'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { capitalizeFirstLetter } from '~/utils/formatter'
 import BoardUserGroup from './BoardUserGroup'
+import InviteBoardUser from './InviteBoardUser'
 
 const CHIP_STYLE = {
   color: '#fff',
@@ -54,18 +53,8 @@ const BoardBar = ({ board }) => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<PersonAddIcon />}
-          sx={{
-            color: '#fff',
-            borderColor: '#fff',
-            '&:hover': {
-              borderColor: '#fff',
-            },
-          }}>
-          Invite
-        </Button>
+        {/* Xử lý mời user vào làm thành viên của board */}
+        <InviteBoardUser boardId={board?._id} />
 
         {/* Xử lý hiển thị danh sách member của board */}
         <BoardUserGroup boardUsers={board?.FE_allUsers} />

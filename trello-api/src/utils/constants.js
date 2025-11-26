@@ -4,7 +4,7 @@ import { env } from '~/config/environment'
 export const WHITELIST_DOMAINS = [
   'https://mthuyet-trello-web.vercel.app',
   'https://www.mthuyet.site',
-  'https://mthuyet-trello-api.onrender.com'
+  'https://mthuyet-trello-api.onrender.com',
   // không cần localhost nữa vì config cors đã luôn cho phép môi trường dev
   // 'http://localhost:5173'
 ]
@@ -12,10 +12,22 @@ export const WHITELIST_DOMAINS = [
 // các kiểu kiểu của bảng
 export const BOARD_TYPES = {
   PUBLIC: 'public',
-  PRIVATE: 'private'
+  PRIVATE: 'private',
 }
 
 export const WEBSITE_DOMAIN = env.BUILD_MODE === 'production' ? env.WEBSITE_DOMAIN_PRODUCTION : env.WEBSITE_DOMAIN_DEVELOPMENT
 
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 12
+
+// các kiểu của invitation
+export const INVITATION_TYPES = {
+  BOARD_INVITATION: 'BOARD_INVITATION',
+}
+
+// status của boardInvitation
+export const BOARD_INVITATION_STATUS = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+}
