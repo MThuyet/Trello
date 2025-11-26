@@ -104,6 +104,24 @@ const deleteManyByColumnId = async (columnId) => {
   }
 }
 
+// hàm đẩy comment mới vào mảng, nhưng trong mgdb hiện tại chỉ có $push - mặc định sẽ đẩy comment vào cuối mảng
+// => vẫn dùng $push, nhưng bọc data vào array để trong $each và chỉ định posision: 0
+const unShiftNewComment = async (cardId, commentData) => {
+  try {
+    const result = await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(String(cardId)) },
+        { $push: { comments: { $each: [commentData], $position: 0 } } },
+        { returnDocument: 'after' },
+      )
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -112,4 +130,5 @@ export const cardModel = {
   findOneById,
   update,
   deleteManyByColumnId,
+  unShiftNewComment,
 }

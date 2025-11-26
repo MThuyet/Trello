@@ -109,6 +109,11 @@ function ActiveCard() {
     )
   }
 
+  // dùng async await để component con CardActivitySection chờ và thành công thì mới clear input value
+  const onAddCardComment = async (commentToAdd) => {
+    await callApiUpdateCard({ commentToAdd })
+  }
+
   return (
     <Modal open={isShowModalActiveCard} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
       <Box
@@ -186,7 +191,7 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 04: Xử lý các hành động, ví dụ comment vào Card */}
-              <CardActivitySection />
+              <CardActivitySection cardComments={activeCard?.comments} onAddCardComment={onAddCardComment} />
             </Box>
           </Grid>
 
