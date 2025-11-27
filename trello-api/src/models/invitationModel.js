@@ -1,6 +1,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import { boardModel } from '~/models/boardModel'
+import { userModel } from '~/models/userModel'
 import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
@@ -28,8 +30,8 @@ const INVITATION_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false),
 })
 
+// create inv
 const validateBeforeCreate = async (data) => await INVITATION_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
-
 const createNewBoardInvitation = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
@@ -60,6 +62,57 @@ const findOneById = async (createdInvitationId) => {
   return await GET_DB()
     .collection(INVITATION_COLLECTION_NAME)
     .findOne({ _id: new ObjectId(String(createdInvitationId)) })
+}
+
+// query tổng hợp (aggregate) để lấy những bản ghi invitation thuộc một user cụ thể
+const findByUser = async (userId) => {
+  try {
+    const queryConditions = [
+      // tìm theo người được mời (inviteeId) chính là người đang thực hiện request
+      { inviteeId: new ObjectId(String(userId)) },
+      { _destroy: false },
+    ]
+
+    const results = await GET_DB()
+      .collection(INVITATION_COLLECTION_NAME)
+      .aggregate([
+        { $match: { $and: queryConditions } },
+        // lấy thông tin của người đi mời
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'inviterId',
+            foreignField: '_id',
+            as: 'inviter',
+            pipeline: [{ $project: { password: 0, verifyToken: 0 } }],
+          },
+        },
+        // người đc mời
+        {
+          $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'inviteeId',
+            foreignField: '_id',
+            as: 'invitee',
+            pipeline: [{ $project: { password: 0, verifyToken: 0 } }],
+          },
+        },
+        // board
+        {
+          $lookup: {
+            from: boardModel.BOARD_COLLECTION_NAME,
+            localField: 'boardInvitation.boardId',
+            foreignField: '_id',
+            as: 'board',
+          },
+        },
+      ])
+      .toArray()
+
+    return results
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 // những field không cho phép cập nhật trong hàm update
@@ -94,5 +147,6 @@ export const invitationModel = {
   INVITATION_COLLECTION_SCHEMA,
   createNewBoardInvitation,
   findOneById,
+  findByUser,
   update,
 }

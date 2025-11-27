@@ -11,8 +11,6 @@ import Starred from './Menus/Starred'
 import Templates from './Menus/Templates'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import Badge from '@mui/material/Badge'
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import Tooltip from '@mui/material/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menus/Profiles'
@@ -21,6 +19,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { Link } from 'react-router-dom'
+import Notifications from '~/components/AppBar/Notifications/Notifications'
 
 const AppBar = () => {
   const [searchValue, setSearchValue] = useState('')
@@ -36,7 +35,7 @@ const AppBar = () => {
         justifyContent: 'space-between',
         gap: 2,
         overflowX: 'auto',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0')
+        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0'),
       }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Link to={'/boards'}>
@@ -89,11 +88,11 @@ const AppBar = () => {
                   fontSize="small"
                   sx={{
                     color: searchValue ? 'white' : 'transparent',
-                    cursor: searchValue ? 'pointer' : 'default'
+                    cursor: searchValue ? 'pointer' : 'default',
                   }}
                 />
               </InputAdornment>
-            )
+            ),
           }}
           sx={{
             minWidth: '120px',
@@ -104,18 +103,14 @@ const AppBar = () => {
             '& .MuiOutlinedInput-root': {
               '& fieldset': { borderColor: '#fff' },
               '&:hover fieldset': { borderColor: '#fff' },
-              '&.Mui-focused fieldset': { borderColor: '#fff' }
-            }
+              '&.Mui-focused fieldset': { borderColor: '#fff' },
+            },
           }}
         />
 
         <ModeSelect />
 
-        <Tooltip title="Notifications">
-          <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }}>
-            <NotificationsNoneIcon sx={{ color: '#fff' }} />
-          </Badge>
-        </Tooltip>
+        <Notifications />
 
         <Tooltip title="Help">
           <HelpOutlineIcon sx={{ cursor: 'pointer', color: '#fff' }} />
