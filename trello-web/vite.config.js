@@ -29,18 +29,8 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         // Tách vendor (thư viện bên thứ 3) ra file riêng để cache tốt hơn
-        manualChunks: (id) => {
-          // Tách node_modules ra thành vendor chunk
+        manualChunks(id) {
           if (id.includes('node_modules')) {
-            // Tách Material-UI ra chunk riêng vì nó rất lớn
-            if (id.includes('@mui')) {
-              return 'vendor-mui'
-            }
-            // Tách các thư viện lớn khác
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react'
-            }
-            // Các thư viện còn lại
             return 'vendor'
           }
         },
