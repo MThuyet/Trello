@@ -7,7 +7,7 @@ import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
-import { sendMail } from '~/providers/NodemailerProvider'
+import sendMail from '~/providers/NodemailerProvider'
 import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
 import { renderTemplateHtml } from '~/utils/renderTemplateHtml'
 
