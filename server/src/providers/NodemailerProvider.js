@@ -6,6 +6,7 @@ const sendMail = async (to, subject, htmlContent) => {
     host: env.MAIL_HOST,
     port: env.MAIL_PORT,
     secure: false,
+    requireTLS: true,
     auth: {
       user: env.ADMIN_EMAIL,
       pass: env.ADMIN_PASSWORD,
