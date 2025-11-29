@@ -27,17 +27,17 @@ injectStore(store)
 let persistor = persistStore(store)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // basename: đường dẫn gốc của project, luôn luôn phải đi qua trước khi truy cập vào các route khác
-  <BrowserRouter basename="/">
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      {/*basename: đường dẫn gốc của project, luôn luôn phải đi qua trước khi truy cập vào các route khác */}
+      <BrowserRouter basename="/">
         <CssVarsProvider theme={theme}>
           <ConfirmProvider
             defaultOptions={{
               dialogProps: { maxWidth: 'xs' },
               cancellationButtonProps: { color: 'inherit' },
               confirmationButtonProps: { variant: 'outlined' },
-              allowClose: false
+              allowClose: false,
             }}>
             <GlobalStyles styles={{ a: { textDecoration: 'none' } }} />
             <CssBaseline />
@@ -45,7 +45,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <ToastContainer position="bottom-left" theme="colored" autoClose={3000} />
           </ConfirmProvider>
         </CssVarsProvider>
-      </PersistGate>
-    </Provider>
-  </BrowserRouter>
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>,
 )
