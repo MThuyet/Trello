@@ -8,6 +8,11 @@ if (process.env.BUILD_MODE === 'production') {
   apiRoot = 'https://mthuyet-trello-api.onrender.com'
 }
 
+export const ACTION_UPDATE_CARD_MEMBERS = {
+  ADD: 'ADD',
+  REMOVE: 'REMOVE',
+}
+
 export const API_ROOT = apiRoot
 
 export const DEFAULT_PAGE = 1
