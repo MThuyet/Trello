@@ -20,10 +20,6 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 // axios injectStore
 import { injectStore } from './utils/authorizeAxios'
-// socket.io
-import { io } from 'socket.io-client'
-import { API_ROOT } from '~/utils/constants'
-export const socketIoInstance = io(API_ROOT)
 
 // tiêm store vào axios
 injectStore(store)
