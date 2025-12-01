@@ -5,7 +5,7 @@ if (process.env.BUILD_MODE === 'dev') {
 }
 
 if (process.env.BUILD_MODE === 'production') {
-  apiRoot = 'http://api.mthuyet.site:30760'
+  apiRoot = 'https://mthuyet-trello-api.onrender.com'
 }
 
 export const ACTION_UPDATE_CARD_MEMBERS = {
