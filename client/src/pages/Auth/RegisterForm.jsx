@@ -16,7 +16,7 @@ import {
   PASSWORD_RULE,
   PASSWORD_RULE_MESSAGE,
   FIELD_REQUIRED_MESSAGE,
-  PASSWORD_CONFIRMATION_MESSAGE
+  PASSWORD_CONFIRMATION_MESSAGE,
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { registerAccountAPI } from '~/apis'
@@ -29,14 +29,16 @@ const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch
+    watch,
   } = useForm()
 
   const submitRegister = (data) => {
     const { email, password } = data
     toast
       .promise(registerAccountAPI({ email, password }), {
-        pending: 'Registering account...'
+        pending: 'Registering account...',
+        success: 'Register successfully! Please check your email to verify account',
+        error: 'Register failed!',
       })
       .then((user) => navigate(`/login?registeredEmail=${user.email}`))
   }
@@ -50,7 +52,7 @@ const RegisterForm = () => {
               margin: '1em',
               display: 'flex',
               justifyContent: 'center',
-              gap: 1
+              gap: 1,
             }}>
             <Avatar sx={{ bgcolor: 'primary.main' }}>
               <LockIcon />
@@ -69,8 +71,8 @@ const RegisterForm = () => {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: EMAIL_RULE,
-                    message: EMAIL_RULE_MESSAGE
-                  }
+                    message: EMAIL_RULE_MESSAGE,
+                  },
                 })}
                 autoFocus
                 fullWidth
@@ -87,8 +89,8 @@ const RegisterForm = () => {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: PASSWORD_RULE,
-                    message: PASSWORD_RULE_MESSAGE
-                  }
+                    message: PASSWORD_RULE_MESSAGE,
+                  },
                 })}
                 fullWidth
                 label="Enter Password..."
@@ -103,7 +105,7 @@ const RegisterForm = () => {
                 {...register('password_confirmation', {
                   validate: (value) => {
                     if (value !== watch('password')) return PASSWORD_CONFIRMATION_MESSAGE
-                  }
+                  },
                 })}
                 fullWidth
                 label="Enter Password Confirmation..."

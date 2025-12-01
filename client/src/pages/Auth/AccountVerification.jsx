@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { verifyAccountAPI } from '~/apis'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 
@@ -21,7 +22,11 @@ const AccountVerification = () => {
 
   // call API to verify account
   useEffect(() => {
-    if (email && token) verifyAccountAPI({ email, token }).then(() => setVerified(true))
+    if (email && token)
+      verifyAccountAPI({ email, token }).then(() => {
+        setVerified(true)
+        toast.success('Verify account successfully! Now you can login to enjoy Trello', { theme: 'colored' })
+      })
   }, [email, token])
 
   // if URL does not contain email or token, redirect to 404 page
