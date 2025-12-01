@@ -17,7 +17,7 @@ export const BOARD_TYPES = {
 // Ưu tiên dùng WEBSITE_DOMAIN_PRODUCTION nếu được set (khi deploy)
 // Nếu không có WEBSITE_DOMAIN_PRODUCTION thì mới dùng WEBSITE_DOMAIN_DEVELOPMENT (môi trường dev)
 // Kiểm tra cả BUILD_MODE và NODE_ENV để đảm bảo đúng môi trường production
-export const WEBSITE_DOMAIN = env.WEBSITE_DOMAIN_PRODUCTION || env.WEBSITE_DOMAIN_DEVELOPMENT
+export const WEBSITE_DOMAIN = env.BUILD_MODE === 'production' ? env.WEBSITE_DOMAIN_PRODUCTION : env.WEBSITE_DOMAIN_DEVELOPMENT
 
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 12
