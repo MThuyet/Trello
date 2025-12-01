@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import ms from 'ms'
 import { userService } from '~/services/userService'
 import ApiError from '~/utils/ApiError'
+import { env } from '~/config/environment'
 
 const createNew = async (req, res, next) => {
   try {
@@ -28,19 +29,22 @@ const login = async (req, res, next) => {
     const result = await userService.login(req.body)
 
     // xử lý trả về httpOnly cookie cho trình duyệt
-    res.cookie('accessToken', result.accessToken, {
+    // Cấu hình cookie dựa trên môi trường
+    const cookieOptions = {
       httpOnly: true, // Chỉ cho phép cookie được truy cập bởi HTTP request, không thể truy cập qua JavaScript (ngăn XSS).
-      secure: true, // Chỉ gửi cookie khi kết nối là HTTPS
-      sameSite: 'none', // 	Cho phép truy cập từ các domain khác (cross-site) — ví dụ như frontend và backend chạy trên 2 domain khác nhau.
-      maxAge: ms('14d') // thư viện tự convert sang milisecond
-    })
+      secure: env.BUILD_MODE === 'production', // Chỉ gửi cookie khi kết nối là HTTPS (production)
+      sameSite: 'Lax', // Cho phép cookie được gửi trong same-site requests (subdomain)
+      path: '/',
+      maxAge: ms('14d'), // thư viện tự convert sang milisecond
+    }
 
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: ms('14d')
-    })
+    // Chỉ set domain khi production (subdomain)
+    if (env.BUILD_MODE === 'production') {
+      cookieOptions.domain = '.mthuyet.site' // Cookie sẽ được chia sẻ giữa tất cả subdomain
+    }
+
+    res.cookie('accessToken', result.accessToken, cookieOptions)
+    res.cookie('refreshToken', result.refreshToken, cookieOptions)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -50,9 +54,20 @@ const login = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   try {
-    // xóa cookies
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+    // xóa cookies - phải có đầy đủ options giống khi set cookie
+    const clearCookieOptions = {
+      httpOnly: true,
+      secure: env.BUILD_MODE === 'production',
+      sameSite: 'Lax',
+      path: '/',
+    }
+
+    if (env.BUILD_MODE === 'production') {
+      clearCookieOptions.domain = '.mthuyet.site'
+    }
+
+    res.clearCookie('accessToken', clearCookieOptions)
+    res.clearCookie('refreshToken', clearCookieOptions)
 
     res.status(StatusCodes.OK).json({ loggedOut: true })
   } catch (error) {
@@ -66,12 +81,19 @@ const refreshToken = async (req, res, next) => {
     const result = await userService.refreshToken(req.cookies?.refreshToken)
 
     // tạo cookie mới và gửi về cho phía client
-    res.cookie('accessToken', result.accessToken, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: ms('14d')
-    })
+      secure: env.BUILD_MODE === 'production',
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: ms('14d'),
+    }
+
+    if (env.BUILD_MODE === 'production') {
+      cookieOptions.domain = '.mthuyet.site'
+    }
+
+    res.cookie('accessToken', result.accessToken, cookieOptions)
 
     res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -98,5 +120,5 @@ export const userController = {
   login,
   logout,
   refreshToken,
-  update
+  update,
 }
