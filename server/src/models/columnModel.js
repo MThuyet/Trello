@@ -10,7 +10,7 @@ const COLUMN_COLLECTION_SCHEMA = Joi.object({
   cardOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
 })
 
 const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
@@ -25,7 +25,7 @@ const createNew = async (data) => {
 
     const convertedInsertData = {
       ...validData,
-      boardId: new ObjectId(String(validData.boardId))
+      boardId: new ObjectId(String(validData.boardId)),
     }
 
     return await GET_DB().collection(COLUMN_COLLECTION_NAME).insertOne(convertedInsertData)
@@ -51,10 +51,24 @@ const pushCardOrderIds = async (card) => {
       .findOneAndUpdate(
         { _id: new ObjectId(String(card.columnId)) },
         { $push: { cardOrderIds: new ObjectId(String(card._id)) } },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const pullCardOrderIds = async (card) => {
+  try {
+    return await GET_DB()
+      .collection(COLUMN_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(String(card.columnId)) },
+        { $pull: { cardOrderIds: new ObjectId(String(card._id)) } },
+        { returnDocument: 'after' },
+      )
   } catch (error) {
     throw new Error(error)
   }
@@ -79,10 +93,10 @@ const updateColumn = async (columnId, updateData) => {
       .collection(COLUMN_COLLECTION_NAME)
       .findOneAndUpdate(
         {
-          _id: new ObjectId(String(columnId))
+          _id: new ObjectId(String(columnId)),
         },
         { $set: updateData }, // cập nhật các trường cần thiết
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
@@ -109,6 +123,7 @@ export const columnModel = {
   createNew,
   findOneById,
   pushCardOrderIds,
+  pullCardOrderIds,
   updateColumn,
-  deleteOneById
+  deleteOneById,
 }

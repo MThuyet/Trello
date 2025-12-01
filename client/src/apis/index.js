@@ -81,3 +81,9 @@ export const inviteUserToBoardAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/invitations/board`, data)
   return response.data
 }
+
+// delete one card
+export const deleteOneCardAPI = async (cardId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cards/${cardId}`)
+  return response.data
+}

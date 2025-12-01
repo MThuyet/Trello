@@ -18,11 +18,11 @@ import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
-import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
@@ -41,8 +41,8 @@ import {
   updateCurrentActiveCard,
   selectIsShowModalActiveCard,
 } from '~/redux/activeCard/activeCardSlice'
-import { updateCardDetailsAPI } from '~/apis'
-import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { deleteOneCardAPI, updateCardDetailsAPI } from '~/apis'
+import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 
@@ -71,6 +71,7 @@ function ActiveCard() {
   const dispach = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
+  const activeBoard = useSelector(selectCurrentActiveBoard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
 
   const handleCloseModal = () => {
@@ -119,6 +120,16 @@ function ActiveCard() {
 
   const onUpdateCardMemberIds = (incommingMemberInfo) => {
     callApiUpdateCard({ incommingMemberInfo })
+  }
+
+  const onDeleteCard = (cardId) => {
+    toast.promise(
+      deleteOneCardAPI(cardId).then(() => {
+        dispach(clearAndHideCurrentActiveCard())
+        dispach(fetchBoardDetailsAPI(activeBoard._id))
+      }),
+      { pending: 'Deleting card...', success: 'Deleted card successfully', error: 'Failed to delete card' },
+    )
   }
 
   return (
@@ -277,16 +288,16 @@ function ActiveCard() {
                 Copy
               </SidebarItem>
               <SidebarItem>
-                <AutoAwesomeOutlinedIcon fontSize="small" />
-                Make Template
-              </SidebarItem>
-              <SidebarItem>
                 <ArchiveOutlinedIcon fontSize="small" />
                 Archive
               </SidebarItem>
               <SidebarItem>
                 <ShareOutlinedIcon fontSize="small" />
                 Share
+              </SidebarItem>
+              <SidebarItem className="interceptor-loading" onClick={() => onDeleteCard(activeCard._id)}>
+                <DeleteOutlinedIcon fontSize="small" />
+                Delete
               </SidebarItem>
             </Stack>
           </Grid>
