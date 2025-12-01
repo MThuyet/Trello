@@ -3,6 +3,7 @@ import { env } from '~/config/environment'
 // những domain được phép truy cập tới tài nguyên của server
 export const WHITELIST_DOMAINS = [
   'https://mthuyet.site',
+  'https://www.mthuyet.site',
   // không cần localhost nữa vì config cors đã luôn cho phép môi trường dev
   // 'http://localhost:5173'
 ]
