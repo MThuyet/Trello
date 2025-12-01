@@ -7,9 +7,9 @@ import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
-import sendMail from '~/providers/NodemailerProvider'
 import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
 import { renderTemplateHtml } from '~/utils/renderTemplateHtml'
+import { sendEmail } from '~/providers/ResendProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -45,7 +45,7 @@ const createNew = async (reqBody) => {
     })
 
     // gửi email xác thực tài khoản
-    await sendMail(getNewUser.email, subject, htmlContent)
+    await sendEmail(getNewUser.email, subject, htmlContent)
 
     // trả về dữ liệu cho controller
     return pickUser(getNewUser)
