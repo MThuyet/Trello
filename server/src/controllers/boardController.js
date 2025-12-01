@@ -5,9 +5,10 @@ const getBoards = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
     // lấy page và itemPerPage từ query url phía client
-    const { page, itemPerPage } = req.query
+    const { page, itemPerPage, q } = req.query
+    const queryFilters = q
 
-    const result = await boardService.getBoards(userId, page, itemPerPage)
+    const result = await boardService.getBoards(userId, page, itemPerPage, queryFilters)
 
     return res.status(StatusCodes.OK).json(result)
   } catch (error) {
@@ -65,5 +66,5 @@ export const boardController = {
   createNew,
   getDetails,
   updateColumnOrderIds,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
 }

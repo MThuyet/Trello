@@ -41,7 +41,7 @@ const validateBeforeCreate = async (data) => {
 }
 
 // get list board
-const getBoards = async (userId, page, itemPerPage) => {
+const getBoards = async (userId, page, itemPerPage, queryFilters) => {
   try {
     const queryConditions = [
       // điều kiện 1: board chưa bị xóa
@@ -56,6 +56,16 @@ const getBoards = async (userId, page, itemPerPage) => {
         ],
       },
     ]
+
+    // xử lý query filters cho từng trường hợp search boards (title,...)
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach((key) => {
+        // có phân biệt hoa thường
+        // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
+        // không phân biệt hoa thường
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
+      })
+    }
 
     const query = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
