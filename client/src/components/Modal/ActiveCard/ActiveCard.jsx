@@ -45,6 +45,7 @@ import { deleteOneCardAPI, updateCardDetailsAPI } from '~/apis'
 import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
+import { useConfirm } from 'material-ui-confirm'
 
 // style sidebar
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -122,14 +123,35 @@ function ActiveCard() {
     callApiUpdateCard({ incommingMemberInfo })
   }
 
+  // delete card
+  const confirmDeleteCard = useConfirm()
   const onDeleteCard = (cardId) => {
-    toast.promise(
-      deleteOneCardAPI(cardId).then(() => {
-        dispach(clearAndHideCurrentActiveCard())
-        dispach(fetchBoardDetailsAPI(activeBoard._id))
-      }),
-      { pending: 'Deleting card...', success: 'Deleted card successfully', error: 'Failed to delete card' },
-    )
+    confirmDeleteCard({
+      title: (
+        <span>
+          Delete Card &quot;<b>{activeCard?.title}</b>&quot;?
+        </span>
+      ),
+      description: (
+        <span>
+          This action will permanently delete your Card! Please type <b>{activeCard?.title}</b> to confirm.
+        </span>
+      ),
+      confirmationText: 'Delete Card',
+      cancellationText: 'Cancel',
+      confirmationKeyword: activeCard?.title,
+      confirmationButtonProps: { color: 'error' },
+    })
+      .then(() => {
+        toast.promise(
+          deleteOneCardAPI(cardId).then(() => {
+            dispach(clearAndHideCurrentActiveCard())
+            dispach(fetchBoardDetailsAPI(activeBoard._id))
+          }),
+          { pending: 'Deleting card...', success: 'Deleted card successfully', error: 'Failed to delete card' },
+        )
+      })
+      .catch(() => {})
   }
 
   return (

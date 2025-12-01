@@ -50,7 +50,7 @@ const Column = ({ column }) => {
   // Drag and Drop
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
-    data: { ...column }
+    data: { ...column },
   })
 
   const dndKitColumnStyle = {
@@ -61,7 +61,7 @@ const Column = ({ column }) => {
     transform: CSS.Translate.toString(transform),
     transition,
     height: '100%', // chiều cao phải 100% để không bị lỗi kéo thả, kết hợp với listeners ở Box chứ k phải div ngoài cùng
-    opacity: isDragging ? 0.5 : undefined
+    opacity: isDragging ? 0.5 : undefined,
   }
 
   // đóng mở form tạo Card
@@ -79,13 +79,13 @@ const Column = ({ column }) => {
 
     const newCardData = {
       title: newCardTitle,
-      columnId: column._id
+      columnId: column._id,
     }
 
     // call API tạo card
     const createdCard = await createNewCardAPI({
       ...newCardData,
-      boardId: board._id
+      boardId: board._id,
     })
 
     const newBoard = cloneDeep(board)
@@ -113,12 +113,16 @@ const Column = ({ column }) => {
   const confirmDeleteColumn = useConfirm()
   const handleDeleteColumn = () => {
     confirmDeleteColumn({
-      title: 'Delete Column?',
-      description: 'This action will permanently delete your Column and its Cards! Please type "DELETE" to confirm.',
+      title: `Delete Column "${column?.title}"?`,
+      description: (
+        <span>
+          This action will permanently delete your Column and its Cards! Please type <b>{column?.title}</b> to confirm.
+        </span>
+      ),
       confirmationText: 'Delete Column',
       cancellationText: 'Cancel',
-      confirmationKeyword: 'DELETE',
-      confirmationButtonProps: { color: 'error' }
+      confirmationKeyword: column?.title,
+      confirmationButtonProps: { color: 'error' },
     })
       .then(() => {
         // xóa column và card bên trong nó
@@ -162,7 +166,7 @@ const Column = ({ column }) => {
           ml: 2,
           borderRadius: '6px',
           height: 'fit-content',
-          maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
+          maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`,
         }}>
         {/* Column Header */}
         <Box
@@ -171,7 +175,7 @@ const Column = ({ column }) => {
             p: 2,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
           }}>
           <ToggleFocusInput data-no-dnd="true" value={column?.title} onChangedValue={onUpdateColumnTitle} />
 
@@ -186,14 +190,14 @@ const Column = ({ column }) => {
                 onClick={handleClick}
                 sx={{
                   color: 'text.primary',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
               />
             </Tooltip>
             <Menu
               id="basic-menu-column-dropdown"
               MenuListProps={{
-                'aria-labelledby': 'basic-column-dropdown'
+                'aria-labelledby': 'basic-column-dropdown',
               }}
               anchorEl={anchorEl}
               open={open}
@@ -204,8 +208,8 @@ const Column = ({ column }) => {
                 sx={{
                   '&: hover': {
                     color: 'success.light',
-                    '& .add-card-icon': { color: 'success.light' }
-                  }
+                    '& .add-card-icon': { color: 'success.light' },
+                  },
                 }}>
                 <ListItemIcon>
                   <AddCardIcon className="add-card-icon" fontSize="small" />
@@ -243,8 +247,8 @@ const Column = ({ column }) => {
                 sx={{
                   '&: hover': {
                     color: 'warning.dark',
-                    '& .delete-forever-icon': { color: 'warning.dark' }
-                  }
+                    '& .delete-forever-icon': { color: 'warning.dark' },
+                  },
                 }}>
                 <ListItemIcon>
                   <DeleteForeverIcon className="delete-forever-icon" fontSize="small" />
@@ -270,7 +274,7 @@ const Column = ({ column }) => {
         <Box
           sx={{
             height: (theme) => theme.trello.columnFooterHeight,
-            p: 2
+            p: 2,
           }}>
           {/* Form add Card */}
           {!openNewCardForm ? (
@@ -279,7 +283,7 @@ const Column = ({ column }) => {
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
               }}>
               <Button startIcon={<AddCardIcon />} onClick={toggleOpenNewCardForm}>
                 Add new cart
@@ -294,7 +298,7 @@ const Column = ({ column }) => {
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 1,
               }}>
               <TextField
                 label="Enter card title..."
@@ -310,23 +314,23 @@ const Column = ({ column }) => {
                   '& label': { color: (theme) => theme.palette.primary.main },
                   '& input': {
                     color: (theme) => theme.palette.primary.main,
-                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : 'white')
+                    bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : 'white'),
                   },
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': { borderColor: (theme) => theme.palette.primary.main },
                     '&:hover fieldset': { borderColor: (theme) => theme.palette.primary.main },
-                    '&.Mui-focused fieldset': { borderColor: (theme) => theme.palette.primary.main }
+                    '&.Mui-focused fieldset': { borderColor: (theme) => theme.palette.primary.main },
                   },
                   '& .MuiOutlinedInput-input': {
-                    borderRadius: 1
-                  }
+                    borderRadius: 1,
+                  },
                 }}
               />
               <Box
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1
+                  gap: 1,
                 }}>
                 <Button
                   className="interceptor-loading"
@@ -339,7 +343,7 @@ const Column = ({ column }) => {
                     boxShadow: 'none',
                     border: '0.5px solid',
                     borderColor: (theme) => theme.palette.success.main,
-                    '&:hover': { bgcolor: (theme) => theme.palette.success.main }
+                    '&:hover': { bgcolor: (theme) => theme.palette.success.main },
                   }}>
                   Add
                 </Button>
@@ -349,7 +353,7 @@ const Column = ({ column }) => {
                   fontSize="small"
                   sx={{
                     color: (theme) => theme.palette.warning.light,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                 />
               </Box>

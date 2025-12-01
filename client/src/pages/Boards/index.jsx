@@ -33,12 +33,12 @@ const SidebarItem = styled(Box)(({ theme }) => ({
   padding: '12px 16px',
   borderRadius: '8px',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300]
+    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300],
   },
   '&.active': {
     color: theme.palette.mode === 'dark' ? '#90caf9' : '#0c66e4',
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff'
-  }
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff',
+  },
 }))
 
 function Boards() {
@@ -137,7 +137,7 @@ function Boards() {
                             alignItems: 'center',
                             justifyContent: 'flex-end',
                             color: 'primary.main',
-                            '&:hover': { color: 'primary.light' }
+                            '&:hover': { color: 'primary.light' },
                           }}>
                           Go to board <ArrowRightIcon fontSize="small" />
                         </Box>
@@ -149,7 +149,7 @@ function Boards() {
             )}
 
             {/* phân trang dựa vào totalBoards */}
-            {totalBoards > 0 && (
+            {totalBoards > DEFAULT_ITEM_PER_PAGE && (
               <Box sx={{ my: 3, pr: 5, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                 <Pagination
                   size="large"

@@ -6,7 +6,6 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import Avatar from '@mui/material/Avatar'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import PersonAdd from '@mui/icons-material/PersonAdd'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
 import { useState } from 'react'
@@ -36,7 +35,7 @@ const Profiles = () => {
       title: 'Log out your account?',
       confirmationText: 'Logout',
       cancellationText: 'Cancel',
-      confirmationButtonProps: { color: 'error' }
+      confirmationButtonProps: { color: 'error' },
     })
       .then(() => dispatch(logoutUserAPI()))
       .catch(() => {})
@@ -58,40 +57,33 @@ const Profiles = () => {
       <Menu
         id="fade-menu-profiles"
         MenuListProps={{
-          'aria-labelledby': 'fade-button-profiles'
+          'aria-labelledby': 'fade-button-profiles',
         }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         onClick={handleClose}>
-        <Link to="/settings/account" style={{ color: 'inherit' }}>
-          <MenuItem sx={{ '&:hover': { color: 'success.light' } }}>
-            <Avatar src={currentUser?.avatar} className="hoverAvatar" sx={{ width: 28, height: 28, mr: 2 }} /> Profile
-          </MenuItem>
-        </Link>
+        <MenuItem>
+          <Avatar src={currentUser?.avatar} className="hoverAvatar" sx={{ width: 28, height: 28, mr: 2 }} /> {currentUser?.displayName}
+        </MenuItem>
 
         <Divider />
 
-        <MenuItem>
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Add another account
-        </MenuItem>
-
-        <MenuItem>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
+        <Link to="/settings/account" style={{ color: 'inherit' }}>
+          <MenuItem sx={{ '&:hover': { color: 'success.light' } }}>
+            <ListItemIcon>
+              <Settings fontSize="small" />
+            </ListItemIcon>
+            Settings
+          </MenuItem>
+        </Link>
 
         <MenuItem
           sx={{
             '&:hover': {
               color: 'warning.dark',
-              '.hoverLogout': { color: 'warning.dark' }
-            }
+              '.hoverLogout': { color: 'warning.dark' },
+            },
           }}
           onClick={handleLogout}>
           <ListItemIcon>
