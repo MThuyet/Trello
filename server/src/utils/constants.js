@@ -14,10 +14,14 @@ export const BOARD_TYPES = {
   PRIVATE: 'private',
 }
 
-// Ưu tiên dùng WEBSITE_DOMAIN_PRODUCTION nếu được set (khi deploy)
-// Nếu không có WEBSITE_DOMAIN_PRODUCTION thì mới dùng WEBSITE_DOMAIN_DEVELOPMENT (môi trường dev)
-// Kiểm tra cả BUILD_MODE và NODE_ENV để đảm bảo đúng môi trường production
-export const WEBSITE_DOMAIN = env.WEBSITE_DOMAIN_PRODUCTION || env.WEBSITE_DOMAIN_DEVELOPMENT
+// Kiểm tra môi trường để quyết định dùng domain nào
+// Nếu là production (BUILD_MODE === 'production' hoặc NODE_ENV === 'production') => dùng WEBSITE_DOMAIN_PRODUCTION
+// Nếu không có WEBSITE_DOMAIN_PRODUCTION thì fallback về WEBSITE_DOMAIN_DEVELOPMENT
+// Nếu là development => luôn dùng WEBSITE_DOMAIN_DEVELOPMENT
+const isProduction = env.BUILD_MODE === 'production' || process.env.NODE_ENV === 'production'
+export const WEBSITE_DOMAIN = isProduction
+  ? env.WEBSITE_DOMAIN_PRODUCTION || env.WEBSITE_DOMAIN_DEVELOPMENT
+  : env.WEBSITE_DOMAIN_DEVELOPMENT
 
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEM_PER_PAGE = 12
