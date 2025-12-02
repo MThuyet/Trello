@@ -1,50 +1,33 @@
-import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
-import Typography from '@mui/material/Typography'
 import CancelIcon from '@mui/icons-material/Cancel'
-import SubtitlesIcon from '@mui/icons-material/Subtitles'
-import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
-import TextField from '@mui/material/TextField'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
 import Divider from '@mui/material/Divider'
-import { BOARD_TYPES } from '~/utils/constants'
 import BoardMembersList from '~/components/Modal/BoardSettingsModal/BoardMembersList'
+import BoardInfoSection from './BoardInfoSection'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { useCallback } from 'react'
+import { cloneDeep } from 'lodash'
 
-const BoardSettingsModal = ({ board, isOpen, onClose }) => {
-  // State cho description và type
-  const [description, setDescription] = useState(board?.description || '')
-  const [type, setType] = useState(board?.type || BOARD_TYPES.PUBLIC)
+const BoardSettingsModal = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch()
+  const currentBoard = useSelector(selectCurrentActiveBoard)
 
-  // Cập nhật board title
-  const handleUpdateBoardTitle = async (newTitle) => {
-    console.log(newTitle)
-  }
+  // hàm cập nhật chung data board vào redux
+  const updateBoardInRedux = useCallback(
+    (updatedBoard) => {
+      if (!currentBoard || !updatedBoard) return
+      const newBoard = cloneDeep(currentBoard)
+      Object.assign(newBoard, updatedBoard)
+      dispatch(updateCurrentActiveBoard(newBoard))
+    },
+    [currentBoard, dispatch],
+  )
 
-  // Cập nhật board description
-  const handleUpdateDescription = async () => {
-    console.log(description)
-  }
-
-  // Cập nhật board type
-  const handleUpdateType = async (newType) => {
-    console.log(newType)
-  }
-
-  // Reset state khi modal đóng
-  const handleClose = () => {
-    setDescription(board?.description || '')
-    setType(board?.type || BOARD_TYPES.PUBLIC)
-    onClose()
-  }
-
-  if (!board) return null
+  if (!currentBoard) return null
 
   return (
-    <Modal open={isOpen} onClose={handleClose} sx={{ overflowY: 'auto' }}>
+    <Modal open={isOpen} onClose={onClose} sx={{ overflowY: 'auto' }}>
       <Box
         sx={{
           position: 'relative',
@@ -67,70 +50,11 @@ const BoardSettingsModal = ({ board, isOpen, onClose }) => {
             right: '10px',
             cursor: 'pointer',
           }}>
-          <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={handleClose} />
+          <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={onClose} />
         </Box>
 
         {/* Section 1: Thông tin Board */}
-        <Box sx={{ mb: 4 }}>
-          {/* Title */}
-          <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SubtitlesIcon />
-            <ToggleFocusInput value={board?.title || ''} onChangedValue={handleUpdateBoardTitle} inputFontSize="18px" />
-          </Box>
-
-          {/* Description */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: '600' }}>
-              Description
-            </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={handleUpdateDescription}
-              placeholder="Add a description to your board..."
-              variant="outlined"
-              size="small"
-            />
-          </Box>
-
-          {/* Type */}
-          <Box>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: '600' }}>
-              Visibility
-            </Typography>
-            <FormControl fullWidth size="small">
-              <InputLabel>Board Type</InputLabel>
-              <Select
-                value={type}
-                label="Board Type"
-                onChange={(e) => {
-                  const newType = e.target.value
-                  setType(newType)
-                  handleUpdateType(newType)
-                }}>
-                <MenuItem value={BOARD_TYPES.PUBLIC}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography>Public</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      - Anyone can view
-                    </Typography>
-                  </Box>
-                </MenuItem>
-                <MenuItem value={BOARD_TYPES.PRIVATE}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography>Private</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      - Only members can view
-                    </Typography>
-                  </Box>
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-        </Box>
+        <BoardInfoSection isOpen={isOpen} currentBoard={currentBoard} updateBoardInRedux={updateBoardInRedux} />
 
         <Divider sx={{ my: 1 }} />
 

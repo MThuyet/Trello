@@ -4,7 +4,7 @@ import { CHIP_STYLE } from '~/thems'
 import SettingsIcon from '@mui/icons-material/Settings'
 import BoardSettingsModal from '~/components/Modal/BoardSettingsModal'
 
-const BoardSettings = ({ board }) => {
+const BoardSettings = () => {
   const [isOpenModal, setIsOpenModal] = useState(false)
 
   const handleOpenModal = () => {
@@ -20,7 +20,7 @@ const BoardSettings = ({ board }) => {
       <Tooltip title="Board Settings">
         <Chip sx={CHIP_STYLE} icon={<SettingsIcon />} label="Settings" clickable onClick={handleOpenModal} />
       </Tooltip>
-      <BoardSettingsModal board={board} isOpen={isOpenModal} onClose={handleCloseModal} />
+      <BoardSettingsModal isOpen={isOpenModal} onClose={handleCloseModal} />
     </>
   )
 }

@@ -37,7 +37,7 @@ const BoardBar = ({ board }) => {
         <Chip sx={CHIP_STYLE} icon={<FilterListIcon />} label="Filters" clickable />
 
         {/* Settings board */}
-        <BoardSettings board={board} />
+        <BoardSettings />
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

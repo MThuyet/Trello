@@ -45,13 +45,13 @@ const BoardMembersList = () => {
         Board Members
       </Typography>
 
-      {allUsers.length === 0 ? (
+      {allUsers?.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
           No members in this board
         </Typography>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {allUsers.map((user) => {
+          {allUsers?.map((user) => {
             const isOwner = board?.owners?.some((owner) => owner._id === user._id)
             const isCurrentUserMember = user._id === currentUser._id
             // Kiểm tra xem currentUser có phải là owner không

@@ -11,13 +11,12 @@ Router.route('/')
 
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, boardController.getDetails)
-  // update column order ids
-  .put(authMiddleware.isAuthorized, boardValidation.updateColumnOrderIds, boardController.updateColumnOrderIds)
+  .put(authMiddleware.isAuthorized, boardValidation.update, boardController.update)
 
 // move card to different column
 Router.route('/supports/moving-cards').put(
   authMiddleware.isAuthorized,
   boardValidation.moveCardToDifferentColumn,
-  boardController.moveCardToDifferentColumn
+  boardController.moveCardToDifferentColumn,
 )
 export const boardRoute = Router

@@ -67,14 +67,20 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
-const updateColumnOrderIds = async (boardId, reqBody) => {
+const update = async (boardId, reqBody) => {
   try {
     const updateData = {
       ...reqBody,
       updatedAt: Date.now(),
     }
 
-    const updatedBoard = await boardModel.updateColumnOrderIds(boardId, updateData)
+    let updatedBoard = {}
+
+    if (updateData.columnOrderIds) {
+      updatedBoard = await boardModel.updateColumnOrderIds(boardId, updateData)
+    } else {
+      updatedBoard = await boardModel.update(boardId, updateData)
+    }
 
     return updatedBoard
   } catch (error) {
@@ -99,6 +105,6 @@ export const boardService = {
   getBoards,
   createNew,
   getDetails,
-  updateColumnOrderIds,
+  update,
   moveCardToDifferentColumn,
 }
