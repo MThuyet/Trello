@@ -19,6 +19,8 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import { styled } from '@mui/material/styles'
 import { createNewBoardAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import { BOARD_TYPES } from '~/utils/constants'
+
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -28,19 +30,13 @@ const SidebarItem = styled(Box)(({ theme }) => ({
   padding: '12px 16px',
   borderRadius: '8px',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300]
+    backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300],
   },
   '&.active': {
     color: theme.palette.mode === 'dark' ? '#90caf9' : '#0c66e4',
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff'
-  }
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#e9f2ff',
+  },
 }))
-
-// BOARD_TYPES tương tự bên model phía Back-end
-const BOARD_TYPES = {
-  PUBLIC: 'public',
-  PRIVATE: 'private'
-}
 
 function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const {
@@ -48,7 +44,7 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -59,14 +55,14 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
     reset({
       title: '',
       description: '',
-      type: BOARD_TYPES.PUBLIC
+      type: BOARD_TYPES.PUBLIC,
     })
   }
 
   const submitCreateNewBoard = (data) => {
     toast
       .promise(createNewBoardAPI(data), {
-        pending: 'Creating new board...'
+        pending: 'Creating new board...',
       })
       .then(() => {
         toast.success('Create new board successfully!')
@@ -96,14 +92,14 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
             border: 'none',
             outline: 0,
             padding: '20px 30px',
-            backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : 'white')
+            backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : 'white'),
           }}>
           <Box
             sx={{
               position: 'absolute',
               top: '10px',
               right: '10px',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}>
             <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={handleCloseModal} />
           </Box>
@@ -128,12 +124,12 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                         <InputAdornment position="start">
                           <AbcIcon fontSize="small" />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                     {...register('title', {
                       required: FIELD_REQUIRED_MESSAGE,
                       minLength: { value: 3, message: 'Min Length is 3 characters' },
-                      maxLength: { value: 50, message: 'Max Length is 50 characters' }
+                      maxLength: { value: 50, message: 'Max Length is 50 characters' },
                     })}
                     error={!!errors['title']}
                   />
@@ -152,12 +148,12 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                         <InputAdornment position="start">
                           <DescriptionOutlinedIcon fontSize="small" />
                         </InputAdornment>
-                      )
+                      ),
                     }}
                     {...register('description', {
                       required: FIELD_REQUIRED_MESSAGE,
                       minLength: { value: 3, message: 'Min Length is 3 characters' },
-                      maxLength: { value: 255, message: 'Max Length is 255 characters' }
+                      maxLength: { value: 255, message: 'Max Length is 255 characters' },
                     })}
                     error={!!errors['description']}
                   />

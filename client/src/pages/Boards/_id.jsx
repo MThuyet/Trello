@@ -1,7 +1,7 @@
 // Board Details
 import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
-import BoardBar from './BoardBar/BoardBar'
+import BoardBar from './BoardBar'
 import BoardContent from './BoardContent/BoardContent'
 import { useEffect } from 'react'
 import { updateBoardDetailsAPI, updateColumnDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis'

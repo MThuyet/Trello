@@ -13,7 +13,7 @@ const theme = extendTheme({
     boardBarHeight: BOARD_BAR_HEIGHT,
     boardContentHeight: BOARD_CONTENT_HEIGHT,
     columnHeaderHeight: COLUMN_HEADER_HEIGHT,
-    columnFooterHeight: COLUMN_FOOTER_HEIGHT
+    columnFooterHeight: COLUMN_FOOTER_HEIGHT,
   },
   colorSchemes: {},
   components: {
@@ -23,17 +23,17 @@ const theme = extendTheme({
         body: {
           '*::-webkit-scrollbar': {
             width: '8px',
-            height: '4px'
+            height: '4px',
           },
           '*::-webkit-scrollbar-thumb': {
             backgroundColor: '#dcdde1',
-            borderRadius: '8px'
+            borderRadius: '8px',
           },
           '*::-webkit-scrollbar-thumb:hover': {
-            backgroundColor: '#fff'
-          }
-        }
-      }
+            backgroundColor: '#fff',
+          },
+        },
+      },
     },
     MuiButton: {
       styleOverrides: {
@@ -41,27 +41,28 @@ const theme = extendTheme({
         root: {
           // Some CSS
           textTransform: 'none',
-          borderWidth: '1px'
-        }
-      }
+          borderWidth: '1px',
+        },
+      },
     },
     MuiInputLabel: {
       styleOverrides: {
-        root: { fontSize: '0.875rem' }
-      }
+        root: { fontSize: '0.875rem' },
+      },
     },
     MuiTypography: {
       styleOverrides: {
         root: {
           '&.MuiTypography-body1': {
-            fontSize: '0.875rem'
-          }
-        }
-      }
+            fontSize: '0.875rem',
+          },
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         // Name of the slot
+        // eslint-disable-next-line no-unused-vars
         root: ({ theme }) => ({
           // color: theme.palette.primary.main,
           fontSize: '0.875rem',
@@ -75,11 +76,26 @@ const theme = extendTheme({
           // },
           '& fieldset': { borderWidth: '1px !important' },
           '&:hover fieldset': { borderWidth: '2px !important' },
-          '&.Mui-focused fieldset': { borderWidth: '2px !important' }
-        })
-      }
-    }
-  }
+          '&.Mui-focused fieldset': { borderWidth: '2px !important' },
+        }),
+      },
+    },
+  },
 })
+
+// styles
+export const CHIP_STYLE = {
+  color: '#fff',
+  backgroundColor: 'transparent',
+  border: 'none',
+  paddingX: '5px',
+  borderRadius: '4px',
+  '.MuiSvgIcon-root': {
+    color: '#fff',
+  },
+  '&:hover': {
+    bgcolor: 'primary.50',
+  },
+}
 
 export default theme

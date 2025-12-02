@@ -3,26 +3,13 @@ import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import VpnLockIcon from '@mui/icons-material/VpnLock'
 import AddToDriveIcon from '@mui/icons-material/AddToDrive'
-import BoltIcon from '@mui/icons-material/Bolt'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
-
-const CHIP_STYLE = {
-  color: '#fff',
-  backgroundColor: 'transparent',
-  border: 'none',
-  paddingX: '5px',
-  borderRadius: '4px',
-  '.MuiSvgIcon-root': {
-    color: '#fff',
-  },
-  '&:hover': {
-    bgcolor: 'primary.50',
-  },
-}
+import { CHIP_STYLE } from '~/thems'
+import BoardSettings from './BoardSettings'
 
 const BoardBar = ({ board }) => {
   return (
@@ -47,9 +34,10 @@ const BoardBar = ({ board }) => {
 
         <Chip sx={CHIP_STYLE} icon={<AddToDriveIcon />} label="Add to Google Drive" clickable />
 
-        <Chip sx={CHIP_STYLE} icon={<BoltIcon />} label="Automation" clickable />
-
         <Chip sx={CHIP_STYLE} icon={<FilterListIcon />} label="Filters" clickable />
+
+        {/* Settings board */}
+        <BoardSettings board={board} />
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

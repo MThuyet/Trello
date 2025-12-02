@@ -8,11 +8,9 @@ import Workspaces from './Menus/Workspaces'
 import Recent from './Menus/Recent'
 import Starred from './Menus/Starred'
 import Templates from './Menus/Templates'
-import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menus/Profiles'
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd'
 import { Link } from 'react-router-dom'
 import Notifications from '~/components/AppBar/Notifications/Notifications'
 import AutoCompleteSearchBoard from '~/components/AppBar/SearchBoards/AutoCompleteSearchBoard'
@@ -53,10 +51,6 @@ const AppBar = () => {
           <Starred />
           <Templates />
         </Box>
-
-        <Button startIcon={<LibraryAddIcon />} sx={{ color: 'white' }}>
-          Create
-        </Button>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

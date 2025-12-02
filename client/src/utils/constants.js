@@ -8,6 +8,11 @@ if (process.env.BUILD_MODE === 'production') {
   apiRoot = 'https://api.mthuyet.site'
 }
 
+export const BOARD_TYPES = {
+  PUBLIC: 'public',
+  PRIVATE: 'private',
+}
+
 export const ACTION_UPDATE_CARD_MEMBERS = {
   ADD: 'ADD',
   REMOVE: 'REMOVE',
