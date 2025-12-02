@@ -10,8 +10,9 @@ import { useForm } from 'react-hook-form'
 import { EMAIL_RULE, FIELD_REQUIRED_MESSAGE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { inviteUserToBoardAPI } from '~/apis'
-import { toast } from 'react-toastify'
 import { socketIoInstance } from '~/socketClient'
+import { useDispatch } from 'react-redux'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 function InviteBoardUser({ boardId }) {
   // xử lý đóng mở popover của thư viện
@@ -23,6 +24,8 @@ function InviteBoardUser({ boardId }) {
     else setAnchorPopoverElement(null)
   }
 
+  const dispach = useDispatch()
+
   // xử lý form sử dụng react-hook-form
   const {
     register,
@@ -32,19 +35,24 @@ function InviteBoardUser({ boardId }) {
   } = useForm()
 
   // submit form
-  const submitInviteUserToBoard = (data) => {
+  const submitInviteUserToBoard = async (data) => {
     const { inviteeEmail } = data
-    // call api
-    inviteUserToBoardAPI({ inviteeEmail, boardId }).then((invitation) => {
-      toast.success('Invite user to board successfully!')
+
+    try {
+      // call api
+      const invitationResponse = await inviteUserToBoardAPI({ inviteeEmail, boardId })
+
+      dispach(showSnackbar({ message: 'Invite user to board successfully!', severity: 'success' }))
       // Clear thẻ input sử dụng react-hook-form bằng setValue & đóng popover
       setValue('inviteeEmail', null)
       setAnchorPopoverElement(null)
 
       // mời người dùng vào board xong thì gửi/emit sự kiện lên server (realtime)
       // tham số thứ nhất là tên sự kiện, tham số 2 là data
-      socketIoInstance.emit('FE_USER_INVITED_TO_BOARD', invitation)
-    })
+      socketIoInstance.emit('FE_USER_INVITED_TO_BOARD', invitationResponse)
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (

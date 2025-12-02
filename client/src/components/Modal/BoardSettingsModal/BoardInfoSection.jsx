@@ -82,12 +82,7 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
       {/* Title */}
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <SubtitlesIcon />
-        <ToggleFocusInput
-          className="interceptor-loading"
-          value={currentBoard?.title || ''}
-          onChangedValue={handleUpdateBoardTitle}
-          inputFontSize="18px"
-        />
+        <ToggleFocusInput value={currentBoard?.title || ''} onChangedValue={handleUpdateBoardTitle} inputFontSize="18px" />
       </Box>
 
       {/* Description */}
@@ -96,7 +91,6 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
           Description
         </Typography>
         <TextField
-          className="interceptor-loading"
           fullWidth
           multiline
           rows={4}
@@ -123,7 +117,6 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
         <FormControl fullWidth size="small">
           <InputLabel>Board Type</InputLabel>
           <Select
-            className="interceptor-loading"
             value={type}
             label="Board Type"
             onChange={(e) => {

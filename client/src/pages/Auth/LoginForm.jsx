@@ -15,7 +15,6 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, F
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useDispatch } from 'react-redux'
 import { loginUserAPI } from '~/redux/user/userSlice'
-import { toast } from 'react-toastify'
 
 const LoginForm = () => {
   const dispatch = useDispatch()
@@ -28,22 +27,16 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
-  const submitLogin = (data) => {
-    toast
-      .promise(dispatch(loginUserAPI(data)), {
-        pending: 'Logging in...',
-        error: 'Login failed!'
-      })
-      .then((res) => {
-        // nếu không lỗi thì redirec
-        if (!res.error) {
-          navigate('/')
-          toast.success('Login successfully!', { theme: 'colored' })
-        }
-      })
+  const submitLogin = async (data) => {
+    try {
+      await dispatch(loginUserAPI(data)).unwrap()
+      navigate('/')
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (
@@ -56,7 +49,7 @@ const LoginForm = () => {
               margin: '1em',
               display: 'flex',
               justifyContent: 'center',
-              gap: 1
+              gap: 1,
             }}>
             <Avatar sx={{ bgcolor: 'primary.main' }}>
               <LockIcon />
@@ -97,7 +90,7 @@ const LoginForm = () => {
               <TextField
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
-                  pattern: { value: EMAIL_RULE, message: EMAIL_RULE_MESSAGE }
+                  pattern: { value: EMAIL_RULE, message: EMAIL_RULE_MESSAGE },
                 })}
                 autoFocus
                 fullWidth
@@ -112,7 +105,7 @@ const LoginForm = () => {
               <TextField
                 {...register('password', {
                   required: FIELD_REQUIRED_MESSAGE,
-                  pattern: { value: PASSWORD_RULE, message: PASSWORD_RULE_MESSAGE }
+                  pattern: { value: PASSWORD_RULE, message: PASSWORD_RULE_MESSAGE },
                 })}
                 fullWidth
                 label="Enter Password..."

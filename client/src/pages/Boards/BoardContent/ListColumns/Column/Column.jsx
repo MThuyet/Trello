@@ -20,7 +20,6 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
-import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
 import { createNewCardAPI, updateColumnDetailsAPI } from '~/apis'
 import { cloneDeep } from 'lodash'
@@ -28,6 +27,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { deleteColumnAPI } from '~/apis'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const Column = ({ column }) => {
   // redux
@@ -73,7 +73,7 @@ const Column = ({ column }) => {
   // hàm tạo Card
   const addNewCard = async () => {
     if (!newCardTitle) {
-      toast.error('Please enter card title', { position: 'bottom-right' })
+      dispatch(showSnackbar({ message: 'Please enter card title', severity: 'error' }))
       return
     }
 
@@ -134,7 +134,7 @@ const Column = ({ column }) => {
 
         // gọi API xử lý phía backend
         deleteColumnAPI(column._id).then((res) => {
-          toast.success(res?.deleteResult, { position: 'bottom-left' })
+          dispatch(showSnackbar({ message: res?.deleteResult, severity: 'success' }))
         })
       })
       .catch(() => {})
@@ -144,7 +144,7 @@ const Column = ({ column }) => {
   const onUpdateColumnTitle = (newTitle) => {
     // call api update column và xử lý dữ liệu board trong redux
     updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
-      toast.success('Updated column successfully!')
+      dispatch(showSnackbar({ message: 'Updated column successfully!', severity: 'success' }))
       const newBoard = cloneDeep(board)
       const columnToUpdate = newBoard.columns.find((c) => c._id === column._id)
       if (columnToUpdate) {

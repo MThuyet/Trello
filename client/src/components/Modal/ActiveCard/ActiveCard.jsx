@@ -27,7 +27,6 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
 import { singleFileValidator } from '~/utils/validators'
-import { toast } from 'react-toastify'
 
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
@@ -46,6 +45,7 @@ import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCardInBoard } fro
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 import { useConfirm } from 'material-ui-confirm'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 // style sidebar
 const SidebarItem = styled(Box)(({ theme }) => ({
@@ -98,20 +98,24 @@ function ActiveCard() {
     callApiUpdateCard({ description: newDescription })
   }
 
-  const onUploadCardCover = (event) => {
+  const onUploadCardCover = async (event) => {
     const error = singleFileValidator(event.target?.files[0])
     if (error) {
-      toast.error(error)
+      dispach(showSnackbar({ message: error, severity: 'error' }))
       return
     }
     let reqData = new FormData()
     reqData.append('cover', event.target?.files[0])
 
     // call api
-    toast.promise(
-      callApiUpdateCard(reqData).finally(() => (event.target.value = '')),
-      { pending: 'Uploading cover...' },
-    )
+    try {
+      await callApiUpdateCard(reqData)
+      dispach(showSnackbar({ message: 'Upload cover successfully!', severity: 'success' }))
+    } catch (error) {
+      console.log(error.message)
+    } finally {
+      event.target.value = ''
+    }
   }
 
   // dùng async await để component con CardActivitySection chờ và thành công thì mới clear input value
@@ -142,14 +146,15 @@ function ActiveCard() {
       confirmationKeyword: activeCard?.title,
       confirmationButtonProps: { color: 'error' },
     })
-      .then(() => {
-        toast.promise(
-          deleteOneCardAPI(cardId).then(() => {
-            dispach(clearAndHideCurrentActiveCard())
-            dispach(fetchBoardDetailsAPI(activeBoard._id))
-          }),
-          { pending: 'Deleting card...', success: 'Deleted card successfully', error: 'Failed to delete card' },
-        )
+      .then(async () => {
+        try {
+          await deleteOneCardAPI(cardId)
+          dispach(clearAndHideCurrentActiveCard())
+          dispach(fetchBoardDetailsAPI(activeBoard._id))
+          dispach(showSnackbar({ message: 'Deleted card successfully!', severity: 'success' }))
+        } catch (error) {
+          console.log(error.message)
+        }
       })
       .catch(() => {})
   }
@@ -251,7 +256,7 @@ function ActiveCard() {
               )}
 
               {/* Feature 06: Xử lý hành động cập nhật ảnh Cover của Card */}
-              <SidebarItem className="active" component="label">
+              <SidebarItem className="active interceptor-loading" component="label">
                 <ImageOutlinedIcon fontSize="small" />
                 Cover
                 <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />

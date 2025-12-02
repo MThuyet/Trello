@@ -20,7 +20,6 @@ import {
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { registerAccountAPI } from '~/apis'
-import { toast } from 'react-toastify'
 
 const RegisterForm = () => {
   const navigate = useNavigate()
@@ -32,15 +31,15 @@ const RegisterForm = () => {
     watch,
   } = useForm()
 
-  const submitRegister = (data) => {
+  const submitRegister = async (data) => {
     const { email, password } = data
-    toast
-      .promise(registerAccountAPI({ email, password }), {
-        pending: 'Registering account...',
-        success: 'Register successfully! Please check your email to verify account',
-        error: 'Register failed!',
-      })
-      .then((user) => navigate(`/login?registeredEmail=${user.email}`))
+
+    try {
+      await registerAccountAPI({ email, password })
+      navigate(`/login?registeredEmail=${email}`)
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (

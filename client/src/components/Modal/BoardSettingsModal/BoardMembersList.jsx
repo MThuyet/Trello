@@ -1,12 +1,13 @@
 import { Avatar, Box, IconButton, Tooltip, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
-import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const BoardMembersList = () => {
+  const dispach = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   const currentUser = useSelector(selectCurrentUser)
   const allUsers = board?.FE_allUsers
@@ -18,7 +19,7 @@ const BoardMembersList = () => {
     const isOwner = owners.some((owner) => owner._id === memberId)
 
     if (isOwner && owners.length === 1) {
-      toast.error('Cannot remove the only owner of the board')
+      dispach(showSnackbar({ message: 'Cannot remove the only owner of the board', severity: 'error' }))
       return
     }
 

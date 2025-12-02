@@ -6,12 +6,12 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
-import { toast } from 'react-toastify'
 import { createNewColumnAPI } from '~/apis'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const ListColumns = ({ columns }) => {
   // redux
@@ -27,19 +27,19 @@ const ListColumns = ({ columns }) => {
   // hàm tạo column
   const addNewColumn = async () => {
     if (!newColumnTitle) {
-      toast.error('Please enter column title')
+      dispatch(showSnackbar({ message: 'Please enter column title', severity: 'error' }))
       return
     }
 
     // Tạo dữ liệu để call API
     const newColumnData = {
-      title: newColumnTitle
+      title: newColumnTitle,
     }
 
     // gọi API tạo mới column và làm lại dữ liệu state board
     const createdColumn = await createNewColumnAPI({
       ...newColumnData,
-      boardId: board._id
+      boardId: board._id,
     })
 
     // xử lý kéo thả khi column mới được tạo nên rỗng
@@ -73,7 +73,7 @@ const ListColumns = ({ columns }) => {
           bgcolor: 'inherit',
           width: '100%',
           height: '100%',
-          '&::-webkit-scrollbar-track': { m: 2 }
+          '&::-webkit-scrollbar-track': { m: 2 },
         }}>
         {/* Columns */}
         {columns?.map((column) => (
@@ -90,7 +90,7 @@ const ListColumns = ({ columns }) => {
               mx: 2,
               borderRadius: '6px',
               height: 'fit-content',
-              bgcolor: '#ffffff3d'
+              bgcolor: '#ffffff3d',
             }}>
             <Button
               sx={{
@@ -98,7 +98,7 @@ const ListColumns = ({ columns }) => {
                 width: '100%',
                 justifyContent: 'flex-start',
                 pl: 2.5,
-                py: 1
+                py: 1,
               }}
               startIcon={<NoteAddIcon />}>
               Add new column
@@ -115,7 +115,7 @@ const ListColumns = ({ columns }) => {
               height: 'fit-content',
               bgcolor: '#ffffff3d',
               flexDirection: 'column',
-              gap: 1
+              gap: 1,
             }}>
             <TextField
               label="Enter column title..."
@@ -133,8 +133,8 @@ const ListColumns = ({ columns }) => {
                 '& .MuiOutlinedInput-root': {
                   '& fieldset': { borderColor: '#fff' },
                   '&:hover fieldset': { borderColor: '#fff' },
-                  '&.Mui-focused fieldset': { borderColor: '#fff' }
-                }
+                  '&.Mui-focused fieldset': { borderColor: '#fff' },
+                },
               }}
             />
             <Box
@@ -142,7 +142,7 @@ const ListColumns = ({ columns }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1,
-                mt: 1
+                mt: 1,
               }}>
               <Button
                 className="interceptor-loading"
@@ -154,7 +154,7 @@ const ListColumns = ({ columns }) => {
                   boxShadow: 'none',
                   border: '0.5px solid',
                   borderColor: (theme) => theme.palette.success.main,
-                  '&:hover': { bgcolor: (theme) => theme.palette.success.main }
+                  '&:hover': { bgcolor: (theme) => theme.palette.success.main },
                 }}>
                 Add column
               </Button>
@@ -164,7 +164,7 @@ const ListColumns = ({ columns }) => {
                 sx={{
                   color: 'white',
                   cursor: 'pointer',
-                  '&:hover': { color: (theme) => theme.palette.warning.light }
+                  '&:hover': { color: (theme) => theme.palette.warning.light },
                 }}
               />
             </Box>

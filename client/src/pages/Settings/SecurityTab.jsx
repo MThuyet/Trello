@@ -13,8 +13,8 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useForm } from 'react-hook-form'
 import { useConfirm } from 'material-ui-confirm'
 import { useDispatch } from 'react-redux'
-import { toast } from 'react-toastify'
 import { logoutUserAPI, updateUserAPI } from '~/redux/user/userSlice'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 function SecurityTab() {
   const dispatch = useDispatch()
@@ -23,7 +23,7 @@ function SecurityTab() {
     register,
     handleSubmit,
     watch,
-    formState: { errors }
+    formState: { errors },
   } = useForm()
 
   const confirmChangePassword = useConfirm()
@@ -37,22 +37,19 @@ function SecurityTab() {
       ),
       description: 'You have to login again after successfully changing your password. Continue?',
       confirmationText: 'Confirm',
-      cancellationText: 'Cancel'
+      cancellationText: 'Cancel',
     })
-      .then(() => {
+      .then(async () => {
         const { current_password, new_password } = data
 
         // call api
-        toast
-          .promise(dispatch(updateUserAPI({ current_password, new_password })), {
-            pending: 'Updating...'
-          })
-          .then((res) => {
-            if (!res.error) {
-              toast.success('Updated successfully!')
-              dispatch(logoutUserAPI(false))
-            }
-          })
+        try {
+          await dispatch(updateUserAPI({ current_password, new_password })).unwrap()
+          dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
+          dispatch(logoutUserAPI(false))
+        } catch (error) {
+          console.log(error.message)
+        }
       })
       .catch(() => {})
   }
@@ -64,7 +61,7 @@ function SecurityTab() {
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}>
       <Box
         sx={{
@@ -73,7 +70,7 @@ function SecurityTab() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 3
+          gap: 3,
         }}>
         <Box>
           <Typography variant="h5">Security Dashboard</Typography>
@@ -91,14 +88,14 @@ function SecurityTab() {
                     <InputAdornment position="start">
                       <PasswordIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 {...register('current_password', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: PASSWORD_RULE,
-                    message: PASSWORD_RULE_MESSAGE
-                  }
+                    message: PASSWORD_RULE_MESSAGE,
+                  },
                 })}
                 error={!!errors['current_password']}
               />
@@ -116,14 +113,14 @@ function SecurityTab() {
                     <InputAdornment position="start">
                       <LockIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 {...register('new_password', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: PASSWORD_RULE,
-                    message: PASSWORD_RULE_MESSAGE
-                  }
+                    message: PASSWORD_RULE_MESSAGE,
+                  },
                 })}
                 error={!!errors['new_password']}
               />
@@ -141,13 +138,13 @@ function SecurityTab() {
                     <InputAdornment position="start">
                       <LockResetIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 {...register('new_password_confirmation', {
                   validate: (value) => {
                     if (value === watch('new_password')) return true
                     return 'Password confirmation does not match.'
-                  }
+                  },
                 })}
                 error={!!errors['new_password_confirmation']}
               />

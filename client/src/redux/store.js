@@ -8,6 +8,7 @@ import { userReducer } from './user/userSlice'
 import storage from 'redux-persist/lib/storage' // default là localStorage
 import { combineReducers } from 'redux'
 import { persistReducer } from 'redux-persist'
+import { uiReducer } from './uiSlice/uiSlice'
 
 // config persist
 const rootPersistConfig = {
@@ -22,6 +23,7 @@ const reducers = combineReducers({
   activeCard: activeCardReducer,
   notifications: notificationReducer,
   user: userReducer,
+  ui: uiReducer,
 })
 
 // thực hiện persist

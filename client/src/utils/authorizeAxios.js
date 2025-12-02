@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from './formatter'
 import { logoutUserAPI } from '~/redux/user/userSlice'
 import { refreshTokenAPI } from '~/apis'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 /*
 	* Không thể import {store} from '~/redux/store' theo cách thông thường vì đây là file js
@@ -36,7 +36,7 @@ authorizedAxiosInstance.interceptors.request.use(
   (error) => {
     // Do something with request error
     return Promise.reject(error)
-  }
+  },
 )
 
 // khởi tạo một promise cho việc gọi api refresh-token
@@ -57,8 +57,9 @@ authorizedAxiosInstance.interceptors.response.use(
     /** xử lý refreshToken tự động **/
     // trường hợp 1: nếu mã là 401 Unauthorized , gọi API đăng xuất
     if (error.response?.status === 401) {
-      // do token có vấn đề cần đăng nhập lại nên ko show toast message
-      axiosReduxStore.dispatch(logoutUserAPI(false))
+      // do token có vấn đề cần đăng nhập lại nên ko show message lỗi
+      axiosReduxStore.dispatch(logoutUserAPI())
+      return Promise.reject(error)
     }
 
     // trường hợp 2: nếu mã là 410, gọi API refresh-token
@@ -77,7 +78,7 @@ authorizedAxiosInstance.interceptors.response.use(
           })
           .catch(() => {
             // nếu nhận bất kì lỗi nào thì logout
-            axiosReduxStore.dispatch(logoutUserAPI(false))
+            axiosReduxStore.dispatch(logoutUserAPI())
           })
           .finally(() => {
             // dù API có ok hay không thì vẫn gán lại refreshTokenPromise = null
@@ -100,11 +101,11 @@ authorizedAxiosInstance.interceptors.response.use(
     let errorMessage = error?.response?.data?.message || error?.message
     // ngoại trừ status lỗi 410 (GONE) phục vụ việc tự refresh lại token
     if (error.response?.status !== 410) {
-      toast.error(errorMessage || 'Something went wrong')
+      axiosReduxStore.dispatch(showSnackbar({ message: errorMessage || 'Something went wrong', severity: 'error' }))
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 export default authorizedAxiosInstance

@@ -17,7 +17,6 @@ module.exports = {
     'no-restricted-imports': ['error', { patterns: ['@mui/*/*/*'] }],
 
     // Common
-    'no-console': 1,
     'no-lonely-if': 1,
     'no-unused-vars': 1,
     'no-trailing-spaces': 1,

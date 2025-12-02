@@ -5,9 +5,6 @@ import CssBaseline from '@mui/material/CssBaseline'
 import GlobalStyles from '@mui/material/GlobalStyles'
 import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles'
 import theme from '~/thems.js'
-// react-toastify
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 // material-ui-confirm
 import { ConfirmProvider } from 'material-ui-confirm'
 // redux
@@ -42,7 +39,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <GlobalStyles styles={{ a: { textDecoration: 'none' } }} />
             <CssBaseline />
             <App />
-            <ToastContainer position="bottom-left" theme="colored" autoClose={3000} />
           </ConfirmProvider>
         </CssVarsProvider>
       </BrowserRouter>

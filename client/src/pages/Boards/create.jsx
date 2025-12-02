@@ -18,8 +18,9 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 
 import { styled } from '@mui/material/styles'
 import { createNewBoardAPI } from '~/apis'
-import { toast } from 'react-toastify'
 import { BOARD_TYPES } from '~/utils/constants'
+import { useDispatch } from 'react-redux'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -47,6 +48,8 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
     formState: { errors },
   } = useForm()
 
+  const dispach = useDispatch()
+
   const [isOpen, setIsOpen] = useState(false)
   const handleOpenModal = () => setIsOpen(true)
   const handleCloseModal = () => {
@@ -59,16 +62,15 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
     })
   }
 
-  const submitCreateNewBoard = (data) => {
-    toast
-      .promise(createNewBoardAPI(data), {
-        pending: 'Creating new board...',
-      })
-      .then(() => {
-        toast.success('Create new board successfully!')
-        handleCloseModal()
-        afterCreateNewBoard()
-      })
+  const submitCreateNewBoard = async (data) => {
+    try {
+      await createNewBoardAPI(data)
+      dispach(showSnackbar({ message: 'Create new board successfully!', severity: 'success' }))
+      handleCloseModal()
+      afterCreateNewBoard()
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
   return (

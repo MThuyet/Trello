@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import Settings from './pages/Settings/Settings'
 import Boards from './pages/Boards'
+import GlobalSnackbar from './components/Common/GlobalSnackbar'
 
 // Protected Route chỉ cho truy cập nếu đã login
 const ProtectedRoute = ({ user }) => {
@@ -19,31 +20,34 @@ function App() {
   const currentUser = useSelector(selectCurrentUser)
 
   return (
-    <Routes>
-      {/* Sử dụng replace={true} để không lưu lại history của browser */}
-      <Route path="/" element={<Navigate to="/boards" />} replace={true} />
+    <>
+      <Routes>
+        {/* Sử dụng replace={true} để không lưu lại history của browser */}
+        <Route path="/" element={<Navigate to="/boards" />} replace={true} />
 
-      {/* Auth */}
-      <Route path="/login" element={<Auth />} />
-      <Route path="/register" element={<Auth />} />
-      {/* Verify */}
-      <Route path="/account/verification" element={<AccountVerification />} />
+        {/* Auth */}
+        <Route path="/login" element={<Auth />} />
+        <Route path="/register" element={<Auth />} />
+        {/* Verify */}
+        <Route path="/account/verification" element={<AccountVerification />} />
 
-      <Route element={<ProtectedRoute user={currentUser} />}>
-        {/* Board Details */}
-        <Route path="/boards/:boardId" element={<Board />} />
-        {/* Board list */}
-        <Route path="/boards" element={<Boards />} />
+        <Route element={<ProtectedRoute user={currentUser} />}>
+          {/* Board Details */}
+          <Route path="/boards/:boardId" element={<Board />} />
+          {/* Board list */}
+          <Route path="/boards" element={<Boards />} />
 
-        {/* Account Setting */}
-        <Route path="/settings/account" element={<Settings />} />
-        <Route path="/settings/security" element={<Settings />} />
-      </Route>
+          {/* Account Setting */}
+          <Route path="/settings/account" element={<Settings />} />
+          <Route path="/settings/security" element={<Settings />} />
+        </Route>
 
-      {/* 404 not found */}
-      {/* Khi người dùng truy cập vào một route không tồn tại thì * sẽ match vào đây */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* 404 not found */}
+        {/* Khi người dùng truy cập vào một route không tồn tại thì * sẽ match vào đây */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <GlobalSnackbar />
+    </>
   )
 }
 

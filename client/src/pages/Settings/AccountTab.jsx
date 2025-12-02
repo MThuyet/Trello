@@ -14,8 +14,8 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, updateUserAPI } from '~/redux/user/userSlice'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 function AccountTab() {
   const currentUser = useSelector(selectCurrentUser)
@@ -23,38 +23,37 @@ function AccountTab() {
 
   // Những thông tin của user để init vào form (key tương ứng với register phía dưới Field)
   const initialGeneralForm = {
-    displayName: currentUser?.displayName
+    displayName: currentUser?.displayName,
   }
   // Sử dụng defaultValues để set giá trị mặc định cho các field cần thiết
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
-    defaultValues: initialGeneralForm
+    defaultValues: initialGeneralForm,
   })
 
-  const submitChangeGeneralInformation = (data) => {
+  const submitChangeGeneralInformation = async (data) => {
     const { displayName } = data
 
     // Nếu không có sự thay đổi gì về displayname thì không làm gì cả
     if (displayName === currentUser?.displayName) return
 
     // call API
-    toast
-      .promise(dispatch(updateUserAPI({ displayName })), {
-        pending: 'Updating...'
-      })
-      .then((res) => {
-        if (!res.error) toast.success('Updated successfully!', { theme: 'colored' })
-      })
+    try {
+      await dispatch(updateUserAPI({ displayName })).unwrap()
+      dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
-  const uploadAvatar = (e) => {
+  const uploadAvatar = async (e) => {
     // Lấy file thông qua e.target?.files[0] và validate nó trước khi xử lý
     const error = singleFileValidator(e.target?.files[0])
     if (error) {
-      toast.error(error)
+      dispatch(showSnackbar({ message: error, severity: 'error' }))
       return
     }
 
@@ -68,15 +67,14 @@ function AccountTab() {
     // }
 
     // Gọi API...
-    toast
-      .promise(dispatch(updateUserAPI(reqData)), {
-        pending: 'Updating...'
-      })
-      .then((res) => {
-        if (!res.error) toast.success('Updated successfully!', { theme: 'colored' })
+    try {
+      await dispatch(updateUserAPI(reqData)).unwrap()
+      dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
+    } catch (error) {
+      console.log(error.message)
+    }
 
-        e.target.value = ''
-      })
+    e.target.value = ''
     // dù api có lỗi hay ko thì phải clear giá trị của file input đi, nếu không thì ko thể chọn cùng một file liên tiếp được
   }
 
@@ -87,7 +85,7 @@ function AccountTab() {
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}>
       <Box
         sx={{
@@ -96,13 +94,13 @@ function AccountTab() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 3
+          gap: 3,
         }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box>
             <Avatar sx={{ width: 84, height: 84, mb: 1 }} alt="TrungQuanDev" src={currentUser?.avatar} />
             <Tooltip title="Upload a new image to update your avatar immediately.">
-              <Button component="label" variant="contained" size="small" startIcon={<CloudUploadIcon />}>
+              <Button className="interceptor-loading" component="label" variant="contained" size="small" startIcon={<CloudUploadIcon />}>
                 Upload
                 <VisuallyHiddenInput type="file" onChange={uploadAvatar} />
               </Button>
@@ -129,7 +127,7 @@ function AccountTab() {
                     <InputAdornment position="start">
                       <MailIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Box>
@@ -147,7 +145,7 @@ function AccountTab() {
                     <InputAdornment position="start">
                       <AccountBoxIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
               />
             </Box>
@@ -163,10 +161,10 @@ function AccountTab() {
                     <InputAdornment position="start">
                       <AssignmentIndIcon fontSize="small" />
                     </InputAdornment>
-                  )
+                  ),
                 }}
                 {...register('displayName', {
-                  required: FIELD_REQUIRED_MESSAGE
+                  required: FIELD_REQUIRED_MESSAGE,
                 })}
                 error={!!errors['displayName']}
               />
