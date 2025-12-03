@@ -1,4 +1,4 @@
-import { experimental_extendTheme as extendTheme } from '@mui/material/styles'
+import { extendTheme } from '@mui/material/styles'
 
 const APP_BAR_HEIGHT = '58px'
 const BOARD_BAR_HEIGHT = '60px'
@@ -15,7 +15,10 @@ const theme = extendTheme({
     columnHeaderHeight: COLUMN_HEADER_HEIGHT,
     columnFooterHeight: COLUMN_FOOTER_HEIGHT,
   },
-  colorSchemes: {},
+  colorSchemes: {
+    light: { palette: { mode: 'light' } },
+    dark: { palette: { mode: 'dark' } },
+  },
   components: {
     // Name of the component
     MuiCssBaseline: {

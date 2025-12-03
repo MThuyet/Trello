@@ -14,13 +14,13 @@ const NotFound = () => {
         width: '100vw',
         height: '100vh',
         bgcolor: '#25344C',
-        color: 'white'
+        color: 'white',
       }}>
       <Box
         sx={{
           '@keyframes stars': {
             '0%': { backgroundPosition: '-100% 100%' },
-            '100%': { backgroundPosition: '0 0 ' }
+            '100%': { backgroundPosition: '0 0 ' },
           },
           animation: 'stars 12s linear infinite alternate',
           width: '100%',
@@ -33,7 +33,7 @@ const NotFound = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}>
         <Typography variant="h1" sx={{ fontSize: '100px', fontWeight: 800 }}>
           404
@@ -50,8 +50,8 @@ const NotFound = () => {
                 borderBottom: '3px solid #fdba26',
                 left: 0,
                 top: '43%',
-                width: '100%'
-              }
+                width: '100%',
+              },
             }}>
             &nbsp;SPACE&nbsp;
           </Typography>
@@ -74,9 +74,9 @@ const NotFound = () => {
               right: '25px',
               '@keyframes spinAround': {
                 from: { transform: 'rotate(0deg)' },
-                to: { transform: 'rotate(360deg)' }
+                to: { transform: 'rotate(360deg)' },
               },
-              animation: 'spinAround 5s linear 0s infinite'
+              animation: 'spinAround 5s linear 0s infinite',
             }}
           />
           {/* Đoạn này nếu chỉ cần hiện file SVG mà không cần custom css bằng SX prop thì không cần dùng SvgIcon mà cứ gọi trực tiếp luôn cũng được */}
@@ -91,7 +91,7 @@ const NotFound = () => {
               alignItems: 'center',
               color: 'white',
               borderColor: 'white',
-              '&:hover': { color: '#fdba26', borderColor: '#fdba26' }
+              '&:hover': { color: '#fdba26', borderColor: '#fdba26' },
             }}>
             Go Home
           </Button>
