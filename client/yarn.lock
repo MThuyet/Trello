@@ -544,7 +544,7 @@
   dependencies:
     "@babel/runtime" "^7.26.0"
 
-"@mui/lab@6.0.0":
+"@mui/lab@^6.0.1-beta.36":
   version "6.0.1-beta.36"
   resolved "https://registry.yarnpkg.com/@mui/lab/-/lab-6.0.1-beta.36.tgz#f91fa618e2d4e72e5c56a62304daf2663986a17c"
   integrity sha512-af9lDmA9SZGEWF1XXk0EVBpfCITk9IKsvh9lLOZGdYaaHfQeCsqxGEDMvNO66j0P8EYoxpyry84LFCJYuLVtVw==
