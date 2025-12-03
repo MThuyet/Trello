@@ -3,28 +3,37 @@ import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { updateBoardDetailsAPI, updateColumnDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
-import { useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 
 const Board = () => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   // lấy dữ liệu board từ redux
   const board = useSelector(selectCurrentActiveBoard)
+  const [isLoadingBoard, setIsLoadingBoard] = useState(false)
 
   // lấy boardId từ url
   const { boardId } = useParams()
 
   // call api fetch board details
   useEffect(() => {
+    if (!boardId) return navigate('/boards')
+
+    setIsLoadingBoard(true)
     // sử dụng dispatch để gọi các function của redux
     dispatch(fetchBoardDetailsAPI(boardId))
-  }, [dispatch, boardId])
+      .unwrap()
+      .finally(() => {
+        setIsLoadingBoard(false)
+      })
+  }, [dispatch, boardId, navigate])
 
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {
@@ -85,7 +94,9 @@ const Board = () => {
     })
   }
 
-  if (!board) return <PageLoadingSpinner caption="Loading board details..." />
+  if (isLoadingBoard) return <PageLoadingSpinner caption="Loading board details..." />
+
+  if (!board) return <Navigate to="/boards" replace={true} />
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
