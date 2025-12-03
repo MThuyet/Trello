@@ -2,8 +2,6 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import VpnLockIcon from '@mui/icons-material/VpnLock'
-import AddToDriveIcon from '@mui/icons-material/AddToDrive'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import Tooltip from '@mui/material/Tooltip'
 import { capitalizeFirstLetter } from '~/utils/formatter'
 import BoardUserGroup from './BoardUserGroup'
@@ -27,14 +25,14 @@ const BoardBar = ({ board }) => {
       }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Tooltip title={board?.description}>
-          <Chip sx={CHIP_STYLE} icon={<DashboardIcon />} label={board?.title} clickable />
+          <Chip sx={CHIP_STYLE} icon={<DashboardIcon />} label={board?.title} />
         </Tooltip>
 
-        <Chip sx={CHIP_STYLE} icon={<VpnLockIcon />} label={capitalizeFirstLetter(board?.type)} clickable />
+        <Chip sx={CHIP_STYLE} icon={<VpnLockIcon />} label={capitalizeFirstLetter(board?.type)} />
 
-        <Chip sx={CHIP_STYLE} icon={<AddToDriveIcon />} label="Add to Google Drive" clickable />
+        {/* <Chip sx={CHIP_STYLE} icon={<AddToDriveIcon />} label="Add to Google Drive" /> */}
 
-        <Chip sx={CHIP_STYLE} icon={<FilterListIcon />} label="Filters" clickable />
+        {/* <Chip sx={CHIP_STYLE} icon={<FilterListIcon />} label="Filters" /> */}
 
         {/* Settings board */}
         <BoardSettings />

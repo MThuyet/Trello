@@ -12,9 +12,9 @@ import Check from '@mui/icons-material/Check'
 const Recent = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+  // const handleClick = (event) => {
+  //   setAnchorEl(event.currentTarget)
+  // }
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -27,14 +27,14 @@ const Recent = () => {
         aria-controls={open ? 'fade-menu-recent' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        // onClick={handleClick}
         endIcon={<ExpandMoreIcon />}>
         Recent
       </Button>
       <Menu
         id="fade-menu-recent"
         MenuListProps={{
-          'aria-labelledby': 'fade-button-recent'
+          'aria-labelledby': 'fade-button-recent',
         }}
         anchorEl={anchorEl}
         open={open}

@@ -197,9 +197,8 @@ function ActiveCard() {
 
         <Box sx={{ mb: 1, mt: -3, pr: 2.5, display: 'flex', alignItems: 'center', gap: 1 }}>
           <CreditCardIcon />
-
           {/* Feature 01: Xử lý tiêu đề của Card */}
-          <ToggleFocusInput inputFontSize="22px" value={activeCard?.title} onChangedValue={onUpdateCardTitle} />
+          <ToggleFocusInput inputFontSize="22px" value={activeCard?.title} onChangedValue={onUpdateCardTitle} />{' '}
         </Box>
 
         <Grid container spacing={2} sx={{ mb: 3 }}>

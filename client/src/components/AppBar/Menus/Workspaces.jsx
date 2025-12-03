@@ -16,9 +16,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 const WorkSpaces = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+  // const handleClick = (event) => {
+  //   setAnchorEl(event.currentTarget)
+  // }
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -31,14 +31,14 @@ const WorkSpaces = () => {
         aria-controls={open ? 'fade-menu-workspaces' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        // onClick={handleClick}
         endIcon={<ExpandMoreIcon />}>
         Workspaces
       </Button>
       <Menu
         id="fade-menu-workspaces"
         MenuListProps={{
-          'aria-labelledby': 'fade-button-workspaces'
+          'aria-labelledby': 'fade-button-workspaces',
         }}
         anchorEl={anchorEl}
         open={open}

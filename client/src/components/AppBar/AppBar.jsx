@@ -9,7 +9,6 @@ import Recent from './Menus/Recent'
 import Starred from './Menus/Starred'
 import Templates from './Menus/Templates'
 import Tooltip from '@mui/material/Tooltip'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menus/Profiles'
 import { Link } from 'react-router-dom'
 import Notifications from '~/components/AppBar/Notifications/Notifications'
@@ -60,9 +59,9 @@ const AppBar = () => {
 
         <Notifications />
 
-        <Tooltip title="Help">
+        {/* <Tooltip title="Help">
           <HelpOutlineIcon sx={{ cursor: 'pointer', color: '#fff' }} />
-        </Tooltip>
+        </Tooltip> */}
 
         <Profiles />
       </Box>

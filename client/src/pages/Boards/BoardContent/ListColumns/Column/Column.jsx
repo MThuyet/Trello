@@ -3,12 +3,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import ContentCut from '@mui/icons-material/ContentCut'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import ContentPaste from '@mui/icons-material/ContentPaste'
-import Cloud from '@mui/icons-material/Cloud'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Tooltip from '@mui/material/Tooltip'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import AddCardIcon from '@mui/icons-material/AddCard'
@@ -28,6 +24,7 @@ import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/acti
 import { deleteColumnAPI } from '~/apis'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
+import EditIcon from '@mui/icons-material/Edit'
 
 const Column = ({ column }) => {
   // redux
@@ -69,6 +66,24 @@ const Column = ({ column }) => {
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
 
   const [newCardTitle, setNewCardTitle] = useState('')
+
+  // Ref để focus vào TextField khi mở form từ dropdown
+  const cardTitleInputRef = useRef(null)
+  const columnTitleInputRef = useRef(null)
+
+  const handleFocusColumnTitle = () => {
+    // Đợi Menu đóng hoàn toàn trước khi focus
+    setTimeout(() => {
+      columnTitleInputRef.current?.focus()
+    }, 100)
+  }
+
+  // Tự động focus vào TextField khi form mở
+  useEffect(() => {
+    if (openNewCardForm && cardTitleInputRef.current) {
+      cardTitleInputRef.current?.focus()
+    }
+  }, [openNewCardForm])
 
   // hàm tạo Card
   const addNewCard = async () => {
@@ -177,7 +192,7 @@ const Column = ({ column }) => {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-          <ToggleFocusInput data-no-dnd="true" value={column?.title} onChangedValue={onUpdateColumnTitle} />
+          <ToggleFocusInput data-no-dnd="true" value={column?.title} onChangedValue={onUpdateColumnTitle} ref={columnTitleInputRef} />
 
           {/* dropdown */}
           <Box>
@@ -203,6 +218,13 @@ const Column = ({ column }) => {
               open={open}
               onClose={handleClose}
               onClick={handleClose}>
+              <MenuItem onClick={handleFocusColumnTitle}>
+                <ListItemIcon>
+                  <EditIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Edit column title</ListItemText>
+              </MenuItem>
+
               <MenuItem
                 onClick={toggleOpenNewCardForm}
                 sx={{
@@ -215,29 +237,6 @@ const Column = ({ column }) => {
                   <AddCardIcon className="add-card-icon" fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Add new card</ListItemText>
-              </MenuItem>
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentCut fontSize="small" />
-                </ListItemIcon>
-
-                <ListItemText>Cut</ListItemText>
-              </MenuItem>
-
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentCopy fontSize="small" />
-                </ListItemIcon>
-
-                <ListItemText>Copy</ListItemText>
-              </MenuItem>
-
-              <MenuItem>
-                <ListItemIcon>
-                  <ContentPaste fontSize="small" />
-                </ListItemIcon>
-
-                <ListItemText>Paste</ListItemText>
               </MenuItem>
 
               <Divider />
@@ -255,14 +254,6 @@ const Column = ({ column }) => {
                 </ListItemIcon>
 
                 <ListItemText>Delete this column</ListItemText>
-              </MenuItem>
-
-              <MenuItem>
-                <ListItemIcon>
-                  <Cloud fontSize="small" />
-                </ListItemIcon>
-
-                <ListItemText>Archive this column</ListItemText>
               </MenuItem>
             </Menu>
           </Box>
@@ -306,6 +297,7 @@ const Column = ({ column }) => {
                 size="small"
                 variant="outlined"
                 autoFocus
+                inputRef={cardTitleInputRef}
                 data-no-dnd="true"
                 value={newCardTitle}
                 onChange={(e) => setNewCardTitle(e.target.value)}

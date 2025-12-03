@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import TextField from '@mui/material/TextField'
+import { forwardRef } from 'react'
 
 // thay vì phải tạo biến State để chuyển đổi qua lại giữa thẻ Input và Text thông thường, thì CSS lại cho cái thẻ Input trông như text bình thường, chỉ khi click và focus vào nó thì style lại trở về như cái input ban đầu.
 // Controlled Input trong MUI: https://mui.com/material-ui/react-text-field/#uncontrolled-vs-controlled
-const ToggleFocusInput = ({ value, onChangedValue, inputFontSize = '16px', ...props }) => {
+const ToggleFocusInput = forwardRef(({ value, onChangedValue, inputFontSize = '16px', ...props }, ref) => {
   const [inputValue, setInputValue] = useState(value)
 
   const triggerBlur = () => {
@@ -30,6 +31,7 @@ const ToggleFocusInput = ({ value, onChangedValue, inputFontSize = '16px', ...pr
       onChange={(event) => {
         setInputValue(event.target.value)
       }}
+      inputRef={ref}
       onBlur={triggerBlur}
       {...props}
       sx={{
@@ -37,25 +39,25 @@ const ToggleFocusInput = ({ value, onChangedValue, inputFontSize = '16px', ...pr
         '& input': { fontSize: inputFontSize, fontWeight: 'bold' },
         '& .MuiOutlinedInput-root': {
           backgroundColor: 'transparent',
-          '& fieldset': { borderColor: 'transparent' }
+          '& fieldset': { borderColor: 'transparent' },
         },
         '& .MuiOutlinedInput-root:hover': {
           borderColor: 'transparent',
-          '& fieldset': { borderColor: 'transparent' }
+          '& fieldset': { borderColor: 'transparent' },
         },
         '& .MuiOutlinedInput-root.Mui-focused': {
           backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#33485D' : 'white'),
-          '& fieldset': { borderColor: 'primary.main' }
+          '& fieldset': { borderColor: 'primary.main' },
         },
         '& .MuiOutlinedInput-input': {
           px: '6px',
           overflow: 'hidden',
           whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis'
-        }
+          textOverflow: 'ellipsis',
+        },
       }}
     />
   )
-}
+})
 
 export default ToggleFocusInput

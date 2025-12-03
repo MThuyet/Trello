@@ -12,9 +12,9 @@ import Check from '@mui/icons-material/Check'
 const Templates = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+  // const handleClick = (event) => {
+  //   setAnchorEl(event.currentTarget)
+  // }
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -27,14 +27,14 @@ const Templates = () => {
         aria-controls={open ? 'fade-menu-templates"' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        // onClick={handleClick}
         endIcon={<ExpandMoreIcon />}>
         Templates
       </Button>
       <Menu
         id="fade-menu-templates"
         MenuListProps={{
-          'aria-labelledby': 'fade-button-templates"'
+          'aria-labelledby': 'fade-button-templates"',
         }}
         anchorEl={anchorEl}
         open={open}

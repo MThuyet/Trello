@@ -12,9 +12,9 @@ import Check from '@mui/icons-material/Check'
 const Starred = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+  // const handleClick = (event) => {
+  //   setAnchorEl(event.currentTarget)
+  // }
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -27,14 +27,14 @@ const Starred = () => {
         aria-controls={open ? 'fade-menu-starred' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        // onClick={handleClick}
         endIcon={<ExpandMoreIcon />}>
         Starred
       </Button>
       <Menu
         id="fade-menu-starred"
         MenuListProps={{
-          'aria-labelledby': 'fade-button-starred'
+          'aria-labelledby': 'fade-button-starred',
         }}
         anchorEl={anchorEl}
         open={open}

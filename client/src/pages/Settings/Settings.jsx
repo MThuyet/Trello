@@ -15,12 +15,12 @@ import SecurityTab from './SecurityTab'
 // Khai báo tabs ra biến const để dùng lại
 const TABS = {
   ACCOUNT: 'account',
-  SECURITY: 'security'
+  SECURITY: 'security',
 }
 
 function Settings() {
   const location = useLocation()
-  // Function có nhiệm vụ lấy ra tab mặc định dựa theo url.
+  // lấy ra tab mặc định dựa theo url.
   const getDefaultTab = () => {
     if (location.pathname.includes(TABS.SECURITY)) return TABS.SECURITY
     return TABS.ACCOUNT
@@ -37,7 +37,7 @@ function Settings() {
       <AppBar />
       <TabContext value={activeTab}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChangeTab}>
+          <TabList onChange={handleChangeTab} centered sx={{ width: '100%' }}>
             <Tab label="Account" value={TABS.ACCOUNT} icon={<PersonIcon />} iconPosition="start" component={Link} to="/settings/account" />
             <Tab
               label="Security"
