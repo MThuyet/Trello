@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box'
-import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import AppsIcon from '@mui/icons-material/Apps'
 import SvgIcon from '@mui/icons-material/Apps'
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
@@ -54,8 +53,6 @@ const AppBar = () => {
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <AutoCompleteSearchBoard />
-
-        <ModeSelect />
 
         <Notifications />
 

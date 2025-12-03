@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useColorScheme } from '@mui/material/styles'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 import Box from '@mui/material/Box'
@@ -7,10 +6,6 @@ import Button from '@mui/material/Button'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 
 function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescription }) {
-  // Lấy giá trị 'dark', 'light' hoặc 'system' mode từ MUI để support phần Markdown bên dưới: data-color-mode={mode}
-  // https://www.npmjs.com/package/@uiw/react-md-editor#support-dark-modenight-mode
-  const { mode } = useColorScheme()
-
   // State xử lý chế độ Edit và chế độ View
   const [markdownEditMode, setMarkdownEditMode] = useState(false)
   // State xử lý giá trị markdown khi chỉnh sửa
@@ -25,7 +20,7 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
     <Box sx={{ mt: -4 }}>
       {markdownEditMode ? (
         <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Box data-color-mode={mode}>
+          <Box>
             <MDEditor
               value={cardDescription}
               onChange={setCardDescription}
@@ -57,7 +52,7 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
             startIcon={<EditNoteIcon />}>
             Edit
           </Button>
-          <Box data-color-mode={mode}>
+          <Box>
             <MDEditor.Markdown
               source={cardDescription}
               style={{

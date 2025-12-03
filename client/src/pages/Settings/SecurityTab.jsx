@@ -15,9 +15,11 @@ import { useConfirm } from 'material-ui-confirm'
 import { useDispatch } from 'react-redux'
 import { logoutUserAPI, updateUserAPI } from '~/redux/user/userSlice'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
+import { useState } from 'react'
 
 function SecurityTab() {
   const dispatch = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -44,11 +46,14 @@ function SecurityTab() {
 
         // call api
         try {
+          setIsLoading(true)
           await dispatch(updateUserAPI({ current_password, new_password })).unwrap()
           dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
           dispatch(logoutUserAPI(false))
         } catch (error) {
           console.log(error.message)
+        } finally {
+          setIsLoading(false)
         }
       })
       .catch(() => {})
@@ -152,7 +157,7 @@ function SecurityTab() {
             </Box>
 
             <Box>
-              <Button className="interceptor-loading" type="submit" variant="contained" color="primary" fullWidth>
+              <Button loading={isLoading} type="submit" variant="contained" color="primary" fullWidth>
                 Change
               </Button>
             </Box>

@@ -15,6 +15,7 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, F
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useDispatch } from 'react-redux'
 import { loginUserAPI } from '~/redux/user/userSlice'
+import { useState } from 'react'
 
 const LoginForm = () => {
   const dispatch = useDispatch()
@@ -23,6 +24,7 @@ const LoginForm = () => {
   const [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -32,10 +34,13 @@ const LoginForm = () => {
 
   const submitLogin = async (data) => {
     try {
+      setIsLoading(true)
       await dispatch(loginUserAPI(data)).unwrap()
       navigate('/')
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -117,7 +122,7 @@ const LoginForm = () => {
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
-            <Button className="interceptor-loading" type="submit" variant="contained" color="primary" size="large" fullWidth>
+            <Button loading={isLoading} type="submit" variant="contained" color="primary" size="large" fullWidth>
               Login
             </Button>
           </CardActions>

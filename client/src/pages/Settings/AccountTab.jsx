@@ -16,10 +16,13 @@ import { selectCurrentUser, updateUserAPI } from '~/redux/user/userSlice'
 import { useForm } from 'react-hook-form'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
+import { useState } from 'react'
 
 function AccountTab() {
   const currentUser = useSelector(selectCurrentUser)
   const dispatch = useDispatch()
+  const [isLoadingUploadAvatar, setIsLoadingUploadAvatar] = useState(false)
+  const [isLoadingUpdateGeneralInformation, setIsLoadingUpdateGeneralInformation] = useState(false)
 
   // Những thông tin của user để init vào form (key tương ứng với register phía dưới Field)
   const initialGeneralForm = {
@@ -42,10 +45,13 @@ function AccountTab() {
 
     // call API
     try {
+      setIsLoadingUpdateGeneralInformation(true)
       await dispatch(updateUserAPI({ displayName })).unwrap()
       dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoadingUpdateGeneralInformation(false)
     }
   }
 
@@ -68,10 +74,13 @@ function AccountTab() {
 
     // Gọi API...
     try {
+      setIsLoadingUploadAvatar(true)
       await dispatch(updateUserAPI(reqData)).unwrap()
       dispatch(showSnackbar({ message: 'Updated successfully!', severity: 'success' }))
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoadingUploadAvatar(false)
     }
 
     e.target.value = ''
@@ -100,7 +109,7 @@ function AccountTab() {
           <Box>
             <Avatar sx={{ width: 84, height: 84, mb: 1 }} alt="TrungQuanDev" src={currentUser?.avatar} />
             <Tooltip title="Upload a new image to update your avatar immediately.">
-              <Button className="interceptor-loading" component="label" variant="contained" size="small" startIcon={<CloudUploadIcon />}>
+              <Button loading={isLoadingUploadAvatar} component="label" variant="contained" size="small" startIcon={<CloudUploadIcon />}>
                 Upload
                 <VisuallyHiddenInput type="file" onChange={uploadAvatar} />
               </Button>
@@ -172,7 +181,7 @@ function AccountTab() {
             </Box>
 
             <Box>
-              <Button className="interceptor-loading" type="submit" variant="contained" color="primary" fullWidth>
+              <Button loading={isLoadingUpdateGeneralInformation} type="submit" variant="contained" color="primary" fullWidth>
                 Update
               </Button>
             </Box>

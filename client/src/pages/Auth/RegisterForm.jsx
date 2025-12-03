@@ -20,9 +20,11 @@ import {
 } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { registerAccountAPI } from '~/apis'
+import { useState } from 'react'
 
 const RegisterForm = () => {
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
@@ -35,10 +37,13 @@ const RegisterForm = () => {
     const { email, password } = data
 
     try {
+      setIsLoading(true)
       await registerAccountAPI({ email, password })
       navigate(`/login?registeredEmail=${email}`)
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -116,7 +121,14 @@ const RegisterForm = () => {
             </Box>
           </Box>
           <CardActions sx={{ padding: '0 1em 1em 1em' }}>
-            <Button className="interceptor-loading" type="submit" variant="contained" color="primary" size="large" fullWidth>
+            <Button
+              loading={isLoading}
+              loadingIndicator="Registering..."
+              type="submit"
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth>
               Register
             </Button>
           </CardActions>

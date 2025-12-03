@@ -49,6 +49,7 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   } = useForm()
 
   const dispach = useDispatch()
+  const [isLoading, setIsLoading] = useState(false)
 
   const [isOpen, setIsOpen] = useState(false)
   const handleOpenModal = () => setIsOpen(true)
@@ -64,12 +65,15 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
 
   const submitCreateNewBoard = async (data) => {
     try {
+      setIsLoading(true)
       await createNewBoardAPI(data)
       dispach(showSnackbar({ message: 'Create new board successfully!', severity: 'success' }))
       handleCloseModal()
       afterCreateNewBoard()
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -184,7 +188,7 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                 />
 
                 <Box sx={{ alignSelf: 'flex-end' }}>
-                  <Button className="interceptor-loading" type="submit" variant="contained" color="primary">
+                  <Button loading={isLoading} type="submit" variant="contained" color="primary">
                     Create
                   </Button>
                 </Box>

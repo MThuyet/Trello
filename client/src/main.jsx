@@ -3,7 +3,7 @@ import App from '~/App.jsx'
 // MUI
 import CssBaseline from '@mui/material/CssBaseline'
 import GlobalStyles from '@mui/material/GlobalStyles'
-import { CssVarsProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import theme from '~/thems.js'
 // material-ui-confirm
 import { ConfirmProvider } from 'material-ui-confirm'
@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <PersistGate loading={null} persistor={persistor}>
       {/*basename: đường dẫn gốc của project, luôn luôn phải đi qua trước khi truy cập vào các route khác */}
       <BrowserRouter basename="/">
-        <CssVarsProvider theme={theme}>
+        <ThemeProvider theme={theme}>
           <ConfirmProvider
             defaultOptions={{
               dialogProps: { maxWidth: 'xs' },
@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <CssBaseline />
             <App />
           </ConfirmProvider>
-        </CssVarsProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </PersistGate>
   </Provider>,

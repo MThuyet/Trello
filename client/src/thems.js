@@ -1,4 +1,4 @@
-import { extendTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles'
 
 const APP_BAR_HEIGHT = '58px'
 const BOARD_BAR_HEIGHT = '60px'
@@ -7,17 +7,13 @@ const COLUMN_HEADER_HEIGHT = '50px'
 const COLUMN_FOOTER_HEIGHT = '56px'
 
 // Create a theme instance.
-const theme = extendTheme({
+const theme = createTheme({
   trello: {
     appBarHeight: APP_BAR_HEIGHT,
     boardBarHeight: BOARD_BAR_HEIGHT,
     boardContentHeight: BOARD_CONTENT_HEIGHT,
     columnHeaderHeight: COLUMN_HEADER_HEIGHT,
     columnFooterHeight: COLUMN_FOOTER_HEIGHT,
-  },
-  colorSchemes: {
-    light: { palette: { mode: 'light' } },
-    dark: { palette: { mode: 'dark' } },
   },
   components: {
     // Name of the component
@@ -45,6 +41,12 @@ const theme = extendTheme({
           // Some CSS
           textTransform: 'none',
           borderWidth: '1px',
+        },
+        containedPrimary: {
+          '&.Mui-disabled': {
+            opacity: 0.8,
+            backgroundColor: '#1976d2',
+          },
         },
       },
     },
