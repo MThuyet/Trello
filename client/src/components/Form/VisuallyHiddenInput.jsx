@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles'
 
 const HiddenInputStyles = styled('input')({
-  display: 'none'
+  display: 'none',
 })
 
 const VisuallyHiddenInput = (props) => {

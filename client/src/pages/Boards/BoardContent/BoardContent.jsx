@@ -9,7 +9,7 @@ import {
   defaultDropAnimationSideEffects,
   closestCorners,
   getFirstCollision,
-  pointerWithin
+  pointerWithin,
 } from '@dnd-kit/core'
 import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -20,7 +20,7 @@ import { generatePlaceholderCard } from '~/utils/formatter'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
-  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
+  CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD',
 }
 
 const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDifferentColumn }) => {
@@ -35,15 +35,15 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
   // ưu tiên sử dụng mouseSensor và toachSensor để có trải nghiệm trên mobile tốt hơn
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      distance: 10
-    }
+      distance: 10,
+    },
   })
 
   const toachSensor = useSensor(TouchSensor, {
     activationConstraint: {
       delay: 250, // nhấn giữ khoảng 250ms để kích hoạt kéo thả
-      tolerance: 500
-    }
+      tolerance: 500,
+    },
   })
 
   const sensors = useSensors(mouseSensor, toachSensor)
@@ -87,7 +87,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
     activeColumn,
     activeDraggingCardId,
     activeDraggingCardData,
-    triggerFrom
+    triggerFrom,
   ) => {
     setOrderedColumns((currentColumns) => {
       // tìm vị trí (index) của overCard trong column đích (nơi card sắp được thả)
@@ -164,7 +164,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
     // card đang được kéo
     const {
       id: activeDraggingCardId,
-      data: { current: activeDraggingCardData }
+      data: { current: activeDraggingCardData },
     } = active
 
     // card đang tương tác (được kéo qua)
@@ -187,7 +187,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
         activeColumn,
         activeDraggingCardId,
         activeDraggingCardData,
-        'handleDragOver'
+        'handleDragOver',
       )
     }
   }
@@ -203,7 +203,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
       // card đang được kéo
       const {
         id: activeDraggingCardId,
-        data: { current: activeDraggingCardData }
+        data: { current: activeDraggingCardData },
       } = active
 
       // card đang tương tác (được kéo qua)
@@ -228,7 +228,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
           activeColumn,
           activeDraggingCardId,
           activeDraggingCardData,
-          'handleDragEnd'
+          'handleDragEnd',
         )
       } else {
         // kéo thả card trong cùng 1 column
@@ -296,9 +296,9 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
   const customDropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
       styles: {
-        active: { opacity: 0.5 }
-      }
-    })
+        active: { opacity: 0.5 },
+      },
+    }),
   }
 
   // custom thuật toán phát hiện va chạm
@@ -330,7 +330,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
             ...args,
             droppableContainers: args.droppableContainers.filter((container) => {
               return container.id !== overId && checkColumn?.cardOrderIds?.includes(container.id)
-            })
+            }),
           })[0]?.id
           // console.log('overIdAfter', overId)
         }
@@ -341,7 +341,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
 
       return lastOverId.current ? [{ id: lastOverId.current }] : []
     },
-    [activeDragItemType, orderedColumns]
+    [activeDragItemType, orderedColumns],
   )
 
   return (
@@ -361,7 +361,7 @@ const BoardContent = ({ board, moveColumn, moveCardInTheSameColumn, moveCardToDi
           bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
           widows: '100%',
           height: (theme) => theme.trello.boardContentHeight,
-          p: '10px 0'
+          p: '10px 0',
         }}>
         <ListColumns columns={orderedColumns} />
         <DragOverlay dropAnimation={customDropAnimation}>

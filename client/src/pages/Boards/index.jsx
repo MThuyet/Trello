@@ -4,7 +4,7 @@ import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Grid from '@mui/material/Unstable_Grid2'
+import Grid from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
@@ -76,7 +76,7 @@ function Boards() {
       <AppBar />
       <Box sx={{ paddingX: 2, my: 4 }}>
         <Grid container spacing={2}>
-          <Grid xs={12} sm={3}>
+          <Grid size={{ xs: 12, sm: 3 }}>
             <Stack direction="column" spacing={1}>
               <SidebarItem className="active">
                 <SpaceDashboardIcon fontSize="small" />
@@ -97,7 +97,7 @@ function Boards() {
             </Stack>
           </Grid>
 
-          <Grid xs={12} sm={9}>
+          <Grid size={{ xs: 12, sm: 9 }}>
             <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>
               Your boards:
             </Typography>
@@ -113,7 +113,7 @@ function Boards() {
             {boards?.length > 0 && (
               <Grid container spacing={2}>
                 {boards.map((b) => (
-                  <Grid xs={2} sm={3} md={4} key={b._id}>
+                  <Grid size={{ xs: 2, sm: 3, md: 4 }} key={b._id}>
                     <Card sx={{ width: '250px' }}>
                       {/* <CardMedia component="img" height="100" image="https://picsum.photos/100" /> */}
                       <Box sx={{ height: '50px', backgroundColor: randomColor() }}></Box>

@@ -3,7 +3,7 @@ import App from '~/App.jsx'
 // MUI
 import CssBaseline from '@mui/material/CssBaseline'
 import GlobalStyles from '@mui/material/GlobalStyles'
-import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles'
+import { CssVarsProvider } from '@mui/material/styles'
 import theme from '~/thems.js'
 // material-ui-confirm
 import { ConfirmProvider } from 'material-ui-confirm'

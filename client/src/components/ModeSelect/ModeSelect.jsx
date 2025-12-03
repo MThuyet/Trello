@@ -20,7 +20,7 @@ function ModeSelect() {
       <InputLabel
         sx={{
           color: '#fff',
-          '&.Mui-focused': { color: '#fff' }
+          '&.Mui-focused': { color: '#fff' },
         }}
         id="label-select-dart-light-mode">
         Mode
@@ -37,7 +37,7 @@ function ModeSelect() {
           '.MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
-          '.MuiSvgIcon-root': { color: '#fff' }
+          '.MuiSvgIcon-root': { color: '#fff' },
         }}>
         <MenuItem value="light">
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

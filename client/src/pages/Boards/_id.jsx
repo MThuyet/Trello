@@ -17,17 +17,14 @@ const Board = () => {
   const dispatch = useDispatch()
   // lấy dữ liệu board từ redux
   const board = useSelector(selectCurrentActiveBoard)
-  const [isLoadingBoard, setIsLoadingBoard] = useState(false)
+  const [isLoadingBoard, setIsLoadingBoard] = useState(true)
 
   // lấy boardId từ url
   const { boardId } = useParams()
 
   // call api fetch board details
   useEffect(() => {
-    if (!boardId) return navigate('/boards')
-
     setIsLoadingBoard(true)
-    // sử dụng dispatch để gọi các function của redux
     dispatch(fetchBoardDetailsAPI(boardId))
       .unwrap()
       .finally(() => {
@@ -96,7 +93,7 @@ const Board = () => {
 
   if (isLoadingBoard) return <PageLoadingSpinner caption="Loading board details..." />
 
-  if (!board) return <Navigate to="/boards" replace={true} />
+  if (!board && !isLoadingBoard) return <Navigate to="/boards" replace={true} />
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
