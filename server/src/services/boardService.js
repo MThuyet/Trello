@@ -67,25 +67,32 @@ const getDetails = async (userId, boardId) => {
   }
 }
 
-const update = async (boardId, reqBody) => {
-  try {
-    const updateData = {
-      ...reqBody,
-      updatedAt: Date.now(),
-    }
+const update = async (boardId, reqBody = {}) => {
+  const { memberId, columnOrderIds, ...generalFields } = reqBody
 
-    let updatedBoard = {}
+  const board = await boardModel.findOneById(boardId)
+  if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
 
-    if (updateData.columnOrderIds) {
-      updatedBoard = await boardModel.updateColumnOrderIds(boardId, updateData)
-    } else {
-      updatedBoard = await boardModel.update(boardId, updateData)
-    }
-
-    return updatedBoard
-  } catch (error) {
-    throw error
+  if (columnOrderIds) {
+    const payload = { columnOrderIds, updatedAt: Date.now() }
+    return boardModel.updateColumnOrderIds(boardId, payload)
   }
+
+  if (memberId) {
+    // chỉ xoá member, không tự thêm trường nào khác
+    const result = await boardModel.pullMemberIds(boardId, memberId)
+    await boardModel.update(boardId, { updatedAt: Date.now() })
+    return result
+  }
+
+  if (Object.keys(generalFields).length) {
+    return boardModel.update(boardId, {
+      ...generalFields,
+      updatedAt: Date.now(),
+    })
+  }
+
+  return board
 }
 
 const moveCardToDifferentColumn = async (reqBody) => {

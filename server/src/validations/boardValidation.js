@@ -30,8 +30,7 @@ const update = async (req, res, next) => {
     title: Joi.string().min(3).max(50).trim().strict(),
     description: Joi.string().min(3).max(255).trim().strict(),
     type: Joi.string().valid(...Object.values(BOARD_TYPES)),
-    ownerId: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
-    memberId: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
+    memberId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
   })
 

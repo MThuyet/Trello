@@ -1,10 +1,11 @@
 import { Avatar, Box, IconButton, Tooltip, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { fetchBoardDetailsAPI, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useConfirm } from 'material-ui-confirm'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
+import { updateBoardDetailsAPI } from '~/apis'
 
 const BoardMembersList = () => {
   const dispach = useDispatch()
@@ -14,15 +15,6 @@ const BoardMembersList = () => {
 
   const confirm = useConfirm()
   const handleRemoveMember = (memberId, memberName) => {
-    // Không cho phép xóa chính mình nếu là owner duy nhất
-    const owners = board?.owners || []
-    const isOwner = owners.some((owner) => owner._id === memberId)
-
-    if (isOwner && owners.length === 1) {
-      dispach(showSnackbar({ message: 'Cannot remove the only owner of the board', severity: 'error' }))
-      return
-    }
-
     confirm({
       title: (
         <span>
@@ -34,8 +26,10 @@ const BoardMembersList = () => {
       cancellationText: 'Cancel',
       confirmationButtonProps: { color: 'error' },
     })
-      .then(() => {
-        console.log(memberId)
+      .then(async () => {
+        await updateBoardDetailsAPI(board._id, { memberId })
+        dispach(showSnackbar({ message: 'Member removed successfully', severity: 'success' }))
+        dispach(fetchBoardDetailsAPI(board._id))
       })
       .catch(() => {})
   }
@@ -59,9 +53,7 @@ const BoardMembersList = () => {
             const isCurrentUserOwner = board?.owners?.some((owner) => owner._id === currentUser._id)
             // Chỉ hiển thị nút xóa nếu:
             // 1. currentUser là owner (chỉ owner mới có quyền xóa)
-            // 2. Không phải trường hợp xóa owner duy nhất (phải có ít nhất 1 owner)
-            const isOnlyOwner = isOwner && board?.owners?.length === 1
-            const canRemove = isCurrentUserOwner && !isOnlyOwner
+            const canRemove = isCurrentUserOwner && !isOwner
 
             return (
               <Box
@@ -96,7 +88,7 @@ const BoardMembersList = () => {
 
                 {/* Nút xóa thành viên - chỉ hiển thị nếu currentUser là owner */}
                 {canRemove && (
-                  <Tooltip title={isOwner ? 'Remove owner' : 'Remove member'}>
+                  <Tooltip title="Remove member">
                     <IconButton
                       size="small"
                       color="error"
