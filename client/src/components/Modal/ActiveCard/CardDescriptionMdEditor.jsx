@@ -10,7 +10,7 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
   const [markdownEditMode, setMarkdownEditMode] = useState(false)
   // State xử lý giá trị markdown khi chỉnh sửa
   const [cardDescription, setCardDescription] = useState(cardDescriptionProp)
-
+  // loading
   const updateCardDescription = () => {
     setMarkdownEditMode(false)
     handleUpdateCardDescription(cardDescription)
@@ -32,7 +32,6 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
           <Button
             sx={{ alignSelf: 'flex-end' }}
             onClick={updateCardDescription}
-            className="interceptor-loading"
             type="button"
             variant="contained"
             size="small"

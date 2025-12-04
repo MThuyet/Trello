@@ -25,6 +25,7 @@ function InviteBoardUser({ boardId }) {
   }
 
   const dispach = useDispatch()
+  const [isLoadingInvite, setIsLoadingInvite] = useState(false)
 
   // xử lý form sử dụng react-hook-form
   const {
@@ -39,6 +40,7 @@ function InviteBoardUser({ boardId }) {
     const { inviteeEmail } = data
 
     try {
+      setIsLoadingInvite(true)
       // call api
       const invitationResponse = await inviteUserToBoardAPI({ inviteeEmail, boardId })
 
@@ -52,6 +54,8 @@ function InviteBoardUser({ boardId }) {
       socketIoInstance.emit('FE_USER_INVITED_TO_BOARD', invitationResponse)
     } catch (error) {
       console.log(error.message)
+    } finally {
+      setIsLoadingInvite(false)
     }
   }
 
@@ -98,7 +102,7 @@ function InviteBoardUser({ boardId }) {
             </Box>
 
             <Box sx={{ alignSelf: 'flex-end' }}>
-              <Button className="interceptor-loading" type="submit" variant="contained" color="info">
+              <Button loading={isLoadingInvite} type="submit" variant="contained" color="info">
                 Invite
               </Button>
             </Box>

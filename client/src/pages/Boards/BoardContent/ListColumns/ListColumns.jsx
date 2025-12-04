@@ -23,6 +23,7 @@ const ListColumns = ({ columns }) => {
   const toggleOpenNewColumnForm = () => setOpenNewColumnForm(!openNewColumnForm)
 
   const [newColumnTitle, setNewColumnTitle] = useState('')
+  const [isLoadingAddColumn, setIsLoadingAddColumn] = useState(false)
 
   // hàm tạo column
   const addNewColumn = async () => {
@@ -30,6 +31,8 @@ const ListColumns = ({ columns }) => {
       dispatch(showSnackbar({ message: 'Please enter column title', severity: 'error' }))
       return
     }
+
+    setIsLoadingAddColumn(true)
 
     // Tạo dữ liệu để call API
     const newColumnData = {
@@ -58,6 +61,7 @@ const ListColumns = ({ columns }) => {
     // reset lại trạng thái
     setNewColumnTitle('')
     toggleOpenNewColumnForm()
+    setIsLoadingAddColumn(false)
   }
 
   return (
@@ -145,7 +149,7 @@ const ListColumns = ({ columns }) => {
                 mt: 1,
               }}>
               <Button
-                className="interceptor-loading"
+                loading={isLoadingAddColumn}
                 onClick={addNewColumn}
                 variant="contained"
                 color="success"

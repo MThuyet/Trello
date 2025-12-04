@@ -15,6 +15,9 @@ import { updateBoardDetailsAPI } from '~/apis'
 const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
   const [description, setDescription] = useState(currentBoard?.description || '')
   const [type, setType] = useState(currentBoard?.type || BOARD_TYPES.PUBLIC)
+  const [isLoadingTitle, setIsLoadingTitle] = useState(false)
+  const [isLoadingDescription, setIsLoadingDescription] = useState(false)
+  const [isLoadingType, setIsLoadingType] = useState(false)
 
   // sync data
   useEffect(() => {
@@ -51,8 +54,10 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
     const currentTitle = currentBoard?.title?.trim()
     if (!normalizedTitle || normalizedTitle === currentTitle) return
 
+    setIsLoadingTitle(true)
     const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { title: normalizedTitle })
     updateBoardInRedux(updatedBoard)
+    setIsLoadingTitle(false)
   }
 
   // Cập nhật board description
@@ -63,8 +68,10 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
     const currentDescription = currentBoard?.description?.trim()
     if (!normalizedDescription || normalizedDescription === currentDescription) return
 
+    setIsLoadingDescription(true)
     const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { description: normalizedDescription })
     updateBoardInRedux(updatedBoard)
+    setIsLoadingDescription(false)
   }
 
   // Cập nhật board type
@@ -73,8 +80,10 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
 
     if (type === currentBoard?.type) return
 
+    setIsLoadingType(true)
     const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { type })
     updateBoardInRedux(updatedBoard)
+    setIsLoadingType(false)
   }
 
   return (
@@ -82,7 +91,12 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
       {/* Title */}
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <SubtitlesIcon />
-        <ToggleFocusInput value={currentBoard?.title || ''} onChangedValue={handleUpdateBoardTitle} inputFontSize="18px" />
+        <ToggleFocusInput
+          disabled={isLoadingTitle}
+          value={currentBoard?.title || ''}
+          onChangedValue={handleUpdateBoardTitle}
+          inputFontSize="18px"
+        />
       </Box>
 
       {/* Description */}
@@ -91,6 +105,7 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
           Description
         </Typography>
         <TextField
+          disabled={isLoadingDescription}
           fullWidth
           multiline
           rows={4}
@@ -117,6 +132,7 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
         <FormControl fullWidth size="small">
           <InputLabel>Board Type</InputLabel>
           <Select
+            disabled={isLoadingType}
             value={type}
             label="Board Type"
             onChange={(e) => {

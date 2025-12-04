@@ -7,9 +7,11 @@ import Tooltip from '@mui/material/Tooltip'
 
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useState } from 'react'
 
 function CardActivitySection({ cardComments = [], onAddCardComment }) {
   const currentUser = useSelector(selectCurrentUser)
+  const [isLoadingAddComment, setIsLoadingAddComment] = useState(false)
 
   const handleAddCardComment = (event) => {
     // Bắt hành động người dùng nhấn phím Enter && không phải hành động Shift + Enter
@@ -17,6 +19,7 @@ function CardActivitySection({ cardComments = [], onAddCardComment }) {
       event.preventDefault() // Thêm dòng này để khi Enter không bị nhảy dòng
       if (!event.target?.value) return // Nếu không có giá trị gì thì return không làm gì cả
 
+      setIsLoadingAddComment(true)
       // Tạo một biến commend data để gửi api
       const commentToAdd = {
         userAvatar: currentUser?.avatar,
@@ -25,7 +28,10 @@ function CardActivitySection({ cardComments = [], onAddCardComment }) {
       }
 
       // gọi lên props cha để add comment
-      onAddCardComment(commentToAdd).then(() => (event.target.value = ''))
+      onAddCardComment(commentToAdd).then(() => {
+        event.target.value = ''
+        setIsLoadingAddComment(false)
+      })
     }
   }
 
@@ -34,7 +40,15 @@ function CardActivitySection({ cardComments = [], onAddCardComment }) {
       {/* Xử lý thêm comment vào Card */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Avatar sx={{ width: 36, height: 36, cursor: 'pointer' }} alt="trungquandev" src={currentUser?.avatar} />
-        <TextField fullWidth placeholder="Write a comment..." type="text" variant="outlined" multiline onKeyDown={handleAddCardComment} />
+        <TextField
+          fullWidth
+          disabled={isLoadingAddComment}
+          placeholder="Write a comment..."
+          type="text"
+          variant="outlined"
+          multiline
+          onKeyDown={handleAddCardComment}
+        />
       </Box>
 
       {/* Hiển thị danh sách các comments */}

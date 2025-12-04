@@ -66,6 +66,8 @@ const Column = ({ column }) => {
   const toggleOpenNewCardForm = () => setOpenNewCardForm(!openNewCardForm)
 
   const [newCardTitle, setNewCardTitle] = useState('')
+  const [isLoadingAddCard, setIsLoadingAddCard] = useState(false)
+  const [isLoadingDeleteColumn, setIsLoadingDeleteColumn] = useState(false)
 
   // Ref để focus vào TextField khi mở form từ dropdown
   const cardTitleInputRef = useRef(null)
@@ -92,6 +94,7 @@ const Column = ({ column }) => {
       return
     }
 
+    setIsLoadingAddCard(true)
     const newCardData = {
       title: newCardTitle,
       columnId: column._id,
@@ -122,6 +125,7 @@ const Column = ({ column }) => {
     // reset lại trạng thái
     setNewCardTitle('')
     toggleOpenNewCardForm()
+    setIsLoadingAddCard(false)
   }
 
   // xử lý xóa column và cards bên trong nó
@@ -138,21 +142,25 @@ const Column = ({ column }) => {
       cancellationText: 'Cancel',
       confirmationKeyword: column?.title,
       confirmationButtonProps: { color: 'error' },
-    })
-      .then(() => {
+    }).then(async () => {
+      try {
+        setIsLoadingDeleteColumn(true)
         // xóa column và card bên trong nó
         // update chuẩn dữ liệu state
         const newBoard = cloneDeep(board)
         newBoard.columns = newBoard.columns.filter((c) => c._id !== column._id)
         newBoard.columnOrderIds = newBoard.columnOrderIds.filter((_id) => _id !== column._id)
-        dispatch(updateCurrentActiveBoard(newBoard))
-
         // gọi API xử lý phía backend
-        deleteColumnAPI(column._id).then((res) => {
-          dispatch(showSnackbar({ message: res?.deleteResult, severity: 'success' }))
-        })
-      })
-      .catch(() => {})
+        await deleteColumnAPI(column._id)
+        dispatch(showSnackbar({ message: 'Deleted column and its cards successfully!', severity: 'success' }))
+
+        dispatch(updateCurrentActiveBoard(newBoard))
+      } catch (error) {
+        console.log(error.message)
+      } finally {
+        setIsLoadingDeleteColumn(false)
+      }
+    })
   }
 
   // update column title
@@ -170,10 +178,10 @@ const Column = ({ column }) => {
   }
 
   return (
-    // bọc div ở ngoài để fix lỗi flickering khi kéo thả
     <div ref={setNodeRef} style={dndKitColumnStyle} {...attributes}>
       <Box
         {...listeners}
+        className={`${isLoadingDeleteColumn ? 'interceptor-loading' : ''}`}
         sx={{
           minWidth: '300px',
           maxWidth: '300px',
@@ -325,7 +333,7 @@ const Column = ({ column }) => {
                   gap: 1,
                 }}>
                 <Button
-                  className="interceptor-loading"
+                  loading={isLoadingAddCard}
                   data-no-dnd="true"
                   onClick={addNewCard}
                   variant="contained"

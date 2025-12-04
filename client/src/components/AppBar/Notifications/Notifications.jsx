@@ -52,6 +52,9 @@ function Notifications() {
   // lấy dữ liệu notifications trong redux
   const notifications = useSelector(selectCurrentNotifications)
 
+  // loading
+  const [isLoading, setIsLoading] = useState(false)
+
   // fetch list invitation
   const dispatch = useDispatch()
   useEffect(() => {
@@ -80,9 +83,11 @@ function Notifications() {
 
   // cập nhật status của 1 lời mời join board
   const updateBoardInvitation = (status, invitationId) => {
+    setIsLoading(true)
     dispatch(updateBoardInvitationAPI({ status, invitationId })).then((res) => {
       if (res.payload.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED)
         navigate(`/boards/${res.payload.boardInvitation.boardId}`)
+      setIsLoading(false)
     })
   }
 
@@ -148,7 +153,7 @@ function Notifications() {
                 {notification.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-end' }}>
                     <Button
-                      className="interceptor-loading"
+                      loading={isLoading}
                       type="submit"
                       variant="contained"
                       color="success"
@@ -157,7 +162,7 @@ function Notifications() {
                       Accept
                     </Button>
                     <Button
-                      className="interceptor-loading"
+                      loading={isLoading}
                       type="submit"
                       variant="contained"
                       color="secondary"

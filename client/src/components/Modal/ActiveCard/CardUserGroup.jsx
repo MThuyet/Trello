@@ -20,6 +20,8 @@ const CardUserGroup = ({ cardMemberIds = [], onUpdateCardMemberIds }) => {
     else setAnchorPopoverElement(null)
   }
 
+  const [isLoadingUpdateCardMembers, setIsLoadingUpdateCardMembers] = useState(false)
+
   // lấy được toàn bộ thông tin những thành viên của board thông qua field FE_allUsers
   const board = useSelector(selectCurrentActiveBoard)
   // thành viên trong card sẽ phải là tập con của thành viên trong board
@@ -27,6 +29,7 @@ const CardUserGroup = ({ cardMemberIds = [], onUpdateCardMemberIds }) => {
   const cardMembers = board.FE_allUsers?.filter((user) => cardMemberIds.includes(user._id))
 
   const handleUpdateCardMembers = (member) => {
+    setIsLoadingUpdateCardMembers(true)
     // tạo biến incommingMemberInfo để gửi cho BE, với 2 thông tin chính là memberId và action xóa hoặc thêm
     const incommingMemberInfo = {
       memberId: member._id,
@@ -34,7 +37,7 @@ const CardUserGroup = ({ cardMemberIds = [], onUpdateCardMemberIds }) => {
     }
 
     // call api update card members
-    onUpdateCardMemberIds(incommingMemberInfo)
+    onUpdateCardMemberIds(incommingMemberInfo).then(() => setIsLoadingUpdateCardMembers(false))
   }
 
   return (
@@ -84,6 +87,7 @@ const CardUserGroup = ({ cardMemberIds = [], onUpdateCardMemberIds }) => {
             <Tooltip title={member.displayName} key={member._id}>
               {/* Avatar kèm badge icon: https://mui.com/material-ui/react-avatar/#with-badge */}
               <Badge
+                className={`${isLoadingUpdateCardMembers ? 'interceptor-loading' : ''}`}
                 sx={{ cursor: 'pointer' }}
                 overlap="rectangular"
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}

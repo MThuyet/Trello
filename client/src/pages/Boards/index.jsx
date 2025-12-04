@@ -8,8 +8,6 @@ import Grid from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
-import ListAltIcon from '@mui/icons-material/ListAlt'
-import HomeIcon from '@mui/icons-material/Home'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -82,14 +80,6 @@ function Boards() {
                 <SpaceDashboardIcon fontSize="small" />
                 Boards
               </SidebarItem>
-              <SidebarItem>
-                <ListAltIcon fontSize="small" />
-                Templates
-              </SidebarItem>
-              <SidebarItem>
-                <HomeIcon fontSize="small" />
-                Home
-              </SidebarItem>
             </Stack>
             <Divider sx={{ my: 1 }} />
             <Stack direction="column" spacing={1}>
@@ -116,16 +106,19 @@ function Boards() {
                   <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={b._id}>
                     <Card sx={{ height: '100%' }}>
                       {/* <CardMedia component="img" height="100" image="https://picsum.photos/100" /> */}
-                      <Box sx={{ height: '50px', backgroundColor: randomColor() }}></Box>
+                      <Box sx={{ height: '25px', backgroundColor: randomColor() }}></Box>
 
-                      <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-                        <Typography gutterBottom variant="h6" component="div">
+                      <CardContent sx={{ p: 1, '&:last-child': { p: 1 } }}>
+                        <Typography
+                          component="div"
+                          variant="h6"
+                          sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                           {b.title}
                         </Typography>
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                          sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontSize: '14px' }}>
                           {b.description}
                         </Typography>
                         <Box
