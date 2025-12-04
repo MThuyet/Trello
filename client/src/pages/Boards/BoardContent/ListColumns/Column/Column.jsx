@@ -132,15 +132,14 @@ const Column = ({ column }) => {
   const confirmDeleteColumn = useConfirm()
   const handleDeleteColumn = () => {
     confirmDeleteColumn({
-      title: `Delete Column "${column?.title}"?`,
-      description: (
+      title: (
         <span>
-          This action will permanently delete your Column and its Cards! Please type <b>{column?.title}</b> to confirm.
+          Delete Column &quot;<b>{column?.title}</b>&quot;?
         </span>
       ),
+      description: <span>This action will permanently delete your Column and its Cards!</span>,
       confirmationText: 'Delete Column',
       cancellationText: 'Cancel',
-      confirmationKeyword: column?.title,
       confirmationButtonProps: { color: 'error' },
     }).then(async () => {
       try {

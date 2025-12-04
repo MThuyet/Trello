@@ -145,14 +145,9 @@ function ActiveCard() {
           Delete Card &quot;<b>{activeCard?.title}</b>&quot;?
         </span>
       ),
-      description: (
-        <span>
-          This action will permanently delete your Card! Please type <b>{activeCard?.title}</b> to confirm.
-        </span>
-      ),
+      description: <span>This action will permanently delete your Card!</span>,
       confirmationText: 'Delete Card',
       cancellationText: 'Cancel',
-      confirmationKeyword: activeCard?.title,
       confirmationButtonProps: { color: 'error' },
     })
       .then(async () => {

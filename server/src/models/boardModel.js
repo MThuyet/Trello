@@ -315,6 +315,16 @@ const pullMemberIds = async (boardId, memberId) => {
   }
 }
 
+const deleteOneById = async (boardId) => {
+  try {
+    return await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .deleteOne({ _id: new ObjectId(String(boardId)) })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -328,4 +338,5 @@ export const boardModel = {
   pushMemberIds,
   pullMemberIds,
   update,
+  deleteOneById,
 }

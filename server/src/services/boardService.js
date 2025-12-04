@@ -6,6 +6,7 @@ import { cloneDeep } from 'lodash'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
 import { DEFAULT_ITEM_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
+import { userModel } from '~/models/userModel'
 
 const getBoards = async (userId, page, itemPerPage, queryFilters) => {
   try {
@@ -108,10 +109,34 @@ const moveCardToDifferentColumn = async (reqBody) => {
   }
 }
 
+const deleteOne = async (boardId, userId) => {
+  try {
+    const board = await boardModel.findOneById(boardId)
+    const user = await userModel.findOneById(userId)
+
+    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(user._id))
+    if (!isOwner) throw new ApiError(StatusCodes.FORBIDDEN, 'You are not the owner of this board!')
+
+    // xóa toàn bộ column bên trong board
+    await columnModel.deleteManyByBoardId(board._id)
+
+    // xóa toàn bộ card bên trong board
+    await cardModel.deleteManyByBoardId(board._id)
+
+    // xóa board
+    return await boardModel.deleteOneById(board._id)
+  } catch (error) {
+    throw error
+  }
+}
+
 export const boardService = {
   getBoards,
   createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,
+  deleteOne,
 }

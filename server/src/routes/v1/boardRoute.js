@@ -12,6 +12,7 @@ Router.route('/')
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, boardController.getDetails)
   .put(authMiddleware.isAuthorized, boardValidation.update, boardController.update)
+  .delete(authMiddleware.isAuthorized, boardValidation.deleteOne, boardController.deleteOne)
 
 // move card to different column
 Router.route('/supports/moving-cards').put(
