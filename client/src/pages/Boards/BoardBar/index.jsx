@@ -8,8 +8,13 @@ import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
 import { CHIP_STYLE } from '~/thems'
 import BoardSettings from './BoardSettings'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 
 const BoardBar = ({ board }) => {
+  const currentUser = useSelector(selectCurrentUser)
+  const userIsOwnerBoard = board?.ownerIds?.some((ownerId) => ownerId === currentUser._id)
+
   return (
     <Box
       sx={{
@@ -34,8 +39,8 @@ const BoardBar = ({ board }) => {
 
         {/* <Chip sx={CHIP_STYLE} icon={<FilterListIcon />} label="Filters" /> */}
 
-        {/* Settings board */}
-        <BoardSettings />
+        {/* Settings board chỉ hiện với owner board */}
+        {userIsOwnerBoard && <BoardSettings />}
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

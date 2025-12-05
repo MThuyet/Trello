@@ -33,7 +33,7 @@ const update = async (req, res, next) => {
     commentToAdd: Joi.object({
       content: Joi.string().required().min(1).max(1000).trim().strict(),
       // Các field khác là optional và sẽ được service set
-      userAvatar: Joi.string().optional(),
+      userAvatar: Joi.optional(),
       userDisplayName: Joi.string().optional(),
     })
       .unknown(false) // ⚠️ Không cho phép field lạ
