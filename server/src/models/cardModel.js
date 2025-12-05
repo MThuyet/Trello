@@ -18,6 +18,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   // thay vì tạo một collection comments, thì embedded trực tiếp trong card
   comments: Joi.array()
     .items({
+      _id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
       userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
       userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
       userAvatar: Joi.string(),
@@ -123,6 +124,27 @@ const unShiftNewComment = async (cardId, commentData) => {
   }
 }
 
+const pullOneComment = async (cardId, commentId) => {
+  try {
+    const cardObjectId = new ObjectId(String(cardId))
+    const commentObjectId = new ObjectId(String(commentId))
+
+    // Atomic operation: chỉ xóa nếu cả card và comment đều tồn tại
+    return await GET_DB()
+      .collection(CARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        {
+          _id: cardObjectId,
+          'comments._id': commentObjectId, // Điều kiện: card phải có comment với _id này
+        },
+        { $pull: { comments: { _id: commentObjectId } } },
+        { returnDocument: 'after' },
+      )
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 const updateMembers = async (cardId, incommingMemberInfo) => {
   try {
     let updateCondition = {}
@@ -171,6 +193,7 @@ export const cardModel = {
   update,
   deleteManyByColumnId,
   unShiftNewComment,
+  pullOneComment,
   updateMembers,
   deleteOneById,
   deleteManyByBoardId,

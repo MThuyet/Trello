@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { ObjectId } from 'mongodb'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
@@ -38,6 +39,7 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
     } else if (updateData.commentToAdd) {
       // tạo dữ liệu comment để thêm vô db (bổ sung thêm những field cần thiết)
       const commentData = {
+        _id: new ObjectId(),
         ...updateData.commentToAdd,
         commentedAt: Date.now(),
         userId: userInfor._id,
@@ -49,6 +51,14 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
     } else if (updateData.incommingMemberInfo) {
       // trường hợp add hoặc remove member on card
       updatedCard = await cardModel.updateMembers(cardId, updateData.incommingMemberInfo)
+    } else if (updateData.commentToDelete) {
+      // xóa comment - dùng atomic operation với điều kiện
+      updatedCard = await cardModel.pullOneComment(cardId, updateData.commentToDelete)
+
+      // Nếu result null thì card hoặc comment không tồn tại
+      if (!updatedCard) {
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Card or comment not found!')
+      }
     } else {
       // các trường hợp update thông tin chung (title, description)
       updatedCard = await cardModel.update(cardId, updateData)

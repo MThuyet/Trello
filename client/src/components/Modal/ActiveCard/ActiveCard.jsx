@@ -132,6 +132,10 @@ function ActiveCard() {
     await callApiUpdateCard({ commentToAdd })
   }
 
+  const onDeleteCardComment = async (commentToDelete) => {
+    await callApiUpdateCard({ commentToDelete })
+  }
+
   const onUpdateCardMemberIds = (incommingMemberInfo) => {
     callApiUpdateCard({ incommingMemberInfo })
   }
@@ -250,7 +254,11 @@ function ActiveCard() {
                 </Box>
 
                 {/* Feature 04: Xử lý các hành động, ví dụ comment vào Card */}
-                <CardActivitySection cardComments={activeCard?.comments} onAddCardComment={onAddCardComment} />
+                <CardActivitySection
+                  cardComments={activeCard?.comments}
+                  onAddCardComment={onAddCardComment}
+                  onDeleteCardComment={onDeleteCardComment}
+                />
               </Box>
             </Grid>
 

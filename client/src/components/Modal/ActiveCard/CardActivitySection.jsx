@@ -4,14 +4,19 @@ import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { useState } from 'react'
+import { useConfirm } from 'material-ui-confirm'
 
-function CardActivitySection({ cardComments = [], onAddCardComment }) {
+function CardActivitySection({ cardComments = [], onAddCardComment, onDeleteCardComment }) {
   const currentUser = useSelector(selectCurrentUser)
   const [isLoadingAddComment, setIsLoadingAddComment] = useState(false)
+  const confirmDeleteComment = useConfirm()
+  const [isLoadingDeleteComment, setIsLoadingDeleteComment] = useState(null) // null hoặc commentId của comment đang xóa
 
   const handleAddCardComment = (event) => {
     // Bắt hành động người dùng nhấn phím Enter && không phải hành động Shift + Enter
@@ -35,6 +40,27 @@ function CardActivitySection({ cardComments = [], onAddCardComment }) {
     }
   }
 
+  const handleDeleteComment = (commentToDelete) => {
+    confirmDeleteComment({
+      title: 'Delete comment?',
+      description: 'This action cannot be undone.',
+      confirmationText: 'Delete',
+      cancellationText: 'Cancel',
+      confirmationButtonProps: { color: 'error' },
+    })
+      .then(async () => {
+        try {
+          setIsLoadingDeleteComment(commentToDelete) // Lưu commentId của comment đang xóa
+          await onDeleteCardComment(commentToDelete)
+        } catch (error) {
+          console.log(error.message)
+        } finally {
+          setIsLoadingDeleteComment(null)
+        }
+      })
+      .catch(() => {})
+  }
+
   return (
     <Box sx={{ mt: 2 }}>
       {/* Xử lý thêm comment vào Card */}
@@ -56,36 +82,58 @@ function CardActivitySection({ cardComments = [], onAddCardComment }) {
         <Typography sx={{ pl: '45px', fontSize: '14px', fontWeight: '500', color: '#b1b1b1' }}>No activity found!</Typography>
       )}
 
-      {cardComments.map((comment, index) => (
-        <Box sx={{ display: 'flex', gap: 1, width: '100%', mb: 1.5 }} key={index}>
-          <Tooltip title={comment.userDisplayName}>
-            <Avatar sx={{ width: 36, height: 36, cursor: 'pointer' }} alt={comment.userDisplayName} src={comment.userAvatar} />
-          </Tooltip>
-          <Box sx={{ width: 'inherit' }}>
-            <Typography variant="span" sx={{ fontWeight: 'bold', mr: 1 }}>
-              {comment.userDisplayName}
-            </Typography>
+      {cardComments.map((comment) => {
+        const isCurrentUserComment = comment.userDisplayName === currentUser?.displayName
+        return (
+          <Box sx={{ display: 'flex', gap: 1, width: '100%', mb: 1.5 }} key={comment._id}>
+            <Tooltip title={comment.userDisplayName}>
+              <Avatar sx={{ width: 36, height: 36, cursor: 'pointer' }} alt={comment.userDisplayName} src={comment.userAvatar} />
+            </Tooltip>
+            <Box sx={{ width: 'inherit', position: 'relative' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="span" sx={{ fontWeight: 'bold', mr: 1 }}>
+                  {comment.userDisplayName}
+                </Typography>
 
-            <Typography variant="span" sx={{ fontSize: '12px' }}>
-              {moment(comment.commentedAt).format('llll')}
-            </Typography>
+                <Typography variant="span" sx={{ fontSize: '12px' }}>
+                  {moment(comment.commentedAt).format('llll')}
+                </Typography>
 
-            <Box
-              sx={{
-                display: 'block',
-                bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#33485D' : 'white'),
-                p: '8px 12px',
-                mt: '4px',
-                border: '0.5px solid rgba(0, 0, 0, 0.2)',
-                borderRadius: '4px',
-                wordBreak: 'break-word',
-                boxShadow: '0 0 1px rgba(0, 0, 0, 0.2)',
-              }}>
-              {comment.content}
+                {isCurrentUserComment && (
+                  <IconButton
+                    size="small"
+                    loading={isLoadingDeleteComment === comment._id}
+                    onClick={() => handleDeleteComment(comment._id)}
+                    sx={{
+                      ml: 'auto',
+                      color: 'error.main',
+                      '&:hover': {
+                        bgcolor: 'error.light',
+                        color: 'white',
+                      },
+                    }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'block',
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#33485D' : 'white'),
+                  p: '8px 12px',
+                  mt: '4px',
+                  border: '0.5px solid rgba(0, 0, 0, 0.2)',
+                  borderRadius: '4px',
+                  wordBreak: 'break-word',
+                  boxShadow: '0 0 1px rgba(0, 0, 0, 0.2)',
+                }}>
+                {comment.content}
+              </Box>
             </Box>
           </Box>
-        </Box>
-      ))}
+        )
+      })}
     </Box>
   )
 }
