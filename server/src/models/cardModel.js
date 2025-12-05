@@ -145,15 +145,15 @@ const pullOneComment = async (cardId, commentId) => {
   }
 }
 
-const updateMembers = async (cardId, incommingMemberInfo) => {
+const updateMembers = async (cardId, incomingMemberInfo) => {
   try {
     let updateCondition = {}
-    if (incommingMemberInfo.action === ACTION_UPDATE_CARD_MEMBERS.ADD) {
-      updateCondition = { $push: { memberIds: new ObjectId(String(incommingMemberInfo.memberId)) } }
+    if (incomingMemberInfo.action === ACTION_UPDATE_CARD_MEMBERS.ADD) {
+      updateCondition = { $push: { memberIds: new ObjectId(String(incomingMemberInfo.memberId)) } }
     }
-    if (incommingMemberInfo.action === ACTION_UPDATE_CARD_MEMBERS.REMOVE) {
+    if (incomingMemberInfo.action === ACTION_UPDATE_CARD_MEMBERS.REMOVE) {
       // xóa phần tử khỏi mảng
-      updateCondition = { $pull: { memberIds: new ObjectId(String(incommingMemberInfo.memberId)) } }
+      updateCondition = { $pull: { memberIds: new ObjectId(String(incomingMemberInfo.memberId)) } }
     }
 
     return await GET_DB()

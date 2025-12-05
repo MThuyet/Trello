@@ -7,7 +7,7 @@ import { pickUser } from '~/utils/formatters'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
-import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { renderTemplateHtml } from '~/utils/renderTemplateHtml'
 import { sendEmail } from '~/providers/ResendProvider'
 
@@ -60,7 +60,7 @@ const verifyAccount = async (reqBody) => {
 
     // các bước kiểm tra cần thiết
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-    if (existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is already active')
+    if (existUser.isActive) throw new ApiError(StatusCodes.UNAUTHORIZED, 'Your account is already active')
     if (existUser.verifyToken !== reqBody.token) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Invalid token')
 
     // update isActive & verifyToken
@@ -85,7 +85,7 @@ const login = async (reqBody) => {
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Wrong email or password')
     if (!bcryptjs.compareSync(reqBody.password, existUser.password))
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Wrong email or password')
-    if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your account is not active, please verify your email!')
+    if (!existUser.isActive) throw new ApiError(StatusCodes.UNAUTHORIZED, 'Your account is not active, please verify your email!')
 
     // tạo token đăng nhập để trả về cho client
     const userInfo = { _id: existUser._id, email: existUser.email }
@@ -141,7 +141,7 @@ const update = async (userId, reqBody, userAvatarFile) => {
       updatedUser = await userModel.update(existUser._id, { password: bcryptjs.hashSync(reqBody.new_password, 8) })
     } else if (userAvatarFile) {
       // trường hợp upload file lên cloudinary
-      const uploadResult = await CloundinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
 
       // lưu lại secure_url của avatar vừa upload vào db
       updatedUser = await userModel.update(existUser._id, { avatar: uploadResult.secure_url })

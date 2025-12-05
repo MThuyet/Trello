@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { ObjectId } from 'mongodb'
 import { boardModel } from '~/models/boardModel'
 import { invitationModel } from '~/models/invitationModel'
 import { userModel } from '~/models/userModel'
@@ -6,7 +7,7 @@ import ApiError from '~/utils/ApiError'
 import { BOARD_INVITATION_STATUS, INVITATION_TYPES } from '~/utils/constants'
 import { pickUser } from '~/utils/formatters'
 
-const gesInvitations = async (userId) => {
+const getInvitations = async (userId) => {
   try {
     const getInvitations = await invitationModel.findByUser(userId)
 
@@ -75,8 +76,8 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
     if (!getBoard) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
 
     // nếu trường hợp status là ACCEPTED join board mà user (invitee) đã là owner hoặc member của board rồi thì lỗi
-    const boardOwnersAndMemberIds = [...getBoard.ownerIds, ...getBoard.memberIds].toString()
-    if (status === BOARD_INVITATION_STATUS.ACCEPTED && boardOwnersAndMemberIds.includes(userId))
+    const isAlreadyMember = [...getBoard.ownerIds, ...getBoard.memberIds].some((id) => id.equals(new ObjectId(String(userId))))
+    if (status === BOARD_INVITATION_STATUS.ACCEPTED && isAlreadyMember)
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'You are already a members of this board')
 
     // tạo dữ liệu để update invitation
@@ -102,6 +103,6 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
 
 export const invitationService = {
   createNewBoardInvitation,
-  gesInvitations,
+  getInvitations,
   updateBoardInvitation,
 }

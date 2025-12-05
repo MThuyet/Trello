@@ -70,49 +70,53 @@ const getDetails = async (userId, boardId) => {
 }
 
 const update = async (boardId, reqBody = {}, currentUserId) => {
-  const board = await boardModel.findOneById(boardId)
-  if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
+  try {
+    const board = await boardModel.findOneById(boardId)
+    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
 
-  // Convert currentUserId sang ObjectId để so sánh
-  const currentUserIdObjectId = new ObjectId(String(currentUserId))
+    // Convert currentUserId sang ObjectId để so sánh
+    const currentUserIdObjectId = new ObjectId(String(currentUserId))
 
-  // Kiểm tra quyền: user phải là owner hoặc member
-  const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(currentUserIdObjectId))
-  const isMember = board.memberIds.some((memberId) => memberId.equals(currentUserIdObjectId))
+    // Kiểm tra quyền: user phải là owner hoặc member
+    const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(currentUserIdObjectId))
+    const isMember = board.memberIds.some((memberId) => memberId.equals(currentUserIdObjectId))
 
-  if (!isOwner && !isMember) {
-    throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to update this board!')
-  }
-
-  const { memberId, columnOrderIds, ...generalFields } = reqBody
-
-  if (columnOrderIds) {
-    const payload = { columnOrderIds, updatedAt: Date.now() }
-    return boardModel.updateColumnOrderIds(boardId, payload)
-  }
-
-  // Xử lý memberId (xóa member): chỉ owner mới được phép
-  if (memberId) {
-    if (!isOwner) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can remove members!')
+    if (!isOwner && !isMember) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to update this board!')
     }
-    const result = await boardModel.pullMemberIds(boardId, memberId)
-    await boardModel.update(boardId, { updatedAt: Date.now() })
-    return result
-  }
 
-  // Xử lý generalFields (title, description, type, ...): chỉ owner mới được phép
-  if (Object.keys(generalFields).length) {
-    if (!isOwner) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can update board details!')
+    const { memberId, columnOrderIds, ...generalFields } = reqBody
+
+    if (columnOrderIds) {
+      const payload = { columnOrderIds, updatedAt: Date.now() }
+      return boardModel.updateColumnOrderIds(boardId, payload)
     }
-    return boardModel.update(boardId, {
-      ...generalFields,
-      updatedAt: Date.now(),
-    })
-  }
 
-  return board
+    // Xử lý memberId (xóa member): chỉ owner mới được phép
+    if (memberId) {
+      if (!isOwner) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can remove members!')
+      }
+      const result = await boardModel.pullMemberIds(boardId, memberId)
+      await boardModel.update(boardId, { updatedAt: Date.now() })
+      return result
+    }
+
+    // Xử lý generalFields (title, description, type, ...): chỉ owner mới được phép
+    if (Object.keys(generalFields).length) {
+      if (!isOwner) {
+        throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can update board details!')
+      }
+      return boardModel.update(boardId, {
+        ...generalFields,
+        updatedAt: Date.now(),
+      })
+    }
+
+    return board
+  } catch (error) {
+    throw error
+  }
 }
 
 const moveCardToDifferentColumn = async (reqBody) => {

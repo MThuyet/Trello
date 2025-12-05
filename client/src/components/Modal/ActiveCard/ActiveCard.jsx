@@ -136,8 +136,8 @@ function ActiveCard() {
     await callApiUpdateCard({ commentToDelete })
   }
 
-  const onUpdateCardMemberIds = (incommingMemberInfo) => {
-    callApiUpdateCard({ incommingMemberInfo })
+  const onUpdateCardMemberIds = (incomingMemberInfo) => {
+    callApiUpdateCard({ incomingMemberInfo })
   }
 
   // delete card

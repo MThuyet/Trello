@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { ObjectId } from 'mongodb'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
-import { CloundinaryProvider } from '~/providers/CloundinaryProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import ApiError from '~/utils/ApiError'
 
 const createNew = async (reqBody) => {
@@ -32,7 +32,7 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
 
     if (cardCoverFile) {
       // trường hợp upload cover file
-      const uploadResult = await CloundinaryProvider.streamUpload(cardCoverFile.buffer, 'cards')
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'cards')
       updatedCard = await cardModel.update(cardId, {
         cover: uploadResult.secure_url,
       })
@@ -48,9 +48,9 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
 
       // thêm comment mới vào đầu mảng comments
       updatedCard = await cardModel.unShiftNewComment(cardId, commentData)
-    } else if (updateData.incommingMemberInfo) {
+    } else if (updateData.incomingMemberInfo) {
       // trường hợp add hoặc remove member on card
-      updatedCard = await cardModel.updateMembers(cardId, updateData.incommingMemberInfo)
+      updatedCard = await cardModel.updateMembers(cardId, updateData.incomingMemberInfo)
     } else if (updateData.commentToDelete) {
       // xóa comment - dùng atomic operation với điều kiện
       updatedCard = await cardModel.pullOneComment(cardId, updateData.commentToDelete)

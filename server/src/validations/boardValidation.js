@@ -26,20 +26,35 @@ const createNew = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-  const correctCondition = Joi.object({
+  // Validate params
+  const paramsCondition = Joi.object({
+    id: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+  })
+
+  // Validate body format và structure
+  const bodyCondition = Joi.object({
     title: Joi.string().min(3).max(50).trim().strict(),
     description: Joi.string().min(3).max(255).trim().strict(),
     type: Joi.string().valid(...Object.values(BOARD_TYPES)),
     memberId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
-  })
+  }).optional() // Cho phép body rỗng hoặc không có
 
   try {
-    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    await paramsCondition.validateAsync(req.params, { abortEarly: false })
+    // Chỉ validate body nếu có
+    if (req.body !== null && req.body !== undefined) {
+      // Validate req.body là object
+      if (typeof req.body !== 'object' || Array.isArray(req.body)) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Request body must be an object')
+      }
+      await bodyCondition.validateAsync(req.body, { abortEarly: false })
+    }
 
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 

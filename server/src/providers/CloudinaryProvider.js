@@ -8,7 +8,7 @@ const cloudinaryV2 = cloudinary.v2
 cloudinaryV2.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
   api_key: env.CLOUDINARY_API_KEY,
-  api_secret: env.CLOUDINARY_API_SECRET
+  api_secret: env.CLOUDINARY_API_SECRET,
 })
 
 // khởi tạo function thực hiện upload file lên cloudinary
@@ -25,4 +25,4 @@ const streamUpload = (fileBuffer, folderName) => {
   })
 }
 
-export const CloundinaryProvider = { streamUpload }
+export const CloudinaryProvider = { streamUpload }

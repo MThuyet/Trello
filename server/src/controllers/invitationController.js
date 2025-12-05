@@ -4,7 +4,7 @@ import { invitationService } from '~/services/invitationService'
 const getInvitations = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
-    const resInvitations = await invitationService.gesInvitations(userId, resInvitations)
+    const resInvitations = await invitationService.getInvitations(userId)
 
     return res.status(StatusCodes.OK).json(resInvitations)
   } catch (error) {

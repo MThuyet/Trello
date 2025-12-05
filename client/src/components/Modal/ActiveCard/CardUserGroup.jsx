@@ -30,14 +30,14 @@ const CardUserGroup = ({ cardMemberIds = [], onUpdateCardMemberIds }) => {
 
   const handleUpdateCardMembers = (member) => {
     setIsLoadingUpdateCardMembers(true)
-    // tạo biến incommingMemberInfo để gửi cho BE, với 2 thông tin chính là memberId và action xóa hoặc thêm
-    const incommingMemberInfo = {
+    // tạo biến incomingMemberInfo để gửi cho BE, với 2 thông tin chính là memberId và action xóa hoặc thêm
+    const incomingMemberInfo = {
       memberId: member._id,
       action: cardMemberIds.includes(member._id) ? ACTION_UPDATE_CARD_MEMBERS.REMOVE : ACTION_UPDATE_CARD_MEMBERS.ADD,
     }
 
     // call api update card members
-    onUpdateCardMemberIds(incommingMemberInfo).then(() => setIsLoadingUpdateCardMembers(false))
+    onUpdateCardMemberIds(incomingMemberInfo).then(() => setIsLoadingUpdateCardMembers(false))
   }
 
   return (
