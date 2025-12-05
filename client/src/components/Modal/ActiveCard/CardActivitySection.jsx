@@ -18,25 +18,29 @@ function CardActivitySection({ cardComments = [], onAddCardComment, onDeleteCard
   const confirmDeleteComment = useConfirm()
   const [isLoadingDeleteComment, setIsLoadingDeleteComment] = useState(null) // null hoặc commentId của comment đang xóa
 
-  const handleAddCardComment = (event) => {
-    // Bắt hành động người dùng nhấn phím Enter && không phải hành động Shift + Enter
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault() // Thêm dòng này để khi Enter không bị nhảy dòng
-      if (!event.target?.value) return // Nếu không có giá trị gì thì return không làm gì cả
+  const handleAddCardComment = async (event) => {
+    try {
+      // Bắt hành động người dùng nhấn phím Enter && không phải hành động Shift + Enter
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault() // Thêm dòng này để khi Enter không bị nhảy dòng
+        if (!event.target?.value) return // Nếu không có giá trị gì thì return không làm gì cả
 
-      setIsLoadingAddComment(true)
-      // Tạo một biến commend data để gửi api
-      const commentToAdd = {
-        userAvatar: currentUser?.avatar,
-        userDisplayName: currentUser?.displayName,
-        content: event.target.value.trim(),
-      }
+        setIsLoadingAddComment(true)
+        // Tạo một biến commend data để gửi api
+        const commentToAdd = {
+          userAvatar: currentUser?.avatar,
+          userDisplayName: currentUser?.displayName,
+          content: event.target.value.trim(),
+        }
 
-      // gọi lên props cha để add comment
-      onAddCardComment(commentToAdd).then(() => {
+        // gọi lên props cha để add comment
+        await onAddCardComment(commentToAdd)
         event.target.value = ''
-        setIsLoadingAddComment(false)
-      })
+      }
+    } catch (error) {
+      console.log(error.message)
+    } finally {
+      setIsLoadingAddComment(false)
     }
   }
 

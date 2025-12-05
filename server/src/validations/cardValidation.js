@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiError from '~/utils/ApiError'
+import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
@@ -14,7 +15,8 @@ const createNew = async (req, res, next) => {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 
@@ -22,15 +24,30 @@ const update = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().min(3).max(50).trim().strict(),
     description: Joi.string().optional(),
+    incomingMemberInfo: Joi.object({
+      action: Joi.string()
+        .valid(...Object.values(ACTION_UPDATE_CARD_MEMBERS))
+        .required(),
+      memberId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).required(),
+    }),
+    commentToAdd: Joi.object({
+      content: Joi.string().required().min(1).max(1000).trim().strict(),
+      // Các field khác là optional và sẽ được service set
+      userAvatar: Joi.string().optional(),
+      userDisplayName: Joi.string().optional(),
+    })
+      .unknown(false) // ⚠️ Không cho phép field lạ
+      .optional(),
+    commentToDelete: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).optional(),
   })
 
   try {
     // chỉ định abortEarly: false để trả về tất cả các lỗi validate
-    // đối với update cho phép unknown để không cần đẩy một số field lên
-    await correctCondition.validateAsync(req.body, { abortEarly: false, allowUnknown: true })
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 
@@ -43,7 +60,8 @@ const deleteOne = async (req, res, next) => {
     await correctCondition.validateAsync(req.params, { abortEarly: false })
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 

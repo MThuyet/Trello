@@ -54,7 +54,7 @@ const createNewBoardInvitation = async (data) => {
     // insert vào DB
     return await GET_DB().collection(INVITATION_COLLECTION_NAME).insertOne(newInvitationDataToAdd)
   } catch (error) {
-    throw new Error(error) // tự tạo mội lỗi mới chuấn Error từ string/giá trị thô
+    throw error // tự tạo mội lỗi mới chuấn Error từ string/giá trị thô
   }
 }
 
@@ -111,7 +111,7 @@ const findByUser = async (userId) => {
 
     return results
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -138,7 +138,7 @@ const update = async (invitationId, updateData) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 

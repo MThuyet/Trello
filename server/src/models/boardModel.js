@@ -99,7 +99,7 @@ const getBoards = async (userId, page, itemPerPage, queryFilters) => {
       totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0,
     }
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -115,7 +115,7 @@ const createNew = async (userId, data) => {
 
     return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -125,7 +125,7 @@ const findOneById = async (id) => {
     const objectId = new ObjectId(String(id))
     return await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: objectId })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -194,7 +194,7 @@ const getDetails = async (userId, boardId) => {
     // dữ liệu luôn là mảng có một phần tử vì id là duy nhất
     return result[0] || null // trả về phần tử đầu tiên hoặc mặc định là null
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -214,7 +214,7 @@ const pushColumnOrderIds = async (column) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -233,7 +233,7 @@ const pullColumnOrderIds = async (column) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -268,7 +268,7 @@ const updateColumnOrderIds = async (boardId, updateData) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -283,7 +283,7 @@ const update = async (boardId, updateData) => {
       .collection(BOARD_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(String(boardId)) }, { $set: updateData }, { returnDocument: 'after' })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -297,7 +297,7 @@ const pushMemberIds = async (boardId, memberId) => {
         { returnDocument: 'after' },
       )
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -311,7 +311,7 @@ const pullMemberIds = async (boardId, memberId) => {
         { returnDocument: 'after' },
       )
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -321,7 +321,7 @@ const deleteOneById = async (boardId) => {
       .collection(BOARD_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(String(boardId)) })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 

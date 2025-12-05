@@ -30,7 +30,7 @@ const createNew = async (data) => {
 
     return await GET_DB().collection(COLUMN_COLLECTION_NAME).insertOne(convertedInsertData)
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -40,7 +40,7 @@ const findOneById = async (id) => {
 
     return await GET_DB().collection(COLUMN_COLLECTION_NAME).findOne({ _id: objectId })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -56,7 +56,7 @@ const pushCardOrderIds = async (card) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -70,7 +70,7 @@ const pullCardOrderIds = async (card) => {
         { returnDocument: 'after' },
       )
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -101,7 +101,7 @@ const updateColumn = async (columnId, updateData) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -113,7 +113,7 @@ const deleteOneById = async (columnId) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -123,7 +123,7 @@ const deleteManyByBoardId = async (boardId) => {
       .collection(COLUMN_COLLECTION_NAME)
       .deleteMany({ boardId: new ObjectId(String(boardId)) })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 

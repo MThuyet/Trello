@@ -21,7 +21,8 @@ const createNew = async (req, res, next) => {
     // Validate hợp lệ thì cho đi tiếp (gọi callback tiếp theo)
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 
@@ -72,7 +73,8 @@ const moveCardToDifferentColumn = async (req, res, next) => {
 
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 
@@ -85,7 +87,8 @@ const deleteOne = async (req, res, next) => {
     await correctCondition.validateAsync(req.params, { abortEarly: false })
     next()
   } catch (error) {
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    const errorMessage = error.details?.map((d) => d.message).join(', ') || error.message
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage))
   }
 }
 

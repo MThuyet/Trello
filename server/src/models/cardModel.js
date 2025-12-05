@@ -51,7 +51,7 @@ const createNew = async (data) => {
 
     return await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(convertedInsertData)
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -61,7 +61,7 @@ const findOneById = async (id) => {
 
     return await GET_DB().collection(CARD_COLLECTION_NAME).findOne({ _id: objectId })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -90,7 +90,7 @@ const update = async (cardId, updateData) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -102,7 +102,7 @@ const deleteManyByColumnId = async (columnId) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -120,7 +120,7 @@ const unShiftNewComment = async (cardId, commentData) => {
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -141,7 +141,7 @@ const pullOneComment = async (cardId, commentId) => {
         { returnDocument: 'after' },
       )
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -160,7 +160,7 @@ const updateMembers = async (cardId, incomingMemberInfo) => {
       .collection(CARD_COLLECTION_NAME)
       .findOneAndUpdate({ _id: new ObjectId(String(cardId)) }, updateCondition, { returnDocument: 'after' })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -170,7 +170,7 @@ const deleteOneById = async (cardId) => {
       .collection(CARD_COLLECTION_NAME)
       .deleteOne({ _id: new ObjectId(String(cardId)) })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -180,7 +180,7 @@ const deleteManyByBoardId = async (boardId) => {
       .collection(CARD_COLLECTION_NAME)
       .deleteMany({ boardId: new ObjectId(String(boardId)) })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 

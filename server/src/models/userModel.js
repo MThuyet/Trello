@@ -5,7 +5,7 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
 
 const USER_ROLE = {
   CLIENT: 'client',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
 }
 
 const USER_COLLECTION_NAME = 'users'
@@ -25,7 +25,7 @@ const USER_COLLECTION_SCHEMA = Joi.object({
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  _destroy: Joi.boolean().default(false),
 })
 
 // những field không muốn cập nhật trong hàm update
@@ -42,7 +42,7 @@ const createNew = async (data) => {
 
     return createdUser
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -52,7 +52,7 @@ const findOneById = async (id) => {
 
     return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ _id: objectId })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -61,7 +61,7 @@ const findOneByEmail = async (emailValue) => {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email: emailValue })
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -77,15 +77,15 @@ const update = async (userId, updateData) => {
       .collection(USER_COLLECTION_NAME)
       .findOneAndUpdate(
         {
-          _id: new ObjectId(String(userId))
+          _id: new ObjectId(String(userId)),
         },
         { $set: updateData },
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       )
 
     return result
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -95,5 +95,5 @@ export const userModel = {
   createNew,
   findOneById,
   findOneByEmail,
-  update
+  update,
 }
