@@ -31,3 +31,22 @@ export const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 }
+
+const requiredEnvVars = [
+  'MONGODB_URI', // Bắt buộc: kết nối database
+  'DATABASE_NAME', // Bắt buộc: tên database
+  'ACCESS_TOKEN_SIGNATURE', // Bắt buộc: ký JWT access token
+  'REFRESH_TOKEN_SIGNATURE', // Bắt buộc: ký JWT refresh token
+]
+
+// Kiểm tra các biến môi trường bắt buộc
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName])
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:')
+  missingEnvVars.forEach((varName) => {
+    console.error(`   - ${varName}`)
+  })
+  console.error('Please set these variables in your .env file')
+  process.exit(1) // Dừng server ngay lập tức
+}
