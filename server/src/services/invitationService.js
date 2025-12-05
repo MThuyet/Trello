@@ -93,7 +93,24 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
     const updatedInvitation = await invitationModel.update(invitationId, updateData)
 
     // nếu status là ACCEPTED => cập nhật members trong board
-    if (updatedInvitation.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) await boardModel.pushMemberIds(boardId, userId)
+    if (updatedInvitation.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
+      // Bước 1: Push member vào board trong database
+      await boardModel.pushMemberIds(boardId, userId)
+
+      // Bước 2: Lấy thông tin user vừa join để gửi về client
+      const newMember = await userModel.findOneById(userId)
+      const newMemberData = pickUser(newMember)
+
+      // Bước 3: Emit socket event đến tất cả users trong room có tên ${roomName}
+      const roomName = `board:${boardId}`
+      if (global.io) {
+        global.io.to(roomName).emit('BE_MEMBER_JOINED_BOARD', {
+          boardId: boardId,
+          newMember: newMemberData,
+        })
+        console.log(`Emitted BE_MEMBER_JOINED_BOARD to room: ${roomName}`)
+      }
+    }
 
     return updatedInvitation
   } catch (error) {

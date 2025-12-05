@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import http from 'http'
 import { inviteUserToBoardSocket } from '~/sockets/inviteUserToBoardSocket'
+import { boardRoomSocket } from './sockets/boardRoomSocket'
 
 const START_SERVER = () => {
   const app = express()
@@ -49,9 +50,12 @@ const START_SERVER = () => {
   const server = http.createServer(app)
   // khởi tạo biến io với server và cors
   const io = new Server(server, { cors: corsOptions })
+  // Gán instance io vào global.io để các module khác (như invitationService.js) có thể dùng để emit events.
+  global.io = io
   io.on('connection', (socket) => {
     // gọi các socket theo tính năng
     inviteUserToBoardSocket(socket)
+    boardRoomSocket(socket)
   })
 
   // dùng server.listen thay vì app.listen vì lúc này server đã bao gồm express app và config socket.io
