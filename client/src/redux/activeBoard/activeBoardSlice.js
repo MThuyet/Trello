@@ -75,6 +75,24 @@ export const activeBoardSlice = createSlice({
       }
     },
 
+    addColumnToBoard: (state, action) => {
+      const newColumn = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      // Kiểm tra xem column đã tồn tại chưa (tránh duplicate)
+      const isColumnExists = state.currentActiveBoard.columns.some((col) => col._id === newColumn._id)
+      if (isColumnExists) return
+
+      if (isEmpty(newColumn.cards)) {
+        newColumn.cards = [generatePlaceholderCard(newColumn)]
+        newColumn.cardOrderIds = [generatePlaceholderCard(newColumn)._id]
+      }
+
+      state.currentActiveBoard.columns.push(newColumn)
+      state.currentActiveBoard.columnOrderIds.push(newColumn._id)
+    },
+
     removeColumnFromBoard: (state, action) => {
       const { columnId } = action.payload
 
@@ -162,6 +180,7 @@ export const {
   updateCurrentActiveBoard,
   updateCardInBoard,
   removeCardFromBoard,
+  addColumnToBoard,
   removeColumnFromBoard,
   addMemberToBoard,
   removeMemberFromBoard,

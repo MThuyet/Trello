@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { updateBoardDetailsAPI, updateColumnDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  addColumnToBoard,
   addMemberToBoard,
   fetchBoardDetailsAPI,
   removeCardFromBoard,
@@ -159,6 +160,27 @@ const Board = () => {
       socketIoInstance.off('BE_DELETE_COLUMN', handleColumnDeleted)
     }
   }, [board, dispatch, currentActiveCard?.columnId])
+
+  // listen socket event khi có column mới được tạo trong board
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleAddedNewColumn = (data) => {
+      if (board._id === data.boardId) {
+        dispatch(addColumnToBoard(data))
+
+        if (data.createdBy !== currentUser._id) {
+          dispatch(showSnackbar({ message: `Column "${data.title}" has been added`, severity: 'info' }))
+        }
+      }
+    }
+
+    socketIoInstance.on('BE_NEW_COLUMN_CREATED', handleAddedNewColumn)
+
+    return () => {
+      socketIoInstance.off('BE_NEW_COLUMN_CREATED', handleAddedNewColumn)
+    }
+  }, [board, dispatch, currentUser._id])
 
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {

@@ -4,7 +4,7 @@ import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import ApiError from '~/utils/ApiError'
 
-const createNew = async (reqBody) => {
+const createNew = async (reqBody, userId) => {
   try {
     const createdColumn = await columnModel.createNew(reqBody)
 
@@ -16,6 +16,19 @@ const createNew = async (reqBody) => {
 
       // cập nhật lại columnOrderIds trong Board
       await boardModel.pushColumnOrderIds(getNewColumn)
+
+      // emit socket event đến tất cả user trong board room
+      if (global.io && getNewColumn) {
+        const roomName = `board:${getNewColumn.boardId.toString()}`
+        // convert ObjectId to string
+        const columnData = {
+          ...getNewColumn,
+          _id: getNewColumn._id.toString(),
+          boardId: getNewColumn.boardId.toString(),
+          createdBy: userId.toString(), // thêm id của người tạo
+        }
+        global.io.to(roomName).emit('BE_NEW_COLUMN_CREATED', columnData)
+      }
 
       return getNewColumn
     }

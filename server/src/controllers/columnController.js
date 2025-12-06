@@ -3,9 +3,10 @@ import { columnService } from '~/services/columnService'
 
 const createNew = async (req, res, next) => {
   try {
-    const createColumn = await columnService.createNew(req.body)
+    const userId = req.jwtDecoded._id
+    const createColumn = await columnService.createNew(req.body, userId)
 
-    res.status(StatusCodes.CREATED).json(createColumn)
+    return res.status(StatusCodes.CREATED).json(createColumn)
   } catch (error) {
     next(error)
   }
@@ -35,5 +36,5 @@ const deleteColumn = async (req, res, next) => {
 export const columnController = {
   createNew,
   updateColumn,
-  deleteColumn
+  deleteColumn,
 }
