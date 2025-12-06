@@ -71,9 +71,9 @@ const START_SERVER = () => {
     })
   }
 
-  exitHook(() => {
+  exitHook(async () => {
     console.log('Closing DB...')
-    CLOSE_DB()
+    await CLOSE_DB()
     console.log('Closed DB successfully')
   })
 }

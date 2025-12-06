@@ -11,7 +11,7 @@ const genegrateToken = async (userInfo, secretSignature, tokenLifetime) => {
     // hàm sigt() để tạo chữ ký, thuật toán mặc định của nó là HS256
     return JWT.sign(userInfo, secretSignature, { expiresIn: tokenLifetime })
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -24,11 +24,11 @@ const verifyToken = async (token, secretSignature) => {
     // hàm verify() để kiểm tra token hợp lệ hay không
     return JWT.verify(token, secretSignature)
   } catch (error) {
-    throw new Error(error)
+    throw error
   }
 }
 
 export const JwtProvider = {
   genegrateToken,
-  verifyToken
+  verifyToken,
 }
