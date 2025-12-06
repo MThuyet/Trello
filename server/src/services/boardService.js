@@ -1,4 +1,4 @@
-import { slugify } from '~/utils/formatters'
+import { pickUser, slugify } from '~/utils/formatters'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
@@ -97,8 +97,24 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
       if (!isOwner) {
         throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can remove members!')
       }
+
+      // B1: pull member khỏi board
       const result = await boardModel.pullMemberIds(boardId, memberId)
       await boardModel.update(boardId, { updatedAt: Date.now() })
+
+      // B2: lấy thông tin member vừa bị xóa để gửi về client
+      const removedMember = await userModel.findOneById(memberId)
+
+      // B3: emit socket event đến tất cả user trong board room
+      if (global.io) {
+        const roomName = `board:${boardId}`
+        global.io.to(roomName).emit('BE_MEMBER_REMOVED_FROM_BOARD', {
+          boardId,
+          removedMember: pickUser(removedMember),
+        })
+        console.log(`Emitted BE_MEMBER_REMOVED_FROM_BOARD to room: ${roomName}`)
+      }
+
       return result
     }
 

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   addMemberToBoard,
   fetchBoardDetailsAPI,
+  removeMemberFromBoard,
   selectCurrentActiveBoard,
   updateCurrentActiveBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
@@ -17,12 +18,15 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 import { socketIoInstance } from '~/socketClient'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const Board = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   // lấy dữ liệu board từ redux
   const board = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
   const [isLoadingBoard, setIsLoadingBoard] = useState(true)
 
   // lấy boardId từ url
@@ -44,7 +48,7 @@ const Board = () => {
     if (!boardId || !board) return
 
     // Emit event để join vào board room
-    socketIoInstance.emit('FE_JOIN_BOARD_ROOM', boardId)
+    socketIoInstance.emit('FE_JOIN_BOARD_ROOM', boardId, currentUser._id)
 
     // Listen để confirm đã join thành công (để debug)
     const handleJoinedRoom = (data) => {
@@ -57,7 +61,7 @@ const Board = () => {
       // Remove listener để tránh memory leak
       socketIoInstance.off('BE_JOINED_BOARD_ROOM', handleJoinedRoom)
     }
-  }, [boardId, board])
+  }, [boardId, board, currentUser._id])
 
   // useEffect để listen socket event khi có member mới join board
   useEffect(() => {
@@ -72,6 +76,7 @@ const Board = () => {
       if (data.boardId === board._id) {
         // Dispatch action để cập nhật Redux state
         dispatch(addMemberToBoard(data.newMember))
+        dispatch(showSnackbar({ message: `${data.newMember.displayName} joined the board`, severity: 'success' }))
       }
     }
 
@@ -84,6 +89,28 @@ const Board = () => {
       socketIoInstance.off('BE_MEMBER_JOINED_BOARD', handleMemberJoined)
     }
   }, [board, dispatch])
+
+  // useEffect để listen socket event khi có member bị xóa khỏi board
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleMemberRemoved = (data) => {
+      if (data.boardId === board._id) {
+        if (data.removedMember._id === currentUser._id) {
+          navigate('/boards')
+          dispatch(showSnackbar({ message: 'You have been removed from this board', severity: 'warning' }))
+          return
+        }
+        dispatch(removeMemberFromBoard(data.removedMember))
+      }
+    }
+
+    socketIoInstance.on('BE_MEMBER_REMOVED_FROM_BOARD', handleMemberRemoved)
+
+    return () => {
+      socketIoInstance.off('BE_MEMBER_REMOVED_FROM_BOARD', handleMemberRemoved)
+    }
+  }, [board, dispatch, currentUser, navigate])
 
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {

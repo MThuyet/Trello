@@ -77,6 +77,23 @@ export const activeBoardSlice = createSlice({
       // Cập nhật lại FE_allUsers (gộp owners + members)
       state.currentActiveBoard.FE_allUsers = state.currentActiveBoard.owners.concat(state.currentActiveBoard.members)
     },
+
+    removeMemberFromBoard: (state, action) => {
+      // action.payload chứa thông tin member bị xóa từ socket event
+      const removedMember = action.payload
+
+      if (!state.currentActiveBoard) {
+        console.warn('Cannot remove member: No active board')
+        return
+      }
+
+      // xóa member khỏi mảng members
+      // filter mảng mới không chứa member vừa bị xóa
+      state.currentActiveBoard.members = state.currentActiveBoard.members.filter((member) => member._id !== removedMember._id)
+
+      // cập nhật lại FE_allUser
+      state.currentActiveBoard.FE_allUsers = state.currentActiveBoard.owners.concat(state.currentActiveBoard.members)
+    },
   },
   // extraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
@@ -111,7 +128,7 @@ export const activeBoardSlice = createSlice({
 
 // actions: là nơi dành cho các components gọi bằng dispatch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)
 // những actions này được redux tạo tự động theo tên của reducer
-export const { updateCurrentActiveBoard, updateCardInBoard, addMemberToBoard } = activeBoardSlice.actions
+export const { updateCurrentActiveBoard, updateCardInBoard, addMemberToBoard, removeMemberFromBoard } = activeBoardSlice.actions
 
 // selectors: là nơi dành cho các components gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra để sử dụng
 export const selectCurrentActiveBoard = (state) => {
