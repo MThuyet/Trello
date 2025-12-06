@@ -75,6 +75,15 @@ export const activeBoardSlice = createSlice({
       }
     },
 
+    removeColumnFromBoard: (state, action) => {
+      const { columnId } = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      state.currentActiveBoard.columns = state.currentActiveBoard.columns.filter((column) => column._id !== columnId)
+      state.currentActiveBoard.columnOrderIds = state.currentActiveBoard.columnOrderIds.filter((id) => id !== columnId)
+    },
+
     addMemberToBoard: (state, action) => {
       // action.payload chứa thông tin member mới từ socket event
       const newMember = action.payload
@@ -149,8 +158,14 @@ export const activeBoardSlice = createSlice({
 
 // actions: là nơi dành cho các components gọi bằng dispatch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)
 // những actions này được redux tạo tự động theo tên của reducer
-export const { updateCurrentActiveBoard, updateCardInBoard, removeCardFromBoard, addMemberToBoard, removeMemberFromBoard } =
-  activeBoardSlice.actions
+export const {
+  updateCurrentActiveBoard,
+  updateCardInBoard,
+  removeCardFromBoard,
+  removeColumnFromBoard,
+  addMemberToBoard,
+  removeMemberFromBoard,
+} = activeBoardSlice.actions
 
 // selectors: là nơi dành cho các components gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra để sử dụng
 export const selectCurrentActiveBoard = (state) => {

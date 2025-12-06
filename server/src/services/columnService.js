@@ -28,7 +28,7 @@ const updateColumn = async (columnId, reqBody) => {
   try {
     const updateData = {
       ...reqBody,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     }
 
     const updatedColumn = await columnModel.updateColumn(columnId, updateData)
@@ -45,13 +45,23 @@ const deleteColumn = async (columnId) => {
     if (!targetColumn) throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found!')
 
     // xóa column
-    await columnModel.deleteOneById(columnId)
+    const deleteResult = await columnModel.deleteOneById(columnId)
 
     // xóa card bên trong column
     await cardModel.deleteManyByColumnId(columnId)
 
     // xóa columnId trong mảng columnOrderIds của board
     await boardModel.pullColumnOrderIds(targetColumn)
+
+    // emit socket event đến tất cả user trong board room
+    if (global.io && deleteResult.deletedCount > 0) {
+      const roomName = `board:${targetColumn.boardId.toString()}`
+      global.io.to(roomName).emit('BE_DELETE_COLUMN', {
+        columnId: columnId.toString(),
+        boardId: targetColumn.boardId.toString(),
+        columnTitle: targetColumn.title,
+      })
+    }
 
     return { deleteResult: 'Column and its Cards deleted successfully!' }
   } catch (error) {
@@ -62,5 +72,5 @@ const deleteColumn = async (columnId) => {
 export const columnService = {
   createNew,
   updateColumn,
-  deleteColumn
+  deleteColumn,
 }

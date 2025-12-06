@@ -10,6 +10,7 @@ import {
   addMemberToBoard,
   fetchBoardDetailsAPI,
   removeCardFromBoard,
+  removeColumnFromBoard,
   removeMemberFromBoard,
   selectCurrentActiveBoard,
   updateCurrentActiveBoard,
@@ -130,12 +131,34 @@ const Board = () => {
       }
     }
 
-    socketIoInstance.on('BE_CARD_DELETED', handleCardDeleted)
+    socketIoInstance.on('BE_DELETED_CARD', handleCardDeleted)
 
     return () => {
-      socketIoInstance.off('BE_CARD_DELETED', handleCardDeleted)
+      socketIoInstance.off('BE_DELETED_CARD', handleCardDeleted)
     }
   }, [board, dispatch, currentActiveCard?._id])
+
+  // listen socket event khi có column được xóa khỏi board
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleColumnDeleted = (data) => {
+      if (data.boardId === board._id) {
+        dispatch(removeColumnFromBoard(data))
+        dispatch(showSnackbar({ message: `Column "${data.columnTitle}" has been deleted`, severity: 'info' }))
+
+        if (currentActiveCard?.columnId === data.columnId) {
+          dispatch(clearAndHideCurrentActiveCard())
+        }
+      }
+    }
+
+    socketIoInstance.on('BE_DELETE_COLUMN', handleColumnDeleted)
+
+    return () => {
+      socketIoInstance.off('BE_DELETE_COLUMN', handleColumnDeleted)
+    }
+  }, [board, dispatch, currentActiveCard?.columnId])
 
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {

@@ -80,7 +80,7 @@ const deleteOne = async (cardId) => {
 
     if (deleteResult.deletedCount > 0 && global.io) {
       const roomName = `board:${card.boardId}`
-      global.io.to(roomName).emit('BE_CARD_DELETED', {
+      global.io.to(roomName).emit('BE_DELETED_CARD', {
         cardId: card._id.toString(),
         boardId: card.boardId.toString(),
         columnId: card.columnId.toString(),
