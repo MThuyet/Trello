@@ -41,7 +41,7 @@ import {
   selectIsShowModalActiveCard,
 } from '~/redux/activeCard/activeCardSlice'
 import { deleteOneCardAPI, updateCardDetailsAPI } from '~/apis'
-import { fetchBoardDetailsAPI, selectCurrentActiveBoard, updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 import { useConfirm } from 'material-ui-confirm'
@@ -74,7 +74,6 @@ function ActiveCard() {
   const dispach = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
-  const activeBoard = useSelector(selectCurrentActiveBoard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
   const [isLoadingTitle, setIsLoadingTitle] = useState(false)
   const [isLoadingJoinCard, setIsLoadingJoinCard] = useState(false)
@@ -159,7 +158,6 @@ function ActiveCard() {
           setIsDeleteCard(true)
           await deleteOneCardAPI(cardId)
           dispach(clearAndHideCurrentActiveCard())
-          dispach(fetchBoardDetailsAPI(activeBoard._id))
           dispach(showSnackbar({ message: 'Deleted card successfully!', severity: 'success' }))
         } catch (error) {
           console.log(error.message)

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   addMemberToBoard,
   fetchBoardDetailsAPI,
+  removeCardFromBoard,
   removeMemberFromBoard,
   selectCurrentActiveBoard,
   updateCurrentActiveBoard,
@@ -20,6 +21,7 @@ import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 import { socketIoInstance } from '~/socketClient'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
+import { clearAndHideCurrentActiveCard, selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 const Board = () => {
   const navigate = useNavigate()
@@ -27,6 +29,7 @@ const Board = () => {
   // lấy dữ liệu board từ redux
   const board = useSelector(selectCurrentActiveBoard)
   const currentUser = useSelector(selectCurrentUser)
+  const currentActiveCard = useSelector(selectCurrentActiveCard)
   const [isLoadingBoard, setIsLoadingBoard] = useState(true)
 
   // lấy boardId từ url
@@ -42,7 +45,7 @@ const Board = () => {
       })
   }, [dispatch, boardId, navigate])
 
-  // useEffect để join board room khi vào board
+  // join board room khi vào board
   useEffect(() => {
     // Chỉ join khi đã có boardId và board đã load xong
     if (!boardId || !board) return
@@ -63,7 +66,7 @@ const Board = () => {
     }
   }, [boardId, board, currentUser._id])
 
-  // useEffect để listen socket event khi có member mới join board
+  // listen socket event khi có member mới join board
   useEffect(() => {
     // Chỉ listen khi đang ở board đó
     if (!board || !board._id) return
@@ -90,7 +93,7 @@ const Board = () => {
     }
   }, [board, dispatch])
 
-  // useEffect để listen socket event khi có member bị xóa khỏi board
+  // listen socket event khi có member bị xóa khỏi board
   useEffect(() => {
     if (!board || !board._id) return
 
@@ -111,6 +114,28 @@ const Board = () => {
       socketIoInstance.off('BE_MEMBER_REMOVED_FROM_BOARD', handleMemberRemoved)
     }
   }, [board, dispatch, currentUser, navigate])
+
+  // listen socket event khi có card được xóa khỏi board
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleCardDeleted = (data) => {
+      if (data.boardId === board._id) {
+        dispatch(removeCardFromBoard(data))
+        dispatch(showSnackbar({ message: `Card ${data.cardTitle} has been deleted`, severity: 'info' }))
+
+        if (currentActiveCard?._id === data.cardId) {
+          dispatch(clearAndHideCurrentActiveCard())
+        }
+      }
+    }
+
+    socketIoInstance.on('BE_CARD_DELETED', handleCardDeleted)
+
+    return () => {
+      socketIoInstance.off('BE_CARD_DELETED', handleCardDeleted)
+    }
+  }, [board, dispatch, currentActiveCard?._id])
 
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {

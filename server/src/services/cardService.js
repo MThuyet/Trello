@@ -76,7 +76,17 @@ const deleteOne = async (cardId) => {
     if (!card) throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found!')
 
     await columnModel.pullCardOrderIds(card)
-    return await cardModel.deleteOneById(cardId)
+    const deleteResult = await cardModel.deleteOneById(cardId)
+
+    if (deleteResult.deletedCount > 0 && global.io) {
+      const roomName = `board:${card.boardId}`
+      global.io.to(roomName).emit('BE_CARD_DELETED', {
+        cardId: card._id.toString(),
+        boardId: card.boardId.toString(),
+        columnId: card.columnId.toString(),
+        cardTitle: card.title,
+      })
+    }
   } catch (error) {
     throw error
   }
