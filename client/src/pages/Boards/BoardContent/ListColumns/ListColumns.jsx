@@ -27,41 +27,45 @@ const ListColumns = ({ columns }) => {
 
   // hàm tạo column
   const addNewColumn = async () => {
-    if (!newColumnTitle) {
-      dispatch(showSnackbar({ message: 'Please enter column title', severity: 'error' }))
-      return
+    try {
+      if (!newColumnTitle) {
+        dispatch(showSnackbar({ message: 'Please enter column title', severity: 'error' }))
+        return
+      }
+
+      // Tạo dữ liệu để call API
+      const newColumnData = {
+        title: newColumnTitle,
+      }
+
+      // gọi API tạo mới column và làm lại dữ liệu state board
+      setIsLoadingAddColumn(true)
+      const createdColumn = await createNewColumnAPI({
+        ...newColumnData,
+        boardId: board._id,
+      })
+
+      if (createdColumn) {
+        // xử lý kéo thả khi column mới được tạo nên rỗng
+        createdColumn.cards = [generatePlaceholderCard(createdColumn)]
+        createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
+
+        // Đoạn này dính lỗi object is not extensible bởi dù đã clone ra giá trị mới nhưng bản chất của spread operator là shallow copy (https://www.javascripttutorial.net/object/3-ways-to-copy-objects-in-javascript/) nên dính phải rules Immutability của Redux Toolkits https://redux-toolkit.js.org/usage/immer-reducers, không được dùng hàm PUSH (sửa giá trị mảng trực tiếp), cách đơn giản là dùng Deep clone hoặc concat() để tạo mảng mới
+        // const newBoard = { ...board }
+        const newBoard = cloneDeep(board)
+        newBoard.columns.push(createdColumn)
+        newBoard.columnOrderIds.push(createdColumn._id)
+
+        // cập nhật lại state board trong redux, newBoard là action.payload
+        dispatch(updateCurrentActiveBoard(newBoard))
+        toggleOpenNewColumnForm()
+        setNewColumnTitle('')
+      }
+    } catch (error) {
+      console.log(error.message)
+    } finally {
+      setIsLoadingAddColumn(false)
     }
-
-    setIsLoadingAddColumn(true)
-
-    // Tạo dữ liệu để call API
-    const newColumnData = {
-      title: newColumnTitle,
-    }
-
-    // gọi API tạo mới column và làm lại dữ liệu state board
-    const createdColumn = await createNewColumnAPI({
-      ...newColumnData,
-      boardId: board._id,
-    })
-
-    // xử lý kéo thả khi column mới được tạo nên rỗng
-    createdColumn.cards = [generatePlaceholderCard(createdColumn)]
-    createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
-
-    // Đoạn này dính lỗi object is not extensible bởi dù đã clone ra giá trị mới nhưng bản chất của spread operator là shallow copy (https://www.javascripttutorial.net/object/3-ways-to-copy-objects-in-javascript/) nên dính phải rules Immutability của Redux Toolkits https://redux-toolkit.js.org/usage/immer-reducers, không được dùng hàm PUSH (sửa giá trị mảng trực tiếp), cách đơn giản là dùng Deep clone hoặc concat() để tạo mảng mới
-    // const newBoard = { ...board }
-    const newBoard = cloneDeep(board)
-    newBoard.columns.push(createdColumn)
-    newBoard.columnOrderIds.push(createdColumn._id)
-
-    // cập nhật lại state board trong redux, newBoard là action.payload
-    dispatch(updateCurrentActiveBoard(newBoard))
-
-    // reset lại trạng thái
-    setNewColumnTitle('')
-    toggleOpenNewColumnForm()
-    setIsLoadingAddColumn(false)
   }
 
   return (

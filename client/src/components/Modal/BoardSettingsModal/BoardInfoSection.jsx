@@ -11,8 +11,11 @@ import { Box } from '@mui/material'
 import { BOARD_TYPES } from '~/utils/constants'
 import { useEffect, useRef, useState } from 'react'
 import { updateBoardDetailsAPI } from '~/apis'
+import { useDispatch } from 'react-redux'
+import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 
 const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
+  const dispatch = useDispatch()
   const [description, setDescription] = useState(currentBoard?.description || '')
   const [type, setType] = useState(currentBoard?.type || BOARD_TYPES.PUBLIC)
   const [isLoadingTitle, setIsLoadingTitle] = useState(false)
@@ -48,30 +51,54 @@ const BoardInfoSection = ({ isOpen, currentBoard, updateBoardInRedux }) => {
 
   // Cập nhật board title
   const handleUpdateBoardTitle = async (title) => {
-    if (!currentBoard?._id) return
+    try {
+      if (!currentBoard?._id) return
 
-    const normalizedTitle = title?.trim()
-    const currentTitle = currentBoard?.title?.trim()
-    if (!normalizedTitle || normalizedTitle === currentTitle) return
+      const newTitle = title.trim()
+      if (newTitle.length < 3 || newTitle.length > 50) {
+        dispatch(showSnackbar({ message: 'Board title must be between 3 and 50 characters', severity: 'error' }))
+        return false
+      }
 
-    setIsLoadingTitle(true)
-    const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { title: normalizedTitle })
-    updateBoardInRedux(updatedBoard)
-    setIsLoadingTitle(false)
+      setIsLoadingTitle(true)
+      const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { title: newTitle })
+      updateBoardInRedux(updatedBoard)
+      return true
+    } catch (error) {
+      return false
+    } finally {
+      setIsLoadingTitle(false)
+    }
   }
 
   // Cập nhật board description
   const handleUpdateDescription = async () => {
-    if (!currentBoard?._id) return
+    try {
+      if (!currentBoard?._id) return
 
-    const normalizedDescription = description?.trim()
-    const currentDescription = currentBoard?.description?.trim()
-    if (!normalizedDescription || normalizedDescription === currentDescription) return
+      // Lưu giá trị cũ để có thể rollback nếu validate fail hoặc API fail
+      const oldDescription = currentBoard?.description || ''
 
-    setIsLoadingDescription(true)
-    const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { description: normalizedDescription })
-    updateBoardInRedux(updatedBoard)
-    setIsLoadingDescription(false)
+      const newDescription = description.trim()
+      if (newDescription.length < 3 || newDescription.length > 255) {
+        dispatch(showSnackbar({ message: 'Board description must be between 3 and 255 characters', severity: 'error' }))
+        setDescription(oldDescription) // Reset về giá trị cũ
+        return
+      }
+
+      // Nếu không có thay đổi, không cần update
+      if (newDescription === oldDescription) return
+
+      setIsLoadingDescription(true)
+      const updatedBoard = await updateBoardDetailsAPI(currentBoard._id, { description: newDescription })
+      updateBoardInRedux(updatedBoard)
+    } catch (error) {
+      // Reset về giá trị cũ khi API fail
+      const oldDescription = currentBoard?.description || ''
+      setDescription(oldDescription)
+    } finally {
+      setIsLoadingDescription(false)
+    }
   }
 
   // Cập nhật board type

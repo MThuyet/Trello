@@ -68,6 +68,7 @@ const Column = ({ column }) => {
   const [newCardTitle, setNewCardTitle] = useState('')
   const [isLoadingAddCard, setIsLoadingAddCard] = useState(false)
   const [isLoadingDeleteColumn, setIsLoadingDeleteColumn] = useState(false)
+  const [isLoadingUpdateColumnTitle, setIsLoadingUpdateColumnTitle] = useState(false)
 
   // Ref để focus vào TextField khi mở form từ dropdown
   const cardTitleInputRef = useRef(null)
@@ -89,43 +90,52 @@ const Column = ({ column }) => {
 
   // hàm tạo Card
   const addNewCard = async () => {
-    if (!newCardTitle) {
-      dispatch(showSnackbar({ message: 'Please enter card title', severity: 'error' }))
-      return
-    }
-
-    setIsLoadingAddCard(true)
-    const newCardData = {
-      title: newCardTitle,
-      columnId: column._id,
-    }
-
-    // call API tạo card
-    const createdCard = await createNewCardAPI({
-      ...newCardData,
-      boardId: board._id,
-    })
-
-    const newBoard = cloneDeep(board)
-    // tìm column chứa card vừa tạo và cập nhật column đó
-    const columnToUpdate = newBoard.columns.find((column) => column._id === createdCard.columnId)
-    if (columnToUpdate) {
-      // nếu column rỗng hoặc chỉ chứa card ảo do FE
-      if (columnToUpdate.cards.some((card) => card.FE_PlaceholderCard)) {
-        columnToUpdate.cards = [createdCard]
-        columnToUpdate.cardOrderIds = [createdCard._id]
-      } else {
-        // column đã có data thật thì push vào cuối mảng
-        columnToUpdate.cards.push(createdCard)
-        columnToUpdate.cardOrderIds.push(createdCard._id)
+    try {
+      const newCardTitle = newCardTitle.trim()
+      if (newCardTitle.length < 3 || newCardTitle.length > 50) {
+        dispatch(showSnackbar({ message: 'Card title must be between 3 and 50 characters', severity: 'error' }))
+        return false
       }
-    }
-    dispatch(updateCurrentActiveBoard(newBoard))
 
-    // reset lại trạng thái
-    setNewCardTitle('')
-    toggleOpenNewCardForm()
-    setIsLoadingAddCard(false)
+      const newCardData = {
+        title: newCardTitle,
+        columnId: column._id,
+      }
+
+      // call API tạo card
+      setIsLoadingAddCard(true)
+      const createdCard = await createNewCardAPI({
+        ...newCardData,
+        boardId: board._id,
+      })
+
+      if (createdCard) {
+        const newBoard = cloneDeep(board)
+        // tìm column chứa card vừa tạo và cập nhật column đó
+        const columnToUpdate = newBoard.columns.find((column) => column._id === createdCard.columnId)
+        if (columnToUpdate) {
+          // nếu column rỗng hoặc chỉ chứa card ảo do FE
+          if (columnToUpdate.cards.some((card) => card.FE_PlaceholderCard)) {
+            columnToUpdate.cards = [createdCard]
+            columnToUpdate.cardOrderIds = [createdCard._id]
+          } else {
+            // column đã có data thật thì push vào cuối mảng
+            columnToUpdate.cards.push(createdCard)
+            columnToUpdate.cardOrderIds.push(createdCard._id)
+          }
+        }
+        dispatch(updateCurrentActiveBoard(newBoard))
+
+        // reset lại trạng thái
+        setNewCardTitle('')
+        toggleOpenNewCardForm()
+      }
+      return true
+    } catch (error) {
+      return false
+    } finally {
+      setIsLoadingAddCard(false)
+    }
   }
 
   // xử lý xóa column và cards bên trong nó
@@ -163,17 +173,35 @@ const Column = ({ column }) => {
   }
 
   // update column title
-  const onUpdateColumnTitle = (newTitle) => {
-    // call api update column và xử lý dữ liệu board trong redux
-    updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
-      dispatch(showSnackbar({ message: 'Updated column successfully!', severity: 'success' }))
+  const onUpdateColumnTitle = async (newTitle) => {
+    try {
+      if (!newTitle) {
+        dispatch(showSnackbar({ message: 'Please enter column title', severity: 'error' }))
+        return false
+      }
+
+      if (newTitle.length < 3 || newTitle.length > 50) {
+        dispatch(showSnackbar({ message: 'Column title must be between 3 and 50 characters', severity: 'error' }))
+        return false // Trả về false để ToggleFocusInput biết là fail để rollback về giá trị cũ
+      }
+
+      if (newTitle === column.title) return true // Không cần update nhưng vẫn return true
+
+      setIsLoadingUpdateColumnTitle(true)
+      await updateColumnDetailsAPI(column._id, { title: newTitle })
       const newBoard = cloneDeep(board)
       const columnToUpdate = newBoard.columns.find((c) => c._id === column._id)
-      if (columnToUpdate) {
-        columnToUpdate.title = newTitle
-      }
+      if (columnToUpdate) columnToUpdate.title = newTitle
       dispatch(updateCurrentActiveBoard(newBoard))
-    })
+      dispatch(showSnackbar({ message: 'Updated column successfully!', severity: 'success' }))
+      return true // Trả về true để báo thành công
+    } catch (error) {
+      console.log(error.message)
+      dispatch(showSnackbar({ message: error.message || 'Failed to update column title', severity: 'error' }))
+      return false // Trả về false khi có lỗi
+    } finally {
+      setIsLoadingUpdateColumnTitle(false)
+    }
   }
 
   return (
@@ -199,7 +227,13 @@ const Column = ({ column }) => {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-          <ToggleFocusInput data-no-dnd="true" value={column?.title} onChangedValue={onUpdateColumnTitle} ref={columnTitleInputRef} />
+          <ToggleFocusInput
+            disabled={isLoadingUpdateColumnTitle}
+            data-no-dnd="true"
+            value={column?.title}
+            onChangedValue={onUpdateColumnTitle}
+            ref={columnTitleInputRef}
+          />
 
           {/* dropdown */}
           <Box>

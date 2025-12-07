@@ -71,7 +71,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 }))
 
 function ActiveCard() {
-  const dispach = useDispatch()
+  const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
@@ -81,23 +81,35 @@ function ActiveCard() {
   const [isDeleteCard, setIsDeleteCard] = useState(false)
 
   const handleCloseModal = () => {
-    dispach(clearAndHideCurrentActiveCard())
+    dispatch(clearAndHideCurrentActiveCard())
   }
 
   const callApiUpdateCard = async (updateData) => {
     const updatedCard = await updateCardDetailsAPI(activeCard._id, updateData)
 
     // b1 cập nhật lại card đang active trong modal hiện tại
-    dispach(updateCurrentActiveCard(updatedCard))
+    dispatch(updateCurrentActiveCard(updatedCard))
 
     // b2 cập nhật lại bản ghi card trong activeBoard
-    dispach(updateCardInBoard(updatedCard))
+    dispatch(updateCardInBoard(updatedCard))
     return updatedCard
   }
 
-  const onUpdateCardTitle = (newTitle) => {
-    setIsLoadingTitle(true)
-    callApiUpdateCard({ title: newTitle.trim() }).then(() => setIsLoadingTitle(false))
+  const onUpdateCardTitle = async (newTitle) => {
+    try {
+      if (newTitle.length < 3 || newTitle.length > 50) {
+        dispatch(showSnackbar({ message: 'Card title must be between 3 and 50 characters', severity: 'error' }))
+        return false
+      }
+
+      setIsLoadingTitle(true)
+      await callApiUpdateCard({ title: newTitle.trim() })
+      return true
+    } catch (error) {
+      return false
+    } finally {
+      setIsLoadingTitle(false)
+    }
   }
 
   const onUpdateCardDescription = (newDescription) => {
@@ -107,7 +119,7 @@ function ActiveCard() {
   const onUploadCardCover = async (event) => {
     const error = singleFileValidator(event.target?.files[0])
     if (error) {
-      dispach(showSnackbar({ message: error, severity: 'error' }))
+      dispatch(showSnackbar({ message: error, severity: 'error' }))
       return
     }
     let reqData = new FormData()
@@ -117,7 +129,7 @@ function ActiveCard() {
     try {
       setIsLoadingUploadCover(true)
       await callApiUpdateCard(reqData)
-      dispach(showSnackbar({ message: 'Upload cover successfully!', severity: 'success' }))
+      dispatch(showSnackbar({ message: 'Upload cover successfully!', severity: 'success' }))
     } catch (error) {
       console.log(error.message)
     } finally {
@@ -157,8 +169,8 @@ function ActiveCard() {
         try {
           setIsDeleteCard(true)
           await deleteOneCardAPI(cardId)
-          dispach(clearAndHideCurrentActiveCard())
-          dispach(showSnackbar({ message: 'Deleted card successfully!', severity: 'success' }))
+          dispatch(clearAndHideCurrentActiveCard())
+          dispatch(showSnackbar({ message: 'Deleted card successfully!', severity: 'success' }))
         } catch (error) {
           console.log(error.message)
         } finally {

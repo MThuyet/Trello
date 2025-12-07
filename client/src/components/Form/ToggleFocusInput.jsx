@@ -1,24 +1,54 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import { forwardRef } from 'react'
 
-// thay vì phải tạo biến State để chuyển đổi qua lại giữa thẻ Input và Text thông thường, thì CSS lại cho cái thẻ Input trông như text bình thường, chỉ khi click và focus vào nó thì style lại trở về như cái input ban đầu.
+// thay vì phải tạo biến State để chuyển đổi qua lại giữa Input và Text thông thường, thì CSS lại cho Input trông như text bình thường, chỉ khi click và focus vào nó thì style lại trở về như cái input ban đầu.
 // Controlled Input trong MUI: https://mui.com/material-ui/react-text-field/#uncontrolled-vs-controlled
 const ToggleFocusInput = forwardRef(({ value, onChangedValue, inputFontSize = '16px', ...props }, ref) => {
   const [inputValue, setInputValue] = useState(value)
 
-  const triggerBlur = () => {
-    // Support Trim dữ liệu State inputValue sau khi blur ra ngoài
-    setInputValue(inputValue.trim())
+  // Đồng bộ inputValue với value prop khi value thay đổi từ bên ngoài
+  useEffect(() => {
+    setInputValue(value)
+  }, [value])
 
-    // Nếu giá trị không có gì thay đổi hoặc Nếu user xóa hết nội dung thì set lại giá trị gốc ban đầu theo value từ props và return
-    if (!inputValue || inputValue.trim() === value) {
+  const triggerBlur = async () => {
+    // Support Trim dữ liệu State inputValue sau khi blur ra ngoài
+    const trimmedValue = inputValue.trim()
+
+    // Nếu giá trị rỗng hoặc không có gì thay đổi thì set lại giá trị gốc ban đầu theo value từ props và return
+    if (!trimmedValue || trimmedValue === value) {
       setInputValue(value)
       return
     }
 
-    // Khi giá trị có thay đổi thì gọi lên func ở Props cha để xử lý
-    onChangedValue(inputValue)
+    // Lưu giá trị cũ để có thể rollback nếu callback fail
+    const oldValue = value
+
+    // Tạm thời set giá trị mới để hiển thị ngay (optimistic update)
+    setInputValue(trimmedValue)
+
+    try {
+      // Gọi callback để parent component xử lý validation và hiển thị snackbar
+      // Parent sẽ validate và return false nếu fail, return true nếu thành công
+      const result = onChangedValue(trimmedValue)
+
+      // Xử lý cả Promise và giá trị thường
+      let finalResult = result
+      if (result && typeof result.then === 'function') {
+        // Nếu là Promise, đợi kết quả
+        finalResult = await result
+      }
+
+      // Nếu callback trả về false, có nghĩa là validation fail hoặc không thành công
+      if (!finalResult) {
+        setInputValue(oldValue) // Rollback về giá trị cũ
+      }
+      // Nếu result là true hoặc undefined, giữ nguyên (value prop sẽ thay đổi và useEffect sẽ sync)
+    } catch (error) {
+      // Nếu callback throw error, rollback về giá trị cũ
+      setInputValue(oldValue)
+    }
   }
 
   return (
