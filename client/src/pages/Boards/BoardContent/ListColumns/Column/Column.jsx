@@ -91,14 +91,14 @@ const Column = ({ column }) => {
   // hàm tạo Card
   const addNewCard = async () => {
     try {
-      const newCardTitle = newCardTitle.trim()
-      if (newCardTitle.length < 3 || newCardTitle.length > 50) {
+      const newCardTitleTrimmed = newCardTitle.trim()
+      if (newCardTitleTrimmed.length < 3 || newCardTitleTrimmed.length > 50) {
         dispatch(showSnackbar({ message: 'Card title must be between 3 and 50 characters', severity: 'error' }))
-        return false
+        return
       }
 
       const newCardData = {
-        title: newCardTitle,
+        title: newCardTitleTrimmed,
         columnId: column._id,
       }
 
@@ -130,9 +130,8 @@ const Column = ({ column }) => {
         setNewCardTitle('')
         toggleOpenNewCardForm()
       }
-      return true
     } catch (error) {
-      return false
+      console.log(error.message)
     } finally {
       setIsLoadingAddCard(false)
     }
