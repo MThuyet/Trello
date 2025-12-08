@@ -37,71 +37,6 @@ export const activeBoardSlice = createSlice({
       })
     },
 
-    updateCardInBoard: (state, action) => {
-      // update nested data
-      // https://redux-toolkit.js.org/usage/immer-reducers#updating-nested-data
-      const incomingCard = action.payload
-
-      // tìm dần từ board -> column -> card
-      const column = state.currentActiveBoard.columns.find((column) => column._id === incomingCard.columnId)
-      if (column) {
-        const card = column.cards.find((card) => card._id === incomingCard._id)
-        if (card) {
-          Object.keys(incomingCard).forEach((key) => {
-            card[key] = incomingCard[key]
-          })
-        }
-      }
-    },
-
-    removeCardFromBoard: (state, action) => {
-      const { cardId, columnId } = action.payload
-
-      if (!state.currentActiveBoard) return
-
-      // tìm column chứa card
-      const column = state.currentActiveBoard.columns.find((column) => column._id === columnId)
-      if (!column) return
-
-      // xóa card khỏi mảng cards và cardOrderIds của column
-      column.cards = column.cards.filter((card) => card._id !== cardId)
-      column.cardOrderIds = column.cardOrderIds.filter((id) => id !== cardId)
-
-      // nếu column rỗng, thêm placeholder card vào
-      if (isEmpty(column.cards)) {
-        const placeholderCard = generatePlaceholderCard(column)
-        column.cards = [placeholderCard]
-        column.cardOrderIds = [placeholderCard._id]
-      }
-    },
-
-    addColumnToBoard: (state, action) => {
-      const newColumn = action.payload
-
-      if (!state.currentActiveBoard) return
-
-      // Kiểm tra xem column đã tồn tại chưa (tránh duplicate)
-      const isColumnExists = state.currentActiveBoard.columns.some((col) => col._id === newColumn._id)
-      if (isColumnExists) return
-
-      if (isEmpty(newColumn.cards)) {
-        newColumn.cards = [generatePlaceholderCard(newColumn)]
-        newColumn.cardOrderIds = [generatePlaceholderCard(newColumn)._id]
-      }
-
-      state.currentActiveBoard.columns.push(newColumn)
-      state.currentActiveBoard.columnOrderIds.push(newColumn._id)
-    },
-
-    removeColumnFromBoard: (state, action) => {
-      const { columnId } = action.payload
-
-      if (!state.currentActiveBoard) return
-
-      state.currentActiveBoard.columns = state.currentActiveBoard.columns.filter((column) => column._id !== columnId)
-      state.currentActiveBoard.columnOrderIds = state.currentActiveBoard.columnOrderIds.filter((id) => id !== columnId)
-    },
-
     addMemberToBoard: (state, action) => {
       // action.payload chứa thông tin member mới từ socket event
       const newMember = action.payload
@@ -142,6 +77,92 @@ export const activeBoardSlice = createSlice({
       // cập nhật lại FE_allUser
       state.currentActiveBoard.FE_allUsers = state.currentActiveBoard.owners.concat(state.currentActiveBoard.members)
     },
+
+    addColumnToBoard: (state, action) => {
+      const newColumn = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      // Kiểm tra xem column đã tồn tại chưa (tránh duplicate)
+      const isColumnExists = state.currentActiveBoard.columns.some((col) => col._id === newColumn._id)
+      if (isColumnExists) return
+
+      if (isEmpty(newColumn.cards)) {
+        newColumn.cards = [generatePlaceholderCard(newColumn)]
+        newColumn.cardOrderIds = [generatePlaceholderCard(newColumn)._id]
+      }
+
+      state.currentActiveBoard.columns.push(newColumn)
+      state.currentActiveBoard.columnOrderIds.push(newColumn._id)
+    },
+
+    updateColumnInBoard: (state, action) => {
+      const columnUpdated = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      // tìm column trong state
+      const oldColumn = state.currentActiveBoard.columns.find((column) => column._id === columnUpdated._id)
+      if (oldColumn) {
+        Object.keys(columnUpdated).forEach((key) => {
+          oldColumn[key] = columnUpdated[key]
+        })
+
+        if (isEmpty(oldColumn.cards)) {
+          oldColumn.cards = [generatePlaceholderCard(oldColumn)]
+          oldColumn.cardOrderIds = [generatePlaceholderCard(oldColumn)._id]
+        } else {
+          oldColumn.cards = mapOrder(oldColumn.cards, oldColumn.cardOrderIds, '_id')
+        }
+      }
+    },
+
+    removeColumnFromBoard: (state, action) => {
+      const { columnId } = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      state.currentActiveBoard.columns = state.currentActiveBoard.columns.filter((column) => column._id !== columnId)
+      state.currentActiveBoard.columnOrderIds = state.currentActiveBoard.columnOrderIds.filter((id) => id !== columnId)
+    },
+
+    updateCardInBoard: (state, action) => {
+      // update nested data
+      // https://redux-toolkit.js.org/usage/immer-reducers#updating-nested-data
+      const incomingCard = action.payload
+
+      // tìm dần từ board -> column -> card
+      const column = state.currentActiveBoard.columns.find((column) => column._id === incomingCard.columnId)
+      if (column) {
+        const card = column.cards.find((card) => card._id === incomingCard._id)
+        if (card) {
+          Object.keys(incomingCard).forEach((key) => {
+            card[key] = incomingCard[key]
+          })
+        }
+      }
+    },
+
+    removeCardFromBoard: (state, action) => {
+      const { cardId, columnId } = action.payload
+
+      if (!state.currentActiveBoard) return
+
+      // tìm column chứa card
+      const column = state.currentActiveBoard.columns.find((column) => column._id === columnId)
+      if (!column) return
+
+      // xóa card khỏi mảng cards và cardOrderIds của column
+      column.cards = column.cards.filter((card) => card._id !== cardId)
+      column.cardOrderIds = column.cardOrderIds.filter((id) => id !== cardId)
+
+      // nếu column rỗng, thêm placeholder card vào
+      if (isEmpty(column.cards)) {
+        const placeholderCard = generatePlaceholderCard(column)
+        column.cards = [placeholderCard]
+        column.cardOrderIds = [placeholderCard._id]
+      }
+    },
   },
   // extraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
@@ -181,6 +202,7 @@ export const {
   updateCardInBoard,
   removeCardFromBoard,
   addColumnToBoard,
+  updateColumnInBoard,
   removeColumnFromBoard,
   addMemberToBoard,
   removeMemberFromBoard,

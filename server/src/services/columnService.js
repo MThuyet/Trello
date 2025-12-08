@@ -46,6 +46,13 @@ const updateColumn = async (columnId, reqBody) => {
 
     const updatedColumn = await columnModel.updateColumn(columnId, updateData)
 
+    if (updatedColumn && global.io) {
+      const roomName = `board:${updatedColumn.boardId.toString()}`
+      global.io.to(roomName).emit('BE_COLUMN_UPDATED', updatedColumn)
+    }
+
+    console.log(updatedColumn)
+
     return updatedColumn
   } catch (error) {
     throw error

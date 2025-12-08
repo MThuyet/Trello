@@ -14,6 +14,7 @@ import {
   removeColumnFromBoard,
   removeMemberFromBoard,
   selectCurrentActiveBoard,
+  updateColumnInBoard,
   updateCurrentActiveBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
@@ -196,6 +197,23 @@ const Board = () => {
 
     return () => {
       socketIoInstance.off('BE_BOARD_UPDATED_GENERAL_FIELDS', handleBoardUpdatedGeneralFields)
+    }
+  }, [board, dispatch])
+
+  // listen socket event khi column được cập nhật
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleUpdatedColumn = (data) => {
+      if (board._id === data.boardId) {
+        dispatch(updateColumnInBoard(data))
+      }
+    }
+
+    socketIoInstance.on('BE_COLUMN_UPDATED', handleUpdatedColumn)
+
+    return () => {
+      socketIoInstance.off('BE_COLUMN_UPDATED', handleUpdatedColumn)
     }
   }, [board, dispatch])
 
