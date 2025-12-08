@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { updateBoardDetailsAPI, updateColumnDetailsAPI, moveCardToDifferentColumnAPI } from '~/apis'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  addCardToColumn,
   addColumnToBoard,
   addMemberToBoard,
   fetchBoardDetailsAPI,
@@ -125,7 +126,10 @@ const Board = () => {
     const handleCardDeleted = (data) => {
       if (data.boardId === board._id) {
         dispatch(removeCardFromBoard(data))
-        dispatch(showSnackbar({ message: `Card ${data.cardTitle} has been deleted`, severity: 'info' }))
+
+        if (data.createdBy !== currentUser._id) {
+          dispatch(showSnackbar({ message: `Card ${data.cardTitle} has been deleted`, severity: 'info' }))
+        }
 
         if (currentActiveCard?._id === data.cardId) {
           dispatch(clearAndHideCurrentActiveCard())
@@ -138,7 +142,7 @@ const Board = () => {
     return () => {
       socketIoInstance.off('BE_DELETED_CARD', handleCardDeleted)
     }
-  }, [board, dispatch, currentActiveCard?._id])
+  }, [board, dispatch, currentActiveCard?._id, currentUser._id])
 
   // listen socket event khi có column được xóa khỏi board
   useEffect(() => {
@@ -275,6 +279,26 @@ const Board = () => {
       newCardOrderIds: dndOrderedColumns.find((c) => c._id === newColumnId).cardOrderIds,
     })
   }
+
+  // thêm card vào column
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleAddedNewCard = (data) => {
+      if (board._id === data.boardId) {
+        dispatch(addCardToColumn(data))
+        if (data.createdBy !== currentUser._id) {
+          dispatch(showSnackbar({ message: `Card "${data.title}" has been added`, severity: 'info' }))
+        }
+      }
+    }
+
+    socketIoInstance.on('BE_NEW_CARD_CREATED', handleAddedNewCard)
+
+    return () => {
+      socketIoInstance.off('BE_NEW_CARD_CREATED', handleAddedNewCard)
+    }
+  }, [board, dispatch, currentUser._id])
 
   if (isLoadingBoard) return <PageLoadingSpinner caption="Loading board details..." />
 

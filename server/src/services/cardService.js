@@ -5,7 +5,7 @@ import { columnModel } from '~/models/columnModel'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import ApiError from '~/utils/ApiError'
 
-const createNew = async (reqBody) => {
+const createNew = async (reqBody, userId) => {
   try {
     const createdCard = await cardModel.createNew(reqBody)
 
@@ -13,6 +13,14 @@ const createNew = async (reqBody) => {
 
     if (getNewCard) {
       await columnModel.pushCardOrderIds(getNewCard)
+
+      if (global.io) {
+        const roomName = `board:${getNewCard.boardId.toString()}`
+        global.io.to(roomName).emit('BE_NEW_CARD_CREATED', {
+          ...getNewCard,
+          createdBy: userId.toString(),
+        })
+      }
 
       return getNewCard
     }
@@ -70,7 +78,7 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
   }
 }
 
-const deleteOne = async (cardId) => {
+const deleteOne = async (cardId, userId) => {
   try {
     const card = await cardModel.findOneById(cardId)
     if (!card) throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found!')
@@ -85,6 +93,7 @@ const deleteOne = async (cardId) => {
         boardId: card.boardId.toString(),
         columnId: card.columnId.toString(),
         cardTitle: card.title,
+        createdBy: userId.toString(),
       })
     }
   } catch (error) {

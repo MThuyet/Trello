@@ -126,6 +126,16 @@ export const activeBoardSlice = createSlice({
       state.currentActiveBoard.columnOrderIds = state.currentActiveBoard.columnOrderIds.filter((id) => id !== columnId)
     },
 
+    addCardToColumn: (state, action) => {
+      const newCard = action.payload
+
+      if (!state.currentActiveBoard) return
+      const column = state.currentActiveBoard.columns.find((column) => column._id === newCard.columnId)
+      if (!column) return
+      column.cards.push(newCard)
+      column.cardOrderIds.push(newCard._id)
+    },
+
     updateCardInBoard: (state, action) => {
       // update nested data
       // https://redux-toolkit.js.org/usage/immer-reducers#updating-nested-data
@@ -199,6 +209,7 @@ export const activeBoardSlice = createSlice({
 // những actions này được redux tạo tự động theo tên của reducer
 export const {
   updateCurrentActiveBoard,
+  addCardToColumn,
   updateCardInBoard,
   removeCardFromBoard,
   addColumnToBoard,

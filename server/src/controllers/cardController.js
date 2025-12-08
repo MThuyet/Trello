@@ -3,7 +3,8 @@ import { cardService } from '~/services/cardService'
 
 const createNew = async (req, res, next) => {
   try {
-    const createCard = await cardService.createNew(req.body)
+    const userId = req.jwtDecoded._id
+    const createCard = await cardService.createNew(req.body, userId)
 
     return res.status(StatusCodes.CREATED).json(createCard)
   } catch (error) {
@@ -26,7 +27,8 @@ const update = async (req, res, next) => {
 
 const deleteOne = async (req, res, next) => {
   try {
-    const result = await cardService.deleteOne(req.params.id)
+    const userId = req.jwtDecoded._id
+    const result = await cardService.deleteOne(req.params.id, userId)
 
     return res.status(StatusCodes.OK).json(result)
   } catch (error) {
