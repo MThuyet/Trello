@@ -89,7 +89,18 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
 
     if (columnOrderIds) {
       const payload = { columnOrderIds, updatedAt: Date.now() }
-      return boardModel.updateColumnOrderIds(boardId, payload)
+      const columnOrderIdsUpdated = await boardModel.updateColumnOrderIds(boardId, payload)
+
+      if (columnOrderIdsUpdated && global.io) {
+        const roomName = `board:${boardId}`
+        const boardData = {
+          _id: columnOrderIdsUpdated?._id || boardId,
+          columnOrderIds: columnOrderIdsUpdated?.columnOrderIds || columnOrderIds,
+        }
+        global.io.to(roomName).emit('BE_COLUMN_ORDER_IDS_UPDATED', boardData)
+      }
+
+      return columnOrderIdsUpdated
     }
 
     // Xử lý memberId (xóa member): chỉ owner mới được phép

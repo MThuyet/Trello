@@ -221,6 +221,23 @@ const Board = () => {
     }
   }, [board, dispatch])
 
+  // listen socket event khi column order ids được cập nhật
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleUpdatedColumnOrderIds = (data) => {
+      if (board._id === data._id) {
+        dispatch(updateCurrentActiveBoard(data))
+      }
+    }
+
+    socketIoInstance.on('BE_COLUMN_ORDER_IDS_UPDATED', handleUpdatedColumnOrderIds)
+
+    return () => {
+      socketIoInstance.off('BE_COLUMN_ORDER_IDS_UPDATED', handleUpdatedColumnOrderIds)
+    }
+  }, [board, dispatch])
+
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)

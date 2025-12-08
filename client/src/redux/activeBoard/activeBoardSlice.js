@@ -35,6 +35,11 @@ export const activeBoardSlice = createSlice({
       Object.keys(board).forEach((key) => {
         state.currentActiveBoard[key] = board[key]
       })
+
+      // Nếu columnOrderIds được cập nhật, cần sắp xếp lại columns theo thứ tự mới
+      if (board.columnOrderIds && state.currentActiveBoard.columns) {
+        state.currentActiveBoard.columns = mapOrder(state.currentActiveBoard.columns, board.columnOrderIds, '_id')
+      }
     },
 
     addMemberToBoard: (state, action) => {
