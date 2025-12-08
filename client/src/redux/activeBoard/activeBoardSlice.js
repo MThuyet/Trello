@@ -31,10 +31,10 @@ export const activeBoardSlice = createSlice({
       // action.payload là chuẩn đặt tên nhận dữ liệu vào reducer, nhưng ở đây đang gán nó ra một biến có ý nghĩa hơn
       const board = action.payload
 
-      // xử lý dữ liệu nếu cần thiết...
-
-      // update lại dữ liệu của currentActiveBoard
-      state.currentActiveBoard = board
+      // xử lý dữ liệu
+      Object.keys(board).forEach((key) => {
+        state.currentActiveBoard[key] = board[key]
+      })
     },
 
     updateCardInBoard: (state, action) => {

@@ -94,10 +94,6 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
 
     // Xử lý memberId (xóa member): chỉ owner mới được phép
     if (memberId) {
-      if (!isOwner) {
-        throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can remove members!')
-      }
-
       // B1: pull member khỏi board
       const result = await boardModel.pullMemberIds(boardId, memberId)
       await boardModel.update(boardId, { updatedAt: Date.now() })
@@ -120,16 +116,18 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
 
     // Xử lý generalFields (title, description, type, ...): chỉ owner mới được phép
     if (Object.keys(generalFields).length) {
-      if (!isOwner) {
-        throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can update board details!')
-      }
-      return boardModel.update(boardId, {
+      const result = await boardModel.update(boardId, {
         ...generalFields,
         updatedAt: Date.now(),
       })
-    }
 
-    return board
+      if (result && global.io) {
+        const roomName = `board:${boardId}`
+        global.io.to(roomName).emit('BE_BOARD_UPDATED_GENERAL_FIELDS', result)
+      }
+
+      return result
+    }
   } catch (error) {
     throw error
   }

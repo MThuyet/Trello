@@ -182,6 +182,23 @@ const Board = () => {
     }
   }, [board, dispatch, currentUser._id])
 
+  // listen socket event khi board general fields được cập nhật
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleBoardUpdatedGeneralFields = (data) => {
+      if (board._id === data._id) {
+        dispatch(updateCurrentActiveBoard(data))
+      }
+    }
+
+    socketIoInstance.on('BE_BOARD_UPDATED_GENERAL_FIELDS', handleBoardUpdatedGeneralFields)
+
+    return () => {
+      socketIoInstance.off('BE_BOARD_UPDATED_GENERAL_FIELDS', handleBoardUpdatedGeneralFields)
+    }
+  }, [board, dispatch])
+
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
