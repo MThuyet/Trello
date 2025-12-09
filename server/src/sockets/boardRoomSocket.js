@@ -32,7 +32,6 @@ export const boardRoomSocket = (socket) => {
       socket.join(roomName)
       // Emit lại để confirm với client
       socket.emit('BE_JOINED_BOARD_ROOM', { boardId, roomName })
-      console.log(`User joined room: ${roomName}`)
     } catch (error) {
       socket.emit('BE_JOIN_BOARD_ROOM_FAILED', 'Error joining room')
     }

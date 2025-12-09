@@ -152,6 +152,23 @@ const moveCardToDifferentColumn = async (reqBody) => {
     await columnModel.updateColumn(reqBody.newColumnId, { cardOrderIds: reqBody.newCardOrderIds })
     // B3: Cập nhật lại columnId của card thay đổi
     await cardModel.update(reqBody.currentCardId, { columnId: reqBody.newColumnId, updatedAt: Date.now() })
+
+    // Emit socket cho các user khác trong cùng board room biết card đã được move sang column mới
+    const updatedCard = await cardModel.findOneById(reqBody.currentCardId)
+    if (updatedCard && global.io) {
+      const roomName = `board:${updatedCard.boardId.toString()}`
+      global.io.to(roomName).emit('BE_CARD_MOVED_TO_DIFFERENT_COLUMN', {
+        boardId: updatedCard.boardId.toString(),
+        cardId: updatedCard._id.toString(),
+        originalColumnId: reqBody.originalColumnId,
+        originalCardOrderIds: reqBody.originalCardOrderIds,
+        newColumnId: reqBody.newColumnId,
+        newCardOrderIds: reqBody.newCardOrderIds,
+        card: updatedCard,
+      })
+    }
+
+    return updatedCard
   } catch (error) {
     throw error
   }

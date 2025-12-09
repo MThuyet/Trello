@@ -42,6 +42,35 @@ export const activeBoardSlice = createSlice({
       }
     },
 
+    moveCardToDifferentColumnState: (state, action) => {
+      const data = action.payload
+
+      // xóa card khỏi column gốc
+      const originalColumn = state.currentActiveBoard.columns.find((column) => column._id === data.originalColumnId)
+      if (originalColumn) {
+        originalColumn.cards = originalColumn.cards.filter((card) => card._id !== data.cardId)
+        // Nếu column trống (không còn card thật), thêm placeholder để vẫn kéo thả được
+        if (isEmpty(originalColumn.cards)) {
+          const placeholderCard = generatePlaceholderCard(originalColumn)
+          originalColumn.cards = [placeholderCard]
+        }
+        // cardOrderIds luôn được sync theo danh sách cards hiện tại (bao gồm placeholder nếu có)
+        originalColumn.cardOrderIds = originalColumn.cards.map((card) => card._id)
+      }
+
+      const newColumn = state.currentActiveBoard.columns.find((column) => column._id === data.newColumnId)
+      if (newColumn) {
+        // Loại bỏ card nếu đã tồn tại để tránh nhân đôi (trường hợp optimistic update phía client)
+        newColumn.cards = newColumn.cards.filter((card) => card._id !== data.cardId)
+        // Bỏ placeholder nếu đang tồn tại trong column đích
+        newColumn.cards = newColumn.cards.filter((card) => !card.FE_PlaceholderCard)
+        newColumn.cards.push(data.card)
+        // Sync cardOrderIds theo cards mới
+        newColumn.cardOrderIds = newColumn.cards.map((card) => card._id)
+        newColumn.cards = mapOrder(newColumn.cards, newColumn.cardOrderIds, '_id')
+      }
+    },
+
     addMemberToBoard: (state, action) => {
       // action.payload chứa thông tin member mới từ socket event
       const newMember = action.payload
@@ -222,6 +251,7 @@ export const {
   removeColumnFromBoard,
   addMemberToBoard,
   removeMemberFromBoard,
+  moveCardToDifferentColumnState,
 } = activeBoardSlice.actions
 
 // selectors: là nơi dành cho các components gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra để sử dụng

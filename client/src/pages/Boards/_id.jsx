@@ -11,6 +11,7 @@ import {
   addColumnToBoard,
   addMemberToBoard,
   fetchBoardDetailsAPI,
+  moveCardToDifferentColumnState,
   removeCardFromBoard,
   removeColumnFromBoard,
   removeMemberFromBoard,
@@ -18,7 +19,7 @@ import {
   updateColumnInBoard,
   updateCurrentActiveBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
@@ -26,6 +27,7 @@ import { socketIoInstance } from '~/socketClient'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 import { clearAndHideCurrentActiveCard, selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { generatePlaceholderCard } from '~/utils/formatter'
 
 const Board = () => {
   const navigate = useNavigate()
@@ -238,6 +240,21 @@ const Board = () => {
     }
   }, [board, dispatch])
 
+  // lắng nghe card bị move sang column khác
+  useEffect(() => {
+    if (!board || !board._id) return
+
+    const handleCardMoved = (data) => {
+      if (data.boardId === board._id) {
+        console.log('ok')
+        dispatch(moveCardToDifferentColumnState(data))
+      }
+    }
+
+    socketIoInstance.on('BE_CARD_MOVED_TO_DIFFERENT_COLUMN', handleCardMoved)
+    return () => socketIoInstance.off('BE_CARD_MOVED_TO_DIFFERENT_COLUMN', handleCardMoved)
+  }, [board, dispatch])
+
   // gọi API sắp xếp lại khi kéo thả column xong
   const moveColumn = (dndOrderedColumns) => {
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
@@ -275,11 +292,31 @@ const Board = () => {
 			B3: Cập nhật lại columnId của card thay đổi
 		*/
 
-    // set state
-    const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
+    // Chuẩn hóa dữ liệu column (loại bỏ placeholder thừa và đảm bảo column rỗng vẫn có placeholder)
+    const normalizedColumns = dndOrderedColumns.map((column) => {
+      const columnClone = cloneDeep(column)
+
+      // Nếu column có card thật, bỏ placeholder ra khỏi danh sách
+      const realCards = columnClone.cards.filter((card) => !card.FE_PlaceholderCard)
+      if (!isEmpty(realCards)) {
+        columnClone.cards = realCards
+        columnClone.cardOrderIds = columnClone.cardOrderIds.filter((cardId) => realCards.some((card) => card._id === cardId))
+      }
+
+      // Nếu sau khi thao tác column rỗng, thêm placeholder để tiếp tục kéo thả
+      if (isEmpty(columnClone.cards)) {
+        const placeholderCard = generatePlaceholderCard(columnClone)
+        columnClone.cards = [placeholderCard]
+        columnClone.cardOrderIds = [placeholderCard._id]
+      }
+
+      return columnClone
+    })
+
+    const dndOrderedColumnsIds = normalizedColumns.map((c) => c._id)
 
     const newBoard = cloneDeep(board)
-    newBoard.columns = dndOrderedColumns
+    newBoard.columns = normalizedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
 

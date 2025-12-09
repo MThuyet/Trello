@@ -56,7 +56,7 @@ const moveCardToDifferentColumn = async (req, res, next) => {
   try {
     const result = await boardService.moveCardToDifferentColumn(req.body)
 
-    res.status(StatusCodes.OK).json(result)
+    return res.status(StatusCodes.OK).json(result)
   } catch (error) {
     next(error)
   }
