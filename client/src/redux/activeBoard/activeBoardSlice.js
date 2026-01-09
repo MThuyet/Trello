@@ -44,30 +44,40 @@ export const activeBoardSlice = createSlice({
 
     moveCardToDifferentColumnState: (state, action) => {
       const data = action.payload
+      // data chứa: originalColumnId, newColumnId, cardId, card,
+      //            originalCardOrderIds, newCardOrderIds (từ server)
 
-      // xóa card khỏi column gốc
+      // Xử lý column gốc
       const originalColumn = state.currentActiveBoard.columns.find((column) => column._id === data.originalColumnId)
       if (originalColumn) {
+        // Xóa card khỏi column gốc
         originalColumn.cards = originalColumn.cards.filter((card) => card._id !== data.cardId)
-        // Nếu column trống (không còn card thật), thêm placeholder để vẫn kéo thả được
+
+        // Nếu column trống, thêm placeholder để vẫn kéo thả được
         if (isEmpty(originalColumn.cards)) {
           const placeholderCard = generatePlaceholderCard(originalColumn)
           originalColumn.cards = [placeholderCard]
+          originalColumn.cardOrderIds = [placeholderCard._id]
+        } else {
+          // Dùng originalCardOrderIds từ server nếu có, nếu không thì tự tính
+          originalColumn.cardOrderIds =
+            data.originalCardOrderIds?.length > 0 ? data.originalCardOrderIds : originalColumn.cards.map((card) => card._id)
         }
-        // cardOrderIds luôn được sync theo danh sách cards hiện tại (bao gồm placeholder nếu có)
-        originalColumn.cardOrderIds = originalColumn.cards.map((card) => card._id)
       }
 
+      // Xử lý column đích
       const newColumn = state.currentActiveBoard.columns.find((column) => column._id === data.newColumnId)
       if (newColumn) {
-        // Loại bỏ card nếu đã tồn tại để tránh nhân đôi (trường hợp optimistic update phía client)
+        // Xóa card nếu đã tồn tại (tránh duplicate do optimistic update)
         newColumn.cards = newColumn.cards.filter((card) => card._id !== data.cardId)
-        // Bỏ placeholder nếu đang tồn tại trong column đích
+        // Xóa placeholder nếu có
         newColumn.cards = newColumn.cards.filter((card) => !card.FE_PlaceholderCard)
+        // Thêm card mới vào
         newColumn.cards.push(data.card)
-        // Sync cardOrderIds theo cards mới
-        newColumn.cardOrderIds = newColumn.cards.map((card) => card._id)
-        newColumn.cards = mapOrder(newColumn.cards, newColumn.cardOrderIds, '_id')
+
+        //DÙNG newCardOrderIds TỪ SERVER để sắp xếp đúng vị trí
+        newColumn.cardOrderIds = data.newCardOrderIds
+        newColumn.cards = mapOrder(newColumn.cards, data.newCardOrderIds, '_id')
       }
     },
 
@@ -123,7 +133,6 @@ export const activeBoardSlice = createSlice({
 
       if (isEmpty(newColumn.cards)) {
         newColumn.cards = [generatePlaceholderCard(newColumn)]
-        newColumn.cardOrderIds = [generatePlaceholderCard(newColumn)._id]
       }
 
       state.currentActiveBoard.columns.push(newColumn)

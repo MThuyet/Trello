@@ -3,7 +3,7 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
 const initialState = {
-  currentNotifications: null,
+  currentNotifications: [],
 }
 
 export const fetchInvitationsAPI = createAsyncThunk('notifications/fetchInvitationsAPI', async () => {
