@@ -10,6 +10,27 @@ import { userModel } from '~/models/userModel'
 import { ObjectId } from 'mongodb'
 import { GET_CLIENT } from '~/config/mongodb'
 
+const checkBoardPermission = async (boardId, userId, requiredRole = 'member') => {
+  const board = await boardModel.findOneById(boardId)
+  if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')
+
+  const userObjectId = new ObjectId(String(userId))
+  const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(userObjectId))
+  const isMember = board.memberIds.some((memberId) => memberId.equals(userObjectId))
+
+  // Nếu yêu cầu quyền owner
+  if (requiredRole === 'owner' && !isOwner) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owner can perform this action')
+  }
+
+  // Nếu yêu cầu quyền member (owner hoặc member đều được)
+  if (requiredRole === 'member' && !isOwner && !isMember) {
+    throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to access this board')
+  }
+
+  return board
+}
+
 const getBoards = async (userId, page, itemPerPage, queryFilters) => {
   try {
     if (!page) page = DEFAULT_PAGE
@@ -72,19 +93,8 @@ const getDetails = async (userId, boardId) => {
 
 const update = async (boardId, reqBody = {}, currentUserId) => {
   try {
-    const board = await boardModel.findOneById(boardId)
-    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
-
-    // Convert currentUserId sang ObjectId để so sánh
-    const currentUserIdObjectId = new ObjectId(String(currentUserId))
-
-    // Kiểm tra quyền: user phải là owner hoặc member
-    const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(currentUserIdObjectId))
-    const isMember = board.memberIds.some((memberId) => memberId.equals(currentUserIdObjectId))
-
-    if (!isOwner && !isMember) {
-      throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to update this board!')
-    }
+    // Kiểm tra quyền truy cập board
+    await checkBoardPermission(boardId, currentUserId, 'member')
 
     const { memberId, columnOrderIds, ...generalFields } = reqBody
 
@@ -145,7 +155,7 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
   }
 }
 
-const moveCardToDifferentColumn = async (reqBody) => {
+const moveCardToDifferentColumn = async (userId, reqBody) => {
   // ===== VALIDATION =====
   const { currentCardId, originalColumnId, newColumnId, originalCardOrderIds, newCardOrderIds } = reqBody
 
@@ -176,6 +186,9 @@ const moveCardToDifferentColumn = async (reqBody) => {
   if (!originalColumn.boardId.equals(newColumn.boardId)) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Columns must belong to the same board')
   }
+
+  // Kiểm tra quyền truy cập board
+  await checkBoardPermission(originalColumn.boardId, userId, 'member')
 
   // lấy mg client để tạo session
   const client = GET_CLIENT()
@@ -245,13 +258,8 @@ const moveCardToDifferentColumn = async (reqBody) => {
 
 const deleteOne = async (boardId, userId) => {
   try {
-    const board = await boardModel.findOneById(boardId)
-    const user = await userModel.findOneById(userId)
-
-    if (!board) throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
-    if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
-    const isOwner = board.ownerIds.some((ownerId) => ownerId.equals(user._id))
-    if (!isOwner) throw new ApiError(StatusCodes.FORBIDDEN, 'You are not the owner of this board!')
+    // Chỉ owner mới được xóa board
+    const board = await checkBoardPermission(boardId, userId, 'owner')
 
     // xóa toàn bộ column bên trong board
     await columnModel.deleteManyByBoardId(board._id)
