@@ -127,6 +127,37 @@ const deleteManyByBoardId = async (boardId) => {
   }
 }
 
+const updateColumnWithSession = async (columnId, updateData, session) => {
+  try {
+    // Object.keys() trả về mảng các keys theo thứ tự
+    Object.keys(updateData).forEach((fieldName) => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        // xóa các trường không được phép update mà FE cố truyền lên
+        delete updateData[fieldName]
+      }
+    })
+
+    // đối với những trường liên quan tới objectId phải biến đổi
+    if (updateData.cardOrderIds) {
+      updateData.cardOrderIds = updateData.cardOrderIds.map((id) => new ObjectId(String(id)))
+    }
+
+    const result = await GET_DB()
+      .collection(COLUMN_COLLECTION_NAME)
+      .findOneAndUpdate(
+        {
+          _id: new ObjectId(String(columnId)),
+        },
+        { $set: updateData },
+        { returnDocument: 'after', session },
+      )
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
@@ -137,4 +168,5 @@ export const columnModel = {
   updateColumn,
   deleteOneById,
   deleteManyByBoardId,
+  updateColumnWithSession,
 }

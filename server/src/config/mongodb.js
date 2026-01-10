@@ -3,6 +3,7 @@ import { env } from '~/config/environment'
 import { MongoClient, ServerApiVersion } from 'mongodb'
 
 let trelloDatabaseInstance = null
+let trelloClientInstance = null
 
 const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   serverApi: {
@@ -15,9 +16,16 @@ const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
 // Kết nối tới db
 export const CONNECT_DB = async () => {
   // Gọi kết nối tới MongoDB Atlas với URI đã khai báo
-  await mongoClientInstance.connect()
+  const client = await mongoClientInstance.connect()
+  // lưu lại client
+  trelloClientInstance = client
   // Kết nối thành công thì lấy ra DB theo tên và gán ngược nó lại vào biến
-  trelloDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
+  trelloDatabaseInstance = client.db(env.DATABASE_NAME)
+}
+
+export const GET_CLIENT = () => {
+  if (!trelloClientInstance) throw new Error('Must connect to DB first!')
+  return trelloClientInstance
 }
 
 // đóng kết nối DB khi cần

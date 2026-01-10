@@ -8,6 +8,7 @@ import { cardModel } from '~/models/cardModel'
 import { DEFAULT_ITEM_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
 import { userModel } from '~/models/userModel'
 import { ObjectId } from 'mongodb'
+import { GET_CLIENT } from '~/config/mongodb'
 
 const getBoards = async (userId, page, itemPerPage, queryFilters) => {
   try {
@@ -145,32 +146,100 @@ const update = async (boardId, reqBody = {}, currentUserId) => {
 }
 
 const moveCardToDifferentColumn = async (reqBody) => {
+  // ===== VALIDATION =====
+  const { currentCardId, originalColumnId, newColumnId, originalCardOrderIds, newCardOrderIds } = reqBody
+
+  // Check required fields
+  if (!currentCardId || !originalColumnId || !newColumnId) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing required fields')
+  }
+
+  // Check arrays
+  if (!Array.isArray(newCardOrderIds)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'newCardOrderIds must be an array')
+  }
+
+  // Check card exists
+  const card = await cardModel.findOneById(currentCardId)
+  if (!card) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found')
+  }
+
+  // Check columns exist
+  const originalColumn = await columnModel.findOneById(originalColumnId)
+  const newColumn = await columnModel.findOneById(newColumnId)
+  if (!originalColumn || !newColumn) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found')
+  }
+
+  // Check columns belong to same board
+  if (!originalColumn.boardId.equals(newColumn.boardId)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Columns must belong to the same board')
+  }
+
+  // lấy mg client để tạo session
+  const client = GET_CLIENT()
+  const session = client.startSession()
+
   try {
-    // B1: Cập nhật lại mảng cardOrderIds trong column gốc (xóa _id của card ra khỏi mảng cardOrderIds)
-    await columnModel.updateColumn(reqBody.originalColumnId, { cardOrderIds: reqBody.originalCardOrderIds })
-    // B2: Cập nhật lại mảng cardOrderIds trong column đích (thêm _id của card vào mảng cardOrderIds)
-    await columnModel.updateColumn(reqBody.newColumnId, { cardOrderIds: reqBody.newCardOrderIds })
-    // B3: Cập nhật lại columnId của card thay đổi
-    await cardModel.update(reqBody.currentCardId, { columnId: reqBody.newColumnId, updatedAt: Date.now() })
+    session.startTransaction()
+
+    // B1: xóa _id của card ra khỏi mảng cardOrderIds ở column gốc
+    await columnModel.updateColumnWithSession(
+      originalColumnId,
+      {
+        cardOrderIds: originalCardOrderIds,
+      },
+      session,
+    )
+
+    // B2: thêm _id của card vào mảng cardOrderIds ở column đích
+    await columnModel.updateColumnWithSession(
+      newColumnId,
+      {
+        cardOrderIds: newCardOrderIds,
+      },
+      session,
+    )
+
+    // B3: Cập nhật columnId của card
+    await cardModel.updateWithSession(
+      currentCardId,
+      {
+        columnId: newColumnId,
+        updatedAt: Date.now(),
+      },
+      session,
+    )
+
+    // Nếu tất cả thành công → commit
+    await session.commitTransaction()
+
+    // Lấy card đã update để emit socket
+    const updatedCard = await cardModel.findOneById(currentCardId)
 
     // Emit socket cho các user khác trong cùng board room biết card đã được move sang column mới
-    const updatedCard = await cardModel.findOneById(reqBody.currentCardId)
     if (updatedCard && global.io) {
       const roomName = `board:${updatedCard.boardId.toString()}`
       global.io.to(roomName).emit('BE_CARD_MOVED_TO_DIFFERENT_COLUMN', {
         boardId: updatedCard.boardId.toString(),
         cardId: updatedCard._id.toString(),
-        originalColumnId: reqBody.originalColumnId,
-        originalCardOrderIds: reqBody.originalCardOrderIds,
-        newColumnId: reqBody.newColumnId,
-        newCardOrderIds: reqBody.newCardOrderIds,
+        originalColumnId: originalColumnId,
+        originalCardOrderIds: originalCardOrderIds,
+        newColumnId: newColumnId,
+        newCardOrderIds: newCardOrderIds,
         card: updatedCard,
       })
     }
 
     return updatedCard
   } catch (error) {
+    // Nếu có lỗi → rollback tất cả
+    await session.abortTransaction()
     throw error
+  } finally {
+    // End session
+    await session.endSession()
   }
 }
 
