@@ -40,7 +40,7 @@ const login = async (req, res, next) => {
 
     // Chỉ set domain khi production (subdomain)
     if (env.BUILD_MODE === 'production') {
-      cookieOptions.domain = '.mthuyet.site' // Cookie sẽ được chia sẻ giữa tất cả subdomain
+      cookieOptions.domain = '.mthuyet.online' // Cookie sẽ được chia sẻ giữa tất cả subdomain
     }
 
     res.cookie('accessToken', result.accessToken, cookieOptions)
@@ -63,7 +63,7 @@ const logout = async (req, res, next) => {
     }
 
     if (env.BUILD_MODE === 'production') {
-      clearCookieOptions.domain = '.mthuyet.site'
+      clearCookieOptions.domain = '.mthuyet.online'
     }
 
     res.clearCookie('accessToken', clearCookieOptions)
@@ -90,7 +90,7 @@ const refreshToken = async (req, res, next) => {
     }
 
     if (env.BUILD_MODE === 'production') {
-      cookieOptions.domain = '.mthuyet.site'
+      cookieOptions.domain = '.mthuyet.online'
     }
 
     res.cookie('accessToken', result.accessToken, cookieOptions)

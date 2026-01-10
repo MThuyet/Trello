@@ -5,7 +5,7 @@ if (process.env.BUILD_MODE === 'dev') {
 }
 
 if (process.env.BUILD_MODE === 'production') {
-  apiRoot = 'https://api.mthuyet.site'
+  apiRoot = 'https://api.mthuyet.online'
 }
 
 export const BOARD_TYPES = {
