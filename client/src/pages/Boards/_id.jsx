@@ -37,19 +37,32 @@ const Board = () => {
   // ===== DRAG & DROP HANDLERS =====
 
   // Kéo thả column
-  const moveColumn = (dndOrderedColumns) => {
+  const moveColumn = async (dndOrderedColumns) => {
+    // Lưu state cũ để rollback nếu cần
+    const oldBoard = cloneDeep(board)
+
     const dndOrderedColumnsIds = dndOrderedColumns.map((c) => c._id)
 
+    // Optimistic update
     const newBoard = cloneDeep(board)
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    updateBoardDetailsAPI(board._id, { columnOrderIds: dndOrderedColumnsIds })
+    // Gọi API, rollback nếu fail
+    try {
+      await updateBoardDetailsAPI(board._id, { columnOrderIds: dndOrderedColumnsIds })
+    } catch {
+      dispatch(updateCurrentActiveBoard(oldBoard))
+    }
   }
 
   // Kéo thả card trong cùng column
-  const moveCardInTheSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
+  const moveCardInTheSameColumn = async (dndOrderedCards, dndOrderedCardIds, columnId) => {
+    // Lưu state cũ để rollback nếu cần
+    const oldBoard = cloneDeep(board)
+
+    // Optimistic update
     const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find((column) => column._id === columnId)
     if (columnToUpdate) {
@@ -58,11 +71,19 @@ const Board = () => {
     }
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
+    // Gọi API, rollback nếu fail
+    try {
+      await updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
+    } catch {
+      dispatch(updateCurrentActiveBoard(oldBoard))
+    }
   }
 
   // Kéo thả card sang column khác
-  const moveCardToDifferentColumn = (currentCardId, originalColumnId, newColumnId, dndOrderedColumns) => {
+  const moveCardToDifferentColumn = async (currentCardId, originalColumnId, newColumnId, dndOrderedColumns) => {
+    // Lưu state cũ để rollback nếu cần
+    const oldBoard = cloneDeep(board)
+
     // Chuẩn hóa dữ liệu column
     const normalizedColumns = dndOrderedColumns.map((column) => {
       const columnClone = cloneDeep(column)
@@ -79,22 +100,27 @@ const Board = () => {
 
     const dndOrderedColumnsIds = normalizedColumns.map((c) => c._id)
 
+    // Optimistic update
     const newBoard = cloneDeep(board)
     newBoard.columns = normalizedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    // Gọi API
+    // Gọi API, rollback nếu fail
     let originalCardOrderIds = dndOrderedColumns.find((c) => c._id === originalColumnId).cardOrderIds
     if (originalCardOrderIds[0].includes('placeholder-card')) originalCardOrderIds = []
 
-    moveCardToDifferentColumnAPI({
-      currentCardId,
-      originalColumnId,
-      originalCardOrderIds,
-      newColumnId,
-      newCardOrderIds: dndOrderedColumns.find((c) => c._id === newColumnId).cardOrderIds,
-    })
+    try {
+      await moveCardToDifferentColumnAPI({
+        currentCardId,
+        originalColumnId,
+        originalCardOrderIds,
+        newColumnId,
+        newCardOrderIds: dndOrderedColumns.find((c) => c._id === newColumnId).cardOrderIds,
+      })
+    } catch {
+      dispatch(updateCurrentActiveBoard(oldBoard))
+    }
   }
 
   // ===== RENDER =====
