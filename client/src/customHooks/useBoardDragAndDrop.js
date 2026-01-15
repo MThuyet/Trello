@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSensor, useSensors, closestCorners, getFirstCollision, pointerWithin } from '@dnd-kit/core'
 import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -30,6 +30,26 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
     setOrderedColumns(board.columns)
   }, [board])
 
+  // Map: cardId → columnId (để biết card nằm trong column nào)
+  const cardToColumnMap = useMemo(() => {
+    const map = {}
+    orderedColumns.forEach((column) => {
+      column.cards.forEach((card) => {
+        map[card._id] = column._id
+      })
+    })
+    return map
+  }, [orderedColumns])
+
+  // Map: columnId → column object (để lấy column object từ columnId)
+  const columnMap = useMemo(() => {
+    const map = {}
+    orderedColumns.forEach((column) => {
+      map[column._id] = column
+    })
+    return map
+  }, [orderedColumns])
+
   // ===== SENSORS =====
   // desktop
   const mouseSensor = useSensor(MouseSensor, {
@@ -52,9 +72,10 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
   // Tìm column chứa card
   const findColumnByCardId = useCallback(
     (cardId) => {
-      return orderedColumns.find((column) => column.cards.some((card) => card._id === cardId))
+      const columnId = cardToColumnMap[cardId]
+      return columnId ? columnMap[columnId] : null
     },
-    [orderedColumns],
+    [cardToColumnMap, columnMap],
   )
 
   // Tính vị trí mới của card khi thả
@@ -285,7 +306,7 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
 
       if (overId) {
         // Nếu overId là column, tìm card gần nhất bên trong
-        const checkColumn = orderedColumns.find((column) => column._id === overId)
+        const checkColumn = columnMap[overId]
 
         if (checkColumn) {
           overId = closestCorners({
@@ -302,7 +323,7 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
 
       return lastOverId.current ? [{ id: lastOverId.current }] : []
     },
-    [activeDragItemType, orderedColumns],
+    [activeDragItemType, columnMap],
   )
 
   return {
