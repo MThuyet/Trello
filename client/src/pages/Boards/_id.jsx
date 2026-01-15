@@ -19,7 +19,7 @@ import {
   updateColumnInBoard,
   updateCurrentActiveBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
-import { cloneDeep, isEmpty } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
@@ -27,7 +27,7 @@ import { socketIoInstance } from '~/socketClient'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 import { clearAndHideCurrentActiveCard, selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
-import { generatePlaceholderCard } from '~/utils/formatter'
+import { isPlaceholderCard, ensurePlaceholder, removePlaceholder } from '~/utils/formatter'
 
 const Board = () => {
   const navigate = useNavigate()
@@ -297,18 +297,13 @@ const Board = () => {
       const columnClone = cloneDeep(column)
 
       // Nếu column có card thật, bỏ placeholder ra khỏi danh sách
-      const realCards = columnClone.cards.filter((card) => !card.FE_PlaceholderCard)
-      if (!isEmpty(realCards)) {
-        columnClone.cards = realCards
-        columnClone.cardOrderIds = columnClone.cardOrderIds.filter((cardId) => realCards.some((card) => card._id === cardId))
+      const hasRealCards = columnClone.cards.some((card) => !isPlaceholderCard(card))
+      if (hasRealCards) {
+        removePlaceholder(columnClone)
       }
 
       // Nếu sau khi thao tác column rỗng, thêm placeholder để tiếp tục kéo thả
-      if (isEmpty(columnClone.cards)) {
-        const placeholderCard = generatePlaceholderCard(columnClone)
-        columnClone.cards = [placeholderCard]
-        columnClone.cardOrderIds = [placeholderCard._id]
-      }
+      ensurePlaceholder(columnClone)
 
       return columnClone
     })

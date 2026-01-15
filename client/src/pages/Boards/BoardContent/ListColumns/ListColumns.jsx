@@ -7,7 +7,7 @@ import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { createNewColumnAPI } from '~/apis'
-import { generatePlaceholderCard } from '~/utils/formatter'
+import { ensurePlaceholder } from '~/utils/formatter'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
@@ -47,8 +47,7 @@ const ListColumns = ({ columns }) => {
 
       if (createdColumn) {
         // xử lý kéo thả khi column mới được tạo nên rỗng
-        createdColumn.cards = [generatePlaceholderCard(createdColumn)]
-        createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
+        ensurePlaceholder(createdColumn)
 
         // Đoạn này dính lỗi object is not extensible bởi dù đã clone ra giá trị mới nhưng bản chất của spread operator là shallow copy (https://www.javascripttutorial.net/object/3-ways-to-copy-objects-in-javascript/) nên dính phải rules Immutability của Redux Toolkits https://redux-toolkit.js.org/usage/immer-reducers, không được dùng hàm PUSH (sửa giá trị mảng trực tiếp), cách đơn giản là dùng Deep clone hoặc concat() để tạo mảng mới
         // const newBoard = { ...board }

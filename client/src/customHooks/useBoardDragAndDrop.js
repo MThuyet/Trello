@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSensor, useSensors, closestCorners, getFirstCollision, pointerWithin } from '@dnd-kit/core'
 import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { arrayMove } from '@dnd-kit/sortable'
-import { isEmpty } from 'lodash'
-import { generatePlaceholderCard } from '~/utils/formatter'
+import { ensurePlaceholder, removePlaceholder } from '~/utils/formatter'
 
 export const DRAG_ITEM_TYPE = {
   COLUMN: 'COLUMN',
@@ -92,28 +91,23 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
   // Xóa card khỏi column (source)
   const removeCardFromSourceColumn = useCallback((column, cardId) => {
     column.cards = column.cards.filter((card) => card._id !== cardId)
-
-    // Thêm placeholder nếu column rỗng
-    if (isEmpty(column.cards)) {
-      column.cards = [generatePlaceholderCard(column)]
-    }
-
     column.cardOrderIds = column.cards.map((card) => card._id)
+
+    // Đảm bảo column rỗng có placeholder
+    ensurePlaceholder(column)
   }, [])
 
   // Thêm card vào column (target)
   const addCardToTargetColumn = useCallback((column, cardData, newIndex) => {
+    // Xóa placeholder trước (nếu có)
+    removePlaceholder(column)
+
     // Xóa card nếu đã tồn tại (tránh duplicate)
     column.cards = column.cards.filter((card) => card._id !== cardData._id)
 
-    // Cập nhật columnId cho card
+    // Cập nhật columnId cho card và thêm vào vị trí mới
     const updatedCard = { ...cardData, columnId: column._id }
-
-    // Thêm card vào vị trí mới
     column.cards.splice(newIndex, 0, updatedCard)
-
-    // Xóa placeholder nếu có
-    column.cards = column.cards.filter((card) => !card.FE_PlaceholderCard)
 
     // Cập nhật cardOrderIds
     column.cardOrderIds = column.cards.map((card) => card._id)

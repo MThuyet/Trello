@@ -12,6 +12,7 @@ import { showModalActiveCard, updateCurrentActiveCard } from '~/redux/activeCard
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { isPlaceholderCard } from '~/utils/formatter'
 
 const Card = ({ card }) => {
   const dispatch = useDispatch()
@@ -53,7 +54,7 @@ const Card = ({ card }) => {
         cursor: 'pointer',
         boxShadow: '0 1px 1px rgba(0, 0, 0, 0.2)',
         overflow: 'unset',
-        display: card?.FE_PlaceholderCard ? 'none' : 'block',
+        display: isPlaceholderCard(card) ? 'none' : 'block',
         border: '1px solid transparent',
         '&:hover': { borderColor: (theme) => theme.palette.primary.main },
       }}>

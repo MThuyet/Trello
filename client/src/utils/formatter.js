@@ -4,7 +4,11 @@ export const capitalizeFirstLetter = (val) => {
   return `${val.charAt(0).toUpperCase()}${val.slice(1)}`
 }
 
-// hàm tạo placeholder card
+// ===== PLACEHOLDER CARD UTILITIES =====
+// Tất cả logic xử lý placeholder card được tập trung ở đây
+
+// Tạo placeholder card cho column rỗng
+// Placeholder giúp column rỗng vẫn có thể nhận card khi kéo thả
 export const generatePlaceholderCard = (column) => {
   return {
     _id: `${column._id}-placeholder-card`,
@@ -12,6 +16,23 @@ export const generatePlaceholderCard = (column) => {
     columnId: column._id,
     FE_PlaceholderCard: true,
   }
+}
+
+// Kiểm tra card có phải placeholder không
+export const isPlaceholderCard = (card) => card?.FE_PlaceholderCard === true
+
+// Đảm bảo column rỗng có placeholder card
+export const ensurePlaceholder = (column) => {
+  if (!column.cards || column.cards.length === 0) {
+    column.cards = [generatePlaceholderCard(column)]
+    column.cardOrderIds = [column.cards[0]._id]
+  }
+}
+
+// Xóa placeholder card khỏi column (khi có card thật)
+export const removePlaceholder = (column) => {
+  column.cards = column.cards.filter((card) => !isPlaceholderCard(card))
+  column.cardOrderIds = column.cards.map((card) => card._id)
 }
 
 // dùng css pointer-event kết hợp với Axios interceptors để chặn user spam click tại bất kỳ chỗ nào có hành động click gọi api

@@ -3,7 +3,7 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { mapOrder } from '~/utils/sorts'
 import { isEmpty } from 'lodash'
-import { generatePlaceholderCard } from '~/utils/formatter'
+import { ensurePlaceholder, removePlaceholder } from '~/utils/formatter'
 
 // khởi tạo giá trị State của một Slice trong redux
 const initialState = {
@@ -55,9 +55,7 @@ export const activeBoardSlice = createSlice({
 
         // Nếu column trống, thêm placeholder để vẫn kéo thả được
         if (isEmpty(originalColumn.cards)) {
-          const placeholderCard = generatePlaceholderCard(originalColumn)
-          originalColumn.cards = [placeholderCard]
-          originalColumn.cardOrderIds = [placeholderCard._id]
+          ensurePlaceholder(originalColumn)
         } else {
           // Dùng originalCardOrderIds từ server nếu có, nếu không thì tự tính
           originalColumn.cardOrderIds =
@@ -71,7 +69,7 @@ export const activeBoardSlice = createSlice({
         // Xóa card nếu đã tồn tại (tránh duplicate do optimistic update)
         newColumn.cards = newColumn.cards.filter((card) => card._id !== data.cardId)
         // Xóa placeholder nếu có
-        newColumn.cards = newColumn.cards.filter((card) => !card.FE_PlaceholderCard)
+        removePlaceholder(newColumn)
         // Thêm card mới vào
         newColumn.cards.push(data.card)
 
@@ -131,9 +129,8 @@ export const activeBoardSlice = createSlice({
       const isColumnExists = state.currentActiveBoard.columns.some((col) => col._id === newColumn._id)
       if (isColumnExists) return
 
-      if (isEmpty(newColumn.cards)) {
-        newColumn.cards = [generatePlaceholderCard(newColumn)]
-      }
+      // Đảm bảo column rỗng có placeholder
+      ensurePlaceholder(newColumn)
 
       state.currentActiveBoard.columns.push(newColumn)
       state.currentActiveBoard.columnOrderIds.push(newColumn._id)
@@ -152,8 +149,7 @@ export const activeBoardSlice = createSlice({
         })
 
         if (isEmpty(oldColumn.cards)) {
-          oldColumn.cards = [generatePlaceholderCard(oldColumn)]
-          oldColumn.cardOrderIds = [generatePlaceholderCard(oldColumn)._id]
+          ensurePlaceholder(oldColumn)
         } else {
           oldColumn.cards = mapOrder(oldColumn.cards, oldColumn.cardOrderIds, '_id')
         }
@@ -210,11 +206,7 @@ export const activeBoardSlice = createSlice({
       column.cardOrderIds = column.cardOrderIds.filter((id) => id !== cardId)
 
       // nếu column rỗng, thêm placeholder card vào
-      if (isEmpty(column.cards)) {
-        const placeholderCard = generatePlaceholderCard(column)
-        column.cards = [placeholderCard]
-        column.cardOrderIds = [placeholderCard._id]
-      }
+      ensurePlaceholder(column)
     },
   },
   // extraReducers: nơi xử lý dữ liệu bất đồng bộ
@@ -234,10 +226,9 @@ export const activeBoardSlice = createSlice({
       board.columns.forEach((column) => {
         // khi F5 web cũng cần xử lý kéo thả card cho column rỗng
         if (isEmpty(column.cards)) {
-          column.cards = [generatePlaceholderCard(column)]
-          column.cardOrderIds = [generatePlaceholderCard(column)._id]
-          // sắp xếp thứ tự các card
+          ensurePlaceholder(column)
         } else {
+          // sắp xếp thứ tự các card
           column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
         }
       })

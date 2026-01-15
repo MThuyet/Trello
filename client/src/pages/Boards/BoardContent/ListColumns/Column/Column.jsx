@@ -20,6 +20,7 @@ import { useConfirm } from 'material-ui-confirm'
 import { createNewCardAPI, updateColumnDetailsAPI } from '~/apis'
 import { cloneDeep } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
+import { isPlaceholderCard } from '~/utils/formatter'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { deleteColumnAPI } from '~/apis'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
@@ -115,7 +116,7 @@ const Column = ({ column }) => {
         const columnToUpdate = newBoard.columns.find((column) => column._id === createdCard.columnId)
         if (columnToUpdate) {
           // nếu column rỗng hoặc chỉ chứa card ảo do FE
-          if (columnToUpdate.cards.some((card) => card.FE_PlaceholderCard)) {
+          if (columnToUpdate.cards.some((card) => isPlaceholderCard(card))) {
             columnToUpdate.cards = [createdCard]
             columnToUpdate.cardOrderIds = [createdCard._id]
           } else {
