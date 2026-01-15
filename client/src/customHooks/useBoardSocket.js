@@ -13,9 +13,11 @@ import {
   removeCardFromBoard,
   removeColumnFromBoard,
   removeMemberFromBoard,
+  updateCardInBoard,
   updateColumnInBoard,
   updateCurrentActiveBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 // Socket event names
 const SOCKET_EVENTS = {
@@ -34,6 +36,7 @@ const SOCKET_EVENTS = {
   BE_COLUMN_ORDER_IDS_UPDATED: 'BE_COLUMN_ORDER_IDS_UPDATED',
   BE_CARD_MOVED_TO_DIFFERENT_COLUMN: 'BE_CARD_MOVED_TO_DIFFERENT_COLUMN',
   BE_NEW_CARD_CREATED: 'BE_NEW_CARD_CREATED',
+  BE_CARD_UPDATED: 'BE_CARD_UPDATED',
 }
 
 // Custom hook để quản lý tất cả socket listeners cho Board
@@ -117,6 +120,18 @@ export const useBoardSocket = (board) => {
       }
     }
 
+    const handleCardUpdated = (data) => {
+      if (data.boardId === boardId) {
+        // Cập nhật card trong board (ListCards)
+        dispatch(updateCardInBoard(data))
+
+        // Nếu card đang được mở trong modal, cập nhật luôn
+        if (currentActiveCard?._id === data._id) {
+          dispatch(updateCurrentActiveCard(data))
+        }
+      }
+    }
+
     // ===== COLUMN EVENTS =====
     const handleColumnDeleted = (data) => {
       if (data.boardId === boardId) {
@@ -165,6 +180,7 @@ export const useBoardSocket = (board) => {
     socketIoInstance.on(SOCKET_EVENTS.BE_DELETED_CARD, handleCardDeleted)
     socketIoInstance.on(SOCKET_EVENTS.BE_CARD_MOVED_TO_DIFFERENT_COLUMN, handleCardMoved)
     socketIoInstance.on(SOCKET_EVENTS.BE_NEW_CARD_CREATED, handleNewCardCreated)
+    socketIoInstance.on(SOCKET_EVENTS.BE_CARD_UPDATED, handleCardUpdated)
     socketIoInstance.on(SOCKET_EVENTS.BE_DELETE_COLUMN, handleColumnDeleted)
     socketIoInstance.on(SOCKET_EVENTS.BE_NEW_COLUMN_CREATED, handleNewColumnCreated)
     socketIoInstance.on(SOCKET_EVENTS.BE_COLUMN_UPDATED, handleColumnUpdated)
@@ -178,6 +194,7 @@ export const useBoardSocket = (board) => {
       socketIoInstance.off(SOCKET_EVENTS.BE_DELETED_CARD, handleCardDeleted)
       socketIoInstance.off(SOCKET_EVENTS.BE_CARD_MOVED_TO_DIFFERENT_COLUMN, handleCardMoved)
       socketIoInstance.off(SOCKET_EVENTS.BE_NEW_CARD_CREATED, handleNewCardCreated)
+      socketIoInstance.off(SOCKET_EVENTS.BE_CARD_UPDATED, handleCardUpdated)
       socketIoInstance.off(SOCKET_EVENTS.BE_DELETE_COLUMN, handleColumnDeleted)
       socketIoInstance.off(SOCKET_EVENTS.BE_NEW_COLUMN_CREATED, handleNewColumnCreated)
       socketIoInstance.off(SOCKET_EVENTS.BE_COLUMN_UPDATED, handleColumnUpdated)

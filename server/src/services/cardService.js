@@ -72,6 +72,15 @@ const update = async (cardId, reqBody, cardCoverFile, userInfor) => {
       updatedCard = await cardModel.update(cardId, updateData)
     }
 
+    // Emit socket event khi card được update
+    if (updatedCard && global.io) {
+      const roomName = `board:${updatedCard.boardId.toString()}`
+      global.io.to(roomName).emit('BE_CARD_UPDATED', {
+        ...updatedCard,
+        updatedBy: userInfor._id.toString(),
+      })
+    }
+
     return updatedCard
   } catch (error) {
     throw error
