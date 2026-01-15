@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSensor, useSensors, closestCorners, getFirstCollision, pointerWithin } from '@dnd-kit/core'
 import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { arrayMove } from '@dnd-kit/sortable'
-import { cloneDeep, isEmpty } from 'lodash'
+import { isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatter'
 
 export const DRAG_ITEM_TYPE = {
@@ -123,7 +123,18 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
   const moveCardBetweenColumns = useCallback(
     ({ sourceColumnId, targetColumnId, cardId, cardData, overCardId, active, over, trigger }) => {
       setOrderedColumns((currentColumns) => {
-        const columns = cloneDeep(currentColumns)
+        // Chỉ clone những columns cần sửa
+        const columns = currentColumns.map((column) => {
+          if (column._id === sourceColumnId || column._id === targetColumnId) {
+            // Clone column này (vì sẽ sửa nó)
+            return {
+              ...column,
+              cards: [...column.cards],
+            }
+          }
+          // Giữ nguyên reference (không sửa gì)
+          return column
+        })
 
         const sourceColumn = columns.find((col) => col._id === sourceColumnId)
         const targetColumn = columns.find((col) => col._id === targetColumnId)
@@ -243,13 +254,17 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
             const dndOrderedCardIds = dndOrderedCards.map((card) => card._id)
 
             setOrderedColumns((prevColumns) => {
-              const columns = cloneDeep(prevColumns)
-              const targetColumn = columns.find((col) => col._id === overColumn._id)
-
-              if (targetColumn) {
-                targetColumn.cards = dndOrderedCards
-                targetColumn.cardOrderIds = dndOrderedCardIds
-              }
+              // Chỉ clone column đang sửa, giữ nguyên các columns khác
+              const columns = prevColumns.map((column) => {
+                if (column._id === overColumn._id) {
+                  return {
+                    ...column,
+                    cards: dndOrderedCards,
+                    cardOrderIds: dndOrderedCardIds,
+                  }
+                }
+                return column
+              })
 
               return columns
             })
