@@ -22,6 +22,7 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
   const [activeDragItemType, setActiveDragItemType] = useState(null)
   const [activeDragItemData, setActiveDragItemData] = useState(null)
   const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState(null) // Column gốc chứa card trước khi bắt đầu kéo
+  const [oldCardIndex, setOldCardIndex] = useState(null) // Vị trí ban đầu của card trong column gốc
   const lastOverId = useRef(null) // điểm va chạm cuối cùng trước đó (xử lý thuật toán phát hiện va chạm)
 
   // Sync orderedColumns với board.columns
@@ -166,9 +167,13 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
       setActiveDragItemType(activeData?.columnId ? DRAG_ITEM_TYPE.CARD : DRAG_ITEM_TYPE.COLUMN)
       setActiveDragItemData(activeData)
 
-      // Lưu column gốc nếu đang kéo card
+      // Lưu column gốc và vị trí ban đầu nếu đang kéo card
       if (activeData?.columnId) {
-        setOldColumnWhenDraggingCard(findColumnByCardId(active.id))
+        const column = findColumnByCardId(active.id)
+        setOldColumnWhenDraggingCard(column)
+        // Lưu vị trí ban đầu của card
+        const cardIndex = column?.cards.findIndex((c) => c._id === active.id)
+        setOldCardIndex(cardIndex)
       }
     },
     [findColumnByCardId],
@@ -239,12 +244,14 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
             trigger: TRIGGER.DRAG_END,
           })
         } else {
-          // Kéo card trong cùng column
-          const oldIndex = activeColumn.cards.findIndex((c) => c._id === activeDragItemId)
+          // Kéo card trong cùng column (hoặc kéo qua column khác rồi quay về)
+          const currentCardIndex = activeColumn.cards.findIndex((c) => c._id === activeDragItemId)
           const newIndex = overColumn.cards.findIndex((c) => c._id === overCardId)
 
-          if (oldIndex !== newIndex) {
-            const dndOrderedCards = arrayMove(activeColumn.cards, oldIndex, newIndex)
+          // So sánh với vị trí BAN ĐẦU (oldCardIndex), không phải vị trí hiện tại
+          // Vì card có thể đã di chuyển qua column khác rồi quay về
+          if (oldCardIndex !== newIndex) {
+            const dndOrderedCards = arrayMove(activeColumn.cards, currentCardIndex, newIndex)
             const dndOrderedCardIds = dndOrderedCards.map((card) => card._id)
 
             setOrderedColumns((prevColumns) => {
@@ -285,6 +292,7 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
       setActiveDragItemType(null)
       setActiveDragItemData(null)
       setOldColumnWhenDraggingCard(null)
+      setOldCardIndex(null)
     },
     [
       activeDragItemType,
@@ -292,6 +300,7 @@ export const useBoardDragAndDrop = ({ board, onMoveColumn, onMoveCardSameColumn,
       findColumnByCardId,
       moveCardBetweenColumns,
       oldColumnWhenDraggingCard,
+      oldCardIndex,
       orderedColumns,
       onMoveColumn,
       onMoveCardSameColumn,
