@@ -268,7 +268,19 @@ const deleteOne = async (boardId, userId) => {
     await cardModel.deleteManyByBoardId(board._id)
 
     // xóa board
-    return await boardModel.deleteOneById(board._id)
+    const result = await boardModel.deleteOneById(board._id)
+
+    // Emit socket event thông báo board đã bị xóa
+    if (result.deletedCount > 0 && global.io) {
+      const roomName = `board:${boardId}`
+      global.io.to(roomName).emit('BE_BOARD_DELETED', {
+        boardId: boardId,
+        boardTitle: board.title,
+        deletedBy: userId.toString(),
+      })
+    }
+
+    return result
   } catch (error) {
     throw error
   }

@@ -37,6 +37,7 @@ const SOCKET_EVENTS = {
   BE_CARD_MOVED_TO_DIFFERENT_COLUMN: 'BE_CARD_MOVED_TO_DIFFERENT_COLUMN',
   BE_NEW_CARD_CREATED: 'BE_NEW_CARD_CREATED',
   BE_CARD_UPDATED: 'BE_CARD_UPDATED',
+  BE_BOARD_DELETED: 'BE_BOARD_DELETED',
 }
 
 // Custom hook để quản lý tất cả socket listeners cho Board
@@ -174,6 +175,16 @@ export const useBoardSocket = (board) => {
       }
     }
 
+    const handleBoardDeleted = (data) => {
+      if (data.boardId === boardId) {
+        // Đóng modal card nếu đang mở
+        dispatch(clearAndHideCurrentActiveCard())
+        // Redirect về trang boards
+        navigate('/boards')
+        dispatch(showSnackbar({ message: `Board "${data.boardTitle}" has been deleted`, severity: 'warning' }))
+      }
+    }
+
     // ===== REGISTER ALL LISTENERS =====
     socketIoInstance.on(SOCKET_EVENTS.BE_MEMBER_JOINED_BOARD, handleMemberJoined)
     socketIoInstance.on(SOCKET_EVENTS.BE_MEMBER_REMOVED_FROM_BOARD, handleMemberRemoved)
@@ -186,6 +197,7 @@ export const useBoardSocket = (board) => {
     socketIoInstance.on(SOCKET_EVENTS.BE_COLUMN_UPDATED, handleColumnUpdated)
     socketIoInstance.on(SOCKET_EVENTS.BE_COLUMN_ORDER_IDS_UPDATED, handleColumnOrderIdsUpdated)
     socketIoInstance.on(SOCKET_EVENTS.BE_BOARD_UPDATED_GENERAL_FIELDS, handleBoardUpdatedGeneralFields)
+    socketIoInstance.on(SOCKET_EVENTS.BE_BOARD_DELETED, handleBoardDeleted)
 
     // ===== CLEANUP ALL LISTENERS =====
     return () => {
@@ -200,6 +212,7 @@ export const useBoardSocket = (board) => {
       socketIoInstance.off(SOCKET_EVENTS.BE_COLUMN_UPDATED, handleColumnUpdated)
       socketIoInstance.off(SOCKET_EVENTS.BE_COLUMN_ORDER_IDS_UPDATED, handleColumnOrderIdsUpdated)
       socketIoInstance.off(SOCKET_EVENTS.BE_BOARD_UPDATED_GENERAL_FIELDS, handleBoardUpdatedGeneralFields)
+      socketIoInstance.off(SOCKET_EVENTS.BE_BOARD_DELETED, handleBoardDeleted)
     }
   }, [board?._id, currentUser._id, currentActiveCard?._id, currentActiveCard?.columnId, dispatch, navigate])
 }
