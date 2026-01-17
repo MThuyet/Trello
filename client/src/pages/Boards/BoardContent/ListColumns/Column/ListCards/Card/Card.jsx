@@ -63,23 +63,16 @@ const Card = ({ card }) => {
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
 
       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-        {/* Labels - Responsive gap */}
+        {/* Labels */}
         {card?.labels && card.labels.length > 0 && (
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: { xs: 0.75, sm: 0.5 },
-              mb: { xs: 1.5, sm: 1 },
-            }}
-          >
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
             {card.labels.map((label) => (
               <LabelChip key={label._id} label={label} size="small" showText={false} />
             ))}
           </Box>
         )}
 
-        <Typography sx={{ fontSize: { xs: '15px', sm: '14px' } }}>{card?.title}</Typography>
+        <Typography>{card?.title}</Typography>
       </CardContent>
 
       {shouldShowCardAction() && (

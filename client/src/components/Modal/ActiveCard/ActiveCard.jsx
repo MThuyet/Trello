@@ -6,7 +6,6 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import Grid from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
 // import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
@@ -24,9 +23,6 @@ import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined'
 import SubjectRoundedIcon from '@mui/icons-material/SubjectRounded'
 import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import CloseIcon from '@mui/icons-material/Close'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
 
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
@@ -55,21 +51,18 @@ import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 import { useState } from 'react'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 
-// style sidebar - responsive
+// style sidebar
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: '6px',
   cursor: 'pointer',
   fontSize: '14px',
   fontWeight: '600',
   color: theme.palette.mode === 'dark' ? '#90caf9' : '#172b4d',
   backgroundColor: theme.palette.mode === 'dark' ? '#2f3542' : '#091e420f',
-  padding: '10px 12px',
-  borderRadius: '8px',
-  minHeight: '44px', // Touch target tối thiểu
-  transition: 'all 0.15s ease',
-  WebkitTapHighlightColor: 'transparent',
+  padding: '10px',
+  borderRadius: '4px',
   '&:hover': {
     backgroundColor: theme.palette.mode === 'dark' ? '#33485D' : theme.palette.grey[300],
     '&.active': {
@@ -77,22 +70,9 @@ const SidebarItem = styled(Box)(({ theme }) => ({
       backgroundColor: theme.palette.mode === 'dark' ? '#90caf9' : '#e9f2ff',
     },
   },
-  '&:active': {
-    transform: 'scale(0.98)',
-  },
-  // Responsive
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '16px',
-    padding: '14px 16px',
-    minHeight: '52px',
-    borderRadius: '12px',
-    gap: '12px',
-  },
 }))
 
 function ActiveCard() {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
@@ -264,169 +244,97 @@ function ActiveCard() {
   }
 
   return (
-    <Modal
-      open={isShowModalActiveCard}
-      onClose={handleCloseModal}
-      sx={{
-        overflowY: 'auto',
-        // Mobile: full screen modal
-        '& .MuiBackdrop-root': {
-          backgroundColor: { xs: 'rgba(0,0,0,0.8)', sm: 'rgba(0,0,0,0.5)' },
-        },
-      }}
-    >
+    <Modal open={isShowModalActiveCard} onClose={handleCloseModal} sx={{ overflowY: 'auto' }}>
       {isDeleteCard ? (
         <PageLoadingSpinner />
       ) : (
         <Box
           sx={{
             position: 'relative',
-            // Responsive width
-            width: { xs: '100%', sm: '100%', md: 900 },
-            maxWidth: { xs: '100%', sm: '95%', md: 900 },
-            // Responsive height
-            minHeight: { xs: '100vh', sm: 'auto' },
+            width: 900,
+            maxWidth: 900,
             bgcolor: 'white',
             boxShadow: 24,
-            // Responsive border radius
-            borderRadius: { xs: 0, sm: '12px' },
+            borderRadius: '8px',
             border: 'none',
             outline: 0,
-            // Responsive padding
-            padding: { xs: '56px 16px 24px', sm: '40px 20px 20px' },
-            // Responsive margin
-            margin: { xs: 0, sm: '30px auto' },
+            padding: '40px 20px 20px',
+            margin: '50px auto',
             backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#fff'),
-            // Mobile safe area
-            paddingBottom: { xs: 'calc(24px + env(safe-area-inset-bottom))', sm: '20px' },
-          }}
-        >
-          {/* Close Button - Responsive */}
-          <IconButton
-            onClick={handleCloseModal}
+          }}>
+          <Box
             sx={{
               position: 'absolute',
-              top: { xs: 8, sm: 8 },
-              right: { xs: 8, sm: 8 },
-              minWidth: { xs: 44, sm: 36 },
-              minHeight: { xs: 44, sm: 36 },
-              backgroundColor: { xs: 'rgba(0,0,0,0.1)', sm: 'transparent' },
-              '&:hover': {
-                backgroundColor: 'rgba(0,0,0,0.15)',
-              },
-            }}
-          >
-            {isMobile ? <CloseIcon /> : <CancelIcon color="error" />}
-          </IconButton>
+              top: '12px',
+              right: '10px',
+              cursor: 'pointer',
+            }}>
+            <CancelIcon color="error" sx={{ '&:hover': { color: 'error.light' } }} onClick={handleCloseModal} />
+          </Box>
 
-          {/* Cover Image - Responsive */}
           {activeCard?.cover && (
-            <Box sx={{ mb: { xs: 2, sm: 4 }, mx: { xs: -2, sm: 0 } }}>
+            <Box sx={{ mb: 4 }}>
               <img
-                style={{
-                  width: '100%',
-                  height: isMobile ? '200px' : '320px',
-                  borderRadius: isMobile ? 0 : '6px',
-                  objectFit: 'cover',
-                }}
+                style={{ width: '100%', height: '320px', borderRadius: '6px', objectFit: 'cover' }}
                 src={activeCard?.cover}
                 alt={activeCard?.title}
               />
             </Box>
           )}
 
-          {/* Card Title - Responsive */}
-          <Box
-            sx={{
-              mb: { xs: 2, sm: 1 },
-              mt: { xs: 0, sm: -3 },
-              pr: { xs: 0, sm: 2.5 },
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <CreditCardIcon sx={{ fontSize: { xs: 28, sm: 24 } }} />
+          <Box sx={{ mb: 1, mt: -3, pr: 2.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CreditCardIcon />
             {/* Feature 01: Xử lý tiêu đề của Card */}
             <ToggleFocusInput
               disabled={isLoadingTitle}
-              inputFontSize={isMobile ? '20px' : '22px'}
+              inputFontSize="22px"
               value={activeCard?.title}
               onChangedValue={onUpdateCardTitle}
-            />
+            />{' '}
           </Box>
 
-          <Grid container spacing={{ xs: 2, sm: 2 }} sx={{ mb: 3 }}>
-            {/* Left side - Main Content */}
-            <Grid size={{ xs: 12, sm: 9 }} order={{ xs: 2, sm: 1 }}>
-              <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
-                <Typography
-                  sx={{
-                    fontWeight: '600',
-                    color: 'primary.main',
-                    mb: 1,
-                    fontSize: { xs: '16px', sm: '14px' },
-                  }}
-                >
-                  Members
-                </Typography>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            {/* Left side */}
+            <Grid size={{ xs: 12, sm: 9 }}>
+              <Box sx={{ mb: 3 }}>
+                <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Members</Typography>
 
                 {/* Feature 02: Xử lý các thành viên của Card */}
                 <CardUserGroup cardMemberIds={activeCard?.memberIds} onUpdateCardMemberIds={onUpdateCardMemberIds} />
               </Box>
 
-              {/* Labels Section - Responsive */}
-              <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
-                <Typography
-                  sx={{
-                    fontWeight: '600',
-                    color: 'primary.main',
-                    mb: 1,
-                    fontSize: { xs: '16px', sm: '14px' },
-                  }}
-                >
-                  Labels
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: { xs: 1, sm: 0.5 },
-                    alignItems: 'center',
-                  }}
-                >
+              {/* Labels Section */}
+              <Box sx={{ mb: 3 }}>
+                <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Labels</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
                   {activeCard?.labels?.map((label) => (
                     <LabelChip key={label._id} label={label} size="large" onClick={handleOpenLabelPicker} />
                   ))}
-                  {/* Add Label Button - Responsive */}
+                  {/* Add Label Button */}
                   <Box
                     onClick={handleOpenLabelPicker}
                     sx={{
-                      height: { xs: 40, sm: 32 },
-                      width: { xs: 40, sm: 32 },
+                      height: 32,
+                      width: 32,
                       backgroundColor: '#091e420f',
-                      borderRadius: { xs: '8px', sm: '4px' },
+                      borderRadius: '4px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                       '&:hover': { backgroundColor: '#091e4224' },
-                      '&:active': { transform: 'scale(0.95)' },
                     }}
                   >
-                    <AddOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                    <AddOutlinedIcon fontSize="small" />
                   </Box>
                 </Box>
               </Box>
 
-              <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
+              <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <SubjectRoundedIcon sx={{ fontSize: { xs: 26, sm: 24 } }} />
-                  <Typography
-                    variant="span"
-                    sx={{ fontWeight: '600', fontSize: { xs: '18px', sm: '20px' } }}
-                  >
+                  <SubjectRoundedIcon />
+                  <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>
                     Description
                   </Typography>
                 </Box>
@@ -438,13 +346,10 @@ function ActiveCard() {
                 />
               </Box>
 
-              <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
+              <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <DvrOutlinedIcon sx={{ fontSize: { xs: 26, sm: 24 } }} />
-                  <Typography
-                    variant="span"
-                    sx={{ fontWeight: '600', fontSize: { xs: '18px', sm: '20px' } }}
-                  >
+                  <DvrOutlinedIcon />
+                  <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>
                     Activity
                   </Typography>
                 </Box>
@@ -458,19 +363,10 @@ function ActiveCard() {
               </Box>
             </Grid>
 
-            {/* Right side - Sidebar (hiện trước trên mobile) */}
-            <Grid size={{ xs: 12, sm: 3 }} order={{ xs: 1, sm: 2 }}>
-              <Typography
-                sx={{
-                  fontWeight: '600',
-                  color: 'primary.main',
-                  mb: 1,
-                  fontSize: { xs: '16px', sm: '14px' },
-                }}
-              >
-                Add To Card
-              </Typography>
-              <Stack direction="column" spacing={{ xs: 1.5, sm: 1 }}>
+            {/* Right side */}
+            <Grid size={{ xs: 12, sm: 3 }}>
+              <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Add To Card</Typography>
+              <Stack direction="column" spacing={1}>
                 {/* Feature 05: Xử lý hành động bản thân user tự join vào card */}
                 {/* Nếu user hiện tại đang đăng nhập mà chưa join vào card thì hiện nút join */}
                 {!activeCard?.memberIds?.includes(currentUser._id) && (
@@ -481,102 +377,83 @@ function ActiveCard() {
                         setIsLoadingJoinCard(false),
                       )
                     }}
-                    className={`active ${isLoadingJoinCard ? 'interceptor-loading' : ''}`}
-                  >
-                    <PersonOutlineOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                    className={`active ${isLoadingJoinCard ? 'interceptor-loading' : ''}`}>
+                    <PersonOutlineOutlinedIcon fontSize="small" />
                     Join
                   </SidebarItem>
                 )}
 
                 {/* Feature 06: Xử lý hành động cập nhật ảnh Cover của Card */}
                 <SidebarItem className={`active ${isLoadingUploadCover ? 'interceptor-loading' : ''}`} component="label">
-                  <ImageOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <ImageOutlinedIcon fontSize="small" />
                   Cover
                   <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
                 </SidebarItem>
 
                 {/* Feature 07: Xử lý Labels */}
                 <SidebarItem className="active" onClick={handleOpenLabelPicker}>
-                  <LocalOfferOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <LocalOfferOutlinedIcon fontSize="small" />
                   Labels
                 </SidebarItem>
 
                 {/* <SidebarItem>
-                <AttachFileOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                <AttachFileOutlinedIcon fontSize="small" />
                 Attachment
               </SidebarItem>
               <SidebarItem>
-                <TaskAltOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                <TaskAltOutlinedIcon fontSize="small" />
                 Checklist
               </SidebarItem>
               <SidebarItem>
-                <WatchLaterOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                <WatchLaterOutlinedIcon fontSize="small" />
                 Dates
               </SidebarItem>
               <SidebarItem>
-                <AutoFixHighOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                <AutoFixHighOutlinedIcon fontSize="small" />
                 Custom Fields
               </SidebarItem> */}
               </Stack>
 
-              <Divider sx={{ my: { xs: 2.5, sm: 2 } }} />
+              <Divider sx={{ my: 2 }} />
 
-              <Typography
-                sx={{
-                  fontWeight: '600',
-                  color: 'primary.main',
-                  mb: 1,
-                  fontSize: { xs: '16px', sm: '14px' },
-                }}
-              >
-                Power-Ups
-              </Typography>
-              <Stack direction="column" spacing={{ xs: 1.5, sm: 1 }}>
+              <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Power-Ups</Typography>
+              <Stack direction="column" spacing={1}>
                 <SidebarItem>
-                  <AspectRatioOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <AspectRatioOutlinedIcon fontSize="small" />
                   Card Size
                 </SidebarItem>
                 <SidebarItem>
-                  <AddToDriveOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <AddToDriveOutlinedIcon fontSize="small" />
                   Google Drive
                 </SidebarItem>
                 <SidebarItem>
-                  <AddOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <AddOutlinedIcon fontSize="small" />
                   Add Power-Ups
                 </SidebarItem>
               </Stack>
 
-              <Divider sx={{ my: { xs: 2.5, sm: 2 } }} />
+              <Divider sx={{ my: 2 }} />
 
-              <Typography
-                sx={{
-                  fontWeight: '600',
-                  color: 'primary.main',
-                  mb: 1,
-                  fontSize: { xs: '16px', sm: '14px' },
-                }}
-              >
-                Actions
-              </Typography>
-              <Stack direction="column" spacing={{ xs: 1.5, sm: 1 }}>
+              <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Actions</Typography>
+              <Stack direction="column" spacing={1}>
                 <SidebarItem>
-                  <ArrowForwardOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <ArrowForwardOutlinedIcon fontSize="small" />
                   Move
                 </SidebarItem>
                 <SidebarItem>
-                  <ContentCopyOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <ContentCopyOutlinedIcon fontSize="small" />
                   Copy
                 </SidebarItem>
                 <SidebarItem>
-                  <ArchiveOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <ArchiveOutlinedIcon fontSize="small" />
                   Archive
                 </SidebarItem>
                 <SidebarItem>
-                  <ShareOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <ShareOutlinedIcon fontSize="small" />
                   Share
                 </SidebarItem>
                 <SidebarItem onClick={() => onDeleteCard(activeCard._id)}>
-                  <DeleteOutlinedIcon fontSize={isMobile ? 'medium' : 'small'} />
+                  <DeleteOutlinedIcon fontSize="small" />
                   Delete
                 </SidebarItem>
               </Stack>
