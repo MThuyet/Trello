@@ -36,8 +36,56 @@ const deleteOne = async (req, res, next) => {
   }
 }
 
+// ==================== LABEL CONTROLLERS ====================
+
+/**
+ * Thêm label vào card
+ */
+const addLabel = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const cardId = req.params.id
+    const result = await cardService.addLabel(userId, cardId, req.body)
+    return res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Cập nhật label trong card
+ */
+const updateLabel = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const { id: cardId, labelId } = req.params
+    const result = await cardService.updateLabel(userId, cardId, labelId, req.body)
+    return res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Xóa label khỏi card
+ */
+const removeLabel = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const { id: cardId, labelId } = req.params
+    const result = await cardService.removeLabel(userId, cardId, labelId)
+    return res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const cardController = {
   createNew,
   update,
   deleteOne,
+  // Label controllers
+  addLabel,
+  updateLabel,
+  removeLabel,
 }
