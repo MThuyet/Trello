@@ -39,3 +39,31 @@ export const ACTION_UPDATE_CARD_MEMBERS = {
   ADD: 'ADD',
   REMOVE: 'REMOVE',
 }
+
+// Card label colors
+export const LABEL_COLORS = {
+  GREEN: 'green',
+  YELLOW: 'yellow',
+  ORANGE: 'orange',
+  RED: 'red',
+  PURPLE: 'purple',
+  BLUE: 'blue',
+  SKY: 'sky',
+  LIME: 'lime',
+  PINK: 'pink',
+  BLACK: 'black',
+}
+
+// Label color hex mapping (for reference)
+export const LABEL_COLOR_MAP = {
+  green: { bg: '#61bd4f', hover: '#519839' },
+  yellow: { bg: '#f2d600', hover: '#d9b51c' },
+  orange: { bg: '#ff9f1a', hover: '#cd8313' },
+  red: { bg: '#eb5a46', hover: '#b04632' },
+  purple: { bg: '#c377e0', hover: '#89609e' },
+  blue: { bg: '#0079bf', hover: '#055a8c' },
+  sky: { bg: '#00c2e0', hover: '#0098b7' },
+  lime: { bg: '#51e898', hover: '#4bce87' },
+  pink: { bg: '#ff78cb', hover: '#c75bad' },
+  black: { bg: '#344563', hover: '#091e42' },
+}
