@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
-import { ACTION_UPDATE_CARD_MEMBERS, LABEL_COLORS } from '~/utils/constants'
+import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 
 // Define Collection (name & schema)
 const CARD_COLLECTION_NAME = 'cards'
@@ -26,15 +26,6 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
       content: Joi.string(),
       // sử dụng hàm push để thêm comment nên ko thể dùng default date.now
       commentedAt: Joi.date().timestamp(),
-    })
-    .default([]),
-
-  // Labels cho card - embedded trực tiếp trong card
-  labels: Joi.array()
-    .items({
-      _id: Joi.string(),
-      color: Joi.string().valid(...Object.values(LABEL_COLORS)).required(),
-      text: Joi.string().max(30).allow('').default(''),
     })
     .default([]),
 
@@ -217,86 +208,6 @@ const updateWithSession = async (cardId, updateData, session) => {
   }
 }
 
-// ==================== LABEL METHODS ====================
-
-/**
- * Thêm label mới vào card
- */
-const addLabel = async (cardId, labelData) => {
-  try {
-    const label = {
-      _id: new ObjectId().toString(),
-      color: labelData.color,
-      text: labelData.text || '',
-    }
-
-    const result = await GET_DB()
-      .collection(CARD_COLLECTION_NAME)
-      .findOneAndUpdate(
-        { _id: new ObjectId(String(cardId)) },
-        {
-          $push: { labels: label },
-          $set: { updatedAt: Date.now() },
-        },
-        { returnDocument: 'after' },
-      )
-
-    return result
-  } catch (error) {
-    throw error
-  }
-}
-
-/**
- * Cập nhật label trong card
- */
-const updateLabel = async (cardId, labelId, labelData) => {
-  try {
-    // Tạo object update động dựa vào các field được truyền vào
-    const updateFields = {}
-    if (labelData.color !== undefined) updateFields['labels.$.color'] = labelData.color
-    if (labelData.text !== undefined) updateFields['labels.$.text'] = labelData.text
-    updateFields.updatedAt = Date.now()
-
-    const result = await GET_DB()
-      .collection(CARD_COLLECTION_NAME)
-      .findOneAndUpdate(
-        {
-          _id: new ObjectId(String(cardId)),
-          'labels._id': labelId,
-        },
-        { $set: updateFields },
-        { returnDocument: 'after' },
-      )
-
-    return result
-  } catch (error) {
-    throw error
-  }
-}
-
-/**
- * Xóa label khỏi card
- */
-const removeLabel = async (cardId, labelId) => {
-  try {
-    const result = await GET_DB()
-      .collection(CARD_COLLECTION_NAME)
-      .findOneAndUpdate(
-        { _id: new ObjectId(String(cardId)) },
-        {
-          $pull: { labels: { _id: labelId } },
-          $set: { updatedAt: Date.now() },
-        },
-        { returnDocument: 'after' },
-      )
-
-    return result
-  } catch (error) {
-    throw error
-  }
-}
-
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -311,8 +222,4 @@ export const cardModel = {
   deleteOneById,
   deleteManyByBoardId,
   updateWithSession,
-  // Label methods
-  addLabel,
-  updateLabel,
-  removeLabel,
 }
