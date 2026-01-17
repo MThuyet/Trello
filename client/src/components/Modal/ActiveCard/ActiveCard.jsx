@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
-// import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
 // import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
 // import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 // import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
@@ -31,6 +31,7 @@ import { singleFileValidator } from '~/utils/validators'
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
+import { LabelChip, LabelPicker } from '~/components/Label'
 
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
@@ -39,9 +40,10 @@ import {
   selectCurrentActiveCard,
   updateCurrentActiveCard,
   selectIsShowModalActiveCard,
+  updateCardLabels,
 } from '~/redux/activeCard/activeCardSlice'
-import { deleteOneCardAPI, updateCardDetailsAPI } from '~/apis'
-import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { deleteOneCardAPI, updateCardDetailsAPI, addLabelToCardAPI, updateCardLabelAPI, removeLabelFromCardAPI } from '~/apis'
+import { updateCardInBoard, updateCardLabelsInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { ACTION_UPDATE_CARD_MEMBERS } from '~/utils/constants'
 import { useConfirm } from 'material-ui-confirm'
@@ -80,8 +82,69 @@ function ActiveCard() {
   const [isLoadingUploadCover, setIsLoadingUploadCover] = useState(false)
   const [isDeleteCard, setIsDeleteCard] = useState(false)
 
+  // Label picker state
+  const [labelAnchorEl, setLabelAnchorEl] = useState(null)
+  const labelPickerOpen = Boolean(labelAnchorEl)
+
   const handleCloseModal = () => {
     dispatch(clearAndHideCurrentActiveCard())
+  }
+
+  // ==================== LABEL HANDLERS ====================
+  const handleOpenLabelPicker = (event) => {
+    setLabelAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseLabelPicker = () => {
+    setLabelAnchorEl(null)
+  }
+
+  const handleAddLabel = async (labelData) => {
+    try {
+      const updatedCard = await addLabelToCardAPI(activeCard._id, labelData)
+      dispatch(updateCardLabels(updatedCard.labels))
+      dispatch(
+        updateCardLabelsInBoard({
+          cardId: activeCard._id,
+          columnId: activeCard.columnId,
+          labels: updatedCard.labels,
+        }),
+      )
+    } catch (error) {
+      dispatch(showSnackbar({ message: error.response?.data?.message || 'Failed to add label', severity: 'error' }))
+    }
+  }
+
+  const handleUpdateLabel = async (labelId, labelData) => {
+    try {
+      const updatedCard = await updateCardLabelAPI(activeCard._id, labelId, labelData)
+      dispatch(updateCardLabels(updatedCard.labels))
+      dispatch(
+        updateCardLabelsInBoard({
+          cardId: activeCard._id,
+          columnId: activeCard.columnId,
+          labels: updatedCard.labels,
+        }),
+      )
+    } catch (error) {
+      dispatch(showSnackbar({ message: error.response?.data?.message || 'Failed to update label', severity: 'error' }))
+    }
+  }
+
+  const handleRemoveLabel = async (labelId) => {
+    try {
+      const updatedCard = await removeLabelFromCardAPI(activeCard._id, labelId)
+      dispatch(updateCardLabels(updatedCard.labels))
+      dispatch(
+        updateCardLabelsInBoard({
+          cardId: activeCard._id,
+          columnId: activeCard.columnId,
+          labels: updatedCard.labels,
+        }),
+      )
+    } catch (error) {
+      dispatch(showSnackbar({ message: error.response?.data?.message || 'Failed to remove label', severity: 'error' }))
+    }
   }
 
   const callApiUpdateCard = async (updateData) => {
@@ -240,6 +303,34 @@ function ActiveCard() {
                 <CardUserGroup cardMemberIds={activeCard?.memberIds} onUpdateCardMemberIds={onUpdateCardMemberIds} />
               </Box>
 
+              {/* Labels Section */}
+              <Box sx={{ mb: 3 }}>
+                <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Labels</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
+                  {activeCard?.labels?.map((label) => (
+                    <LabelChip key={label._id} label={label} size="large" onClick={handleOpenLabelPicker} />
+                  ))}
+                  {/* Add Label Button */}
+                  <Box
+                    onClick={handleOpenLabelPicker}
+                    sx={{
+                      height: 32,
+                      width: 32,
+                      backgroundColor: '#091e420f',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      '&:hover': { backgroundColor: '#091e4224' },
+                    }}
+                  >
+                    <AddOutlinedIcon fontSize="small" />
+                  </Box>
+                </Box>
+              </Box>
+
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <SubjectRoundedIcon />
@@ -299,13 +390,15 @@ function ActiveCard() {
                   <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
                 </SidebarItem>
 
+                {/* Feature 07: Xử lý Labels */}
+                <SidebarItem className="active" onClick={handleOpenLabelPicker}>
+                  <LocalOfferOutlinedIcon fontSize="small" />
+                  Labels
+                </SidebarItem>
+
                 {/* <SidebarItem>
                 <AttachFileOutlinedIcon fontSize="small" />
                 Attachment
-              </SidebarItem>
-              <SidebarItem>
-                <LocalOfferOutlinedIcon fontSize="small" />
-                Labels
               </SidebarItem>
               <SidebarItem>
                 <TaskAltOutlinedIcon fontSize="small" />
@@ -366,6 +459,17 @@ function ActiveCard() {
               </Stack>
             </Grid>
           </Grid>
+
+          {/* Label Picker Popover */}
+          <LabelPicker
+            anchorEl={labelAnchorEl}
+            open={labelPickerOpen}
+            onClose={handleCloseLabelPicker}
+            currentLabels={activeCard?.labels || []}
+            onAddLabel={handleAddLabel}
+            onUpdateLabel={handleUpdateLabel}
+            onRemoveLabel={handleRemoveLabel}
+          />
         </Box>
       )}
     </Modal>
