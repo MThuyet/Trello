@@ -7,14 +7,12 @@ import CommentIcon from '@mui/icons-material/Comment'
 import AttachmentIcon from '@mui/icons-material/Attachment'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import Box from '@mui/material/Box'
 import { useDispatch } from 'react-redux'
 import { showModalActiveCard, updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { isPlaceholderCard } from '~/utils/formatter'
-import { LabelChip } from '~/components/Label'
 
 const Card = ({ card }) => {
   const dispatch = useDispatch()
@@ -63,15 +61,6 @@ const Card = ({ card }) => {
       {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover} />}
 
       <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-        {/* Labels */}
-        {card?.labels && card.labels.length > 0 && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
-            {card.labels.map((label) => (
-              <LabelChip key={label._id} label={label} size="small" showText={false} />
-            ))}
-          </Box>
-        )}
-
         <Typography>{card?.title}</Typography>
       </CardContent>
 

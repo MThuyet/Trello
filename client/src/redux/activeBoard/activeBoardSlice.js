@@ -208,25 +208,6 @@ export const activeBoardSlice = createSlice({
       // nếu column rỗng, thêm placeholder card vào
       ensurePlaceholder(column)
     },
-
-    // ==================== LABEL REDUCERS ====================
-
-    /**
-     * Cập nhật labels của một card trong board
-     */
-    updateCardLabelsInBoard: (state, action) => {
-      const { cardId, columnId, labels } = action.payload
-
-      if (!state.currentActiveBoard) return
-
-      const column = state.currentActiveBoard.columns.find((col) => col._id === columnId)
-      if (column) {
-        const card = column.cards.find((c) => c._id === cardId)
-        if (card) {
-          card.labels = labels
-        }
-      }
-    },
   },
   // extraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
@@ -271,8 +252,6 @@ export const {
   addMemberToBoard,
   removeMemberFromBoard,
   moveCardToDifferentColumnState,
-  // Label actions
-  updateCardLabelsInBoard,
 } = activeBoardSlice.actions
 
 // selectors: là nơi dành cho các components gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra để sử dụng

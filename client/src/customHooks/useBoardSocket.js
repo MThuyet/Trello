@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { socketIoInstance } from '~/socketClient'
 import { selectCurrentUser } from '~/redux/user/userSlice'
-import { selectCurrentActiveCard, clearAndHideCurrentActiveCard, updateCardLabels } from '~/redux/activeCard/activeCardSlice'
+import { selectCurrentActiveCard, clearAndHideCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { showSnackbar } from '~/redux/uiSlice/uiSlice'
 import {
   addCardToColumn,
@@ -16,7 +16,6 @@ import {
   updateCardInBoard,
   updateColumnInBoard,
   updateCurrentActiveBoard,
-  updateCardLabelsInBoard,
 } from '~/redux/activeBoard/activeBoardSlice'
 import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
@@ -39,10 +38,6 @@ const SOCKET_EVENTS = {
   BE_NEW_CARD_CREATED: 'BE_NEW_CARD_CREATED',
   BE_CARD_UPDATED: 'BE_CARD_UPDATED',
   BE_BOARD_DELETED: 'BE_BOARD_DELETED',
-  // Label events
-  BE_CARD_LABEL_ADDED: 'BE_CARD_LABEL_ADDED',
-  BE_CARD_LABEL_UPDATED: 'BE_CARD_LABEL_UPDATED',
-  BE_CARD_LABEL_REMOVED: 'BE_CARD_LABEL_REMOVED',
 }
 
 // Custom hook để quản lý tất cả socket listeners cho Board
@@ -190,57 +185,6 @@ export const useBoardSocket = (board) => {
       }
     }
 
-    // ===== LABEL EVENTS =====
-    const handleCardLabelAdded = (data) => {
-      if (data.boardId === boardId) {
-        // Cập nhật card trong board
-        dispatch(
-          updateCardLabelsInBoard({
-            cardId: data.cardId,
-            columnId: data.columnId,
-            labels: data.labels,
-          }),
-        )
-
-        // Cập nhật activeCard nếu đang mở
-        if (currentActiveCard?._id === data.cardId) {
-          dispatch(updateCardLabels(data.labels))
-        }
-      }
-    }
-
-    const handleCardLabelUpdated = (data) => {
-      if (data.boardId === boardId) {
-        dispatch(
-          updateCardLabelsInBoard({
-            cardId: data.cardId,
-            columnId: data.columnId,
-            labels: data.labels,
-          }),
-        )
-
-        if (currentActiveCard?._id === data.cardId) {
-          dispatch(updateCardLabels(data.labels))
-        }
-      }
-    }
-
-    const handleCardLabelRemoved = (data) => {
-      if (data.boardId === boardId) {
-        dispatch(
-          updateCardLabelsInBoard({
-            cardId: data.cardId,
-            columnId: data.columnId,
-            labels: data.labels,
-          }),
-        )
-
-        if (currentActiveCard?._id === data.cardId) {
-          dispatch(updateCardLabels(data.labels))
-        }
-      }
-    }
-
     // ===== REGISTER ALL LISTENERS =====
     socketIoInstance.on(SOCKET_EVENTS.BE_MEMBER_JOINED_BOARD, handleMemberJoined)
     socketIoInstance.on(SOCKET_EVENTS.BE_MEMBER_REMOVED_FROM_BOARD, handleMemberRemoved)
@@ -254,10 +198,6 @@ export const useBoardSocket = (board) => {
     socketIoInstance.on(SOCKET_EVENTS.BE_COLUMN_ORDER_IDS_UPDATED, handleColumnOrderIdsUpdated)
     socketIoInstance.on(SOCKET_EVENTS.BE_BOARD_UPDATED_GENERAL_FIELDS, handleBoardUpdatedGeneralFields)
     socketIoInstance.on(SOCKET_EVENTS.BE_BOARD_DELETED, handleBoardDeleted)
-    // Label listeners
-    socketIoInstance.on(SOCKET_EVENTS.BE_CARD_LABEL_ADDED, handleCardLabelAdded)
-    socketIoInstance.on(SOCKET_EVENTS.BE_CARD_LABEL_UPDATED, handleCardLabelUpdated)
-    socketIoInstance.on(SOCKET_EVENTS.BE_CARD_LABEL_REMOVED, handleCardLabelRemoved)
 
     // ===== CLEANUP ALL LISTENERS =====
     return () => {
@@ -273,10 +213,6 @@ export const useBoardSocket = (board) => {
       socketIoInstance.off(SOCKET_EVENTS.BE_COLUMN_ORDER_IDS_UPDATED, handleColumnOrderIdsUpdated)
       socketIoInstance.off(SOCKET_EVENTS.BE_BOARD_UPDATED_GENERAL_FIELDS, handleBoardUpdatedGeneralFields)
       socketIoInstance.off(SOCKET_EVENTS.BE_BOARD_DELETED, handleBoardDeleted)
-      // Label cleanup
-      socketIoInstance.off(SOCKET_EVENTS.BE_CARD_LABEL_ADDED, handleCardLabelAdded)
-      socketIoInstance.off(SOCKET_EVENTS.BE_CARD_LABEL_UPDATED, handleCardLabelUpdated)
-      socketIoInstance.off(SOCKET_EVENTS.BE_CARD_LABEL_REMOVED, handleCardLabelRemoved)
     }
   }, [board?._id, currentUser._id, currentActiveCard?._id, currentActiveCard?.columnId, dispatch, navigate])
 }
